@@ -117,6 +117,8 @@ namespace GameObject {
 		
 		eSelectPdaContact,
 
+		eUserCommand,
+
 		eDummy = u32(-1),
 	};
 };
