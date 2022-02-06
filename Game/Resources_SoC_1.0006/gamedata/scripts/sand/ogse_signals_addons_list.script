@@ -29,5 +29,6 @@ addons = {
   "addon_sk_actor_death",
   "addon_detectors",
   "addon_minimap_control",
+  "addon_script_reloader",
   "asu"
 }

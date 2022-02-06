@@ -1,0 +1,19 @@
+-- позволяет запускать или перезапускать скрипты посредством консоли
+-- ввести user_command addon_script_reload название_скрипта (при этом поиск скрипта будет в папке scripts)
+-- если требуется запустить еще какой-то вложенный скрипт по пути scripts\addon то нужно
+-- будет пробисать user_command addon_script_reload addon\testeradd	
+-- при такой команде запустится\перезапустится скрипт testeradd в папке scripts\addon
+
+function attach(sm)
+	sm:subscribe({signal = "on_console_command",	fun = this.on_console_comand})
+end
+
+function on_console_comand(comand, value) 
+  if (comand == "addon_script_reload") then
+	scr_reload(value)
+  end
+end
+
+function scr_reload(name)
+	xpcall(function() dofile(getFS():update_path("$game_scripts$", name..".script")) end, log1)
+end
