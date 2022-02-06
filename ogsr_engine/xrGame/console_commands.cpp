@@ -34,6 +34,7 @@
 #include "level_graph.h"
 #include "cameralook.h"
 #include "ai_object_location.h"
+#include "game_object_space.h"
 
 #ifdef DEBUG
 #	include "PHDebug.h"
@@ -1141,6 +1142,17 @@ public:
 	}
 };
 
+struct CCC_Addon_user_command : public IConsole_Command {
+	CCC_Addon_user_command(LPCSTR N) : IConsole_Command(N) {};
+
+	void Execute(LPCSTR args) override {
+		if (!g_actor || !Actor()->g_Alive()) {
+			return;
+		}
+
+		Actor()->callback(GameObject::eUserCommand)(args);
+	}
+};
 
 void CCC_RegisterCommands()
 {
@@ -1287,6 +1299,7 @@ void CCC_RegisterCommands()
 	CMD3(CCC_Mask,			"g_3d_scopes",			&psActorFlags,	AF_3D_SCOPES);
 	CMD4(CCC_Integer, "g_3d_scopes_fps_factor", &g_3dscopes_fps_factor, 2, 5);
 	CMD3(CCC_Mask,			"g_crosshair_dbg",		&psActorFlags,	AF_CROSSHAIR_DBG);
+	CMD3(CCC_Mask, "g_camera_collision", &psActorFlags, AF_CAM_COLLISION);
 	CMD1(CCC_TimeFactor,	"time_factor")	
 	CMD1(CCC_SetWeather,	"set_weather");
 //#endif // MASTER_GOLD
@@ -1300,6 +1313,8 @@ void CCC_RegisterCommands()
 	CMD3(CCC_Mask, "keypress_on_start", &psActorFlags, AF_KEYPRESS_ON_START);
 
 	CMD4(CCC_Integer, "g_cop_death_anim", &g_bCopDeathAnim, 0, 1);
+
+	CMD1(CCC_Addon_user_command, "user_command");
 
 #ifdef DEBUG
 	CMD3(CCC_Mask,		"dbg_draw_actor_alive",		&dbg_net_Draw_Flags,	(1<<0));
