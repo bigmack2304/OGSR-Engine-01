@@ -702,7 +702,9 @@ void CActor::Die(CObject* who)
 			inventory().Ruck(l_blist.front());
 	}
 
-	cam_Set					(eacFreeLook);
+	if (!Core.Features.test(xrCore::Feature::addon_cam1_death)) {
+		cam_Set(eacFreeLook);
+	}
 	mstate_wishful	&=		~mcAnyMove;
 	mstate_real		&=		~mcAnyMove;
 
