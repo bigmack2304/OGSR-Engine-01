@@ -28,5 +28,6 @@ addons = {
   "addon_hide_to_rain",
   "addon_sk_actor_death",
   "addon_detectors",
+  "addon_minimap_control",
   "asu"
 }

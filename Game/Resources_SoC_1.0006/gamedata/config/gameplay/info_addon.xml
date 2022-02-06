@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding="windows-1251"?>
+
+<game_information_portions>
+
+	<info_portion id="addon_renderer_minimap"></info_portion>	
+	<info_portion id="nv_in_slot"></info_portion>
+	<info_portion id="nv_in_slot_on"></info_portion>
+	<info_portion id="addon_din_hud"></info_portion>
+	<info_portion id="addon_torch_on"></info_portion>
+	<info_portion id="addon_info_dynamicsnd"></info_portion>
+	<info_portion id="wpn_ofset_mod"></info_portion>
+	<info_portion id="addon_game_start"></info_portion>
+	<info_portion id="no_marsh_radiation"></info_portion>
+	<info_portion id="marsh_radiation"></info_portion>
+	<info_portion id="addon_set_time_debug"></info_portion>
+	<info_portion id="obxod_mafon_off"></info_portion>
+	<info_portion id="sidorovih_mafon_off"></info_portion>
+	<info_portion id="addon_ogsm_surge"></info_portion>
+	<info_portion id="addon_gs_in_k02tc"></info_portion>
+
+	<info_portion id="addonNews_sp_esc_now_zombie1"></info_portion>
+	<info_portion id="addonNews_sp_esc_now_zombie2"></info_portion>
+	<info_portion id="addonNews_sp_esc_now_zombie3"></info_portion>
+	<info_portion id="addonNews_sp_esc_now_dogstrong1"></info_portion>
+	<info_portion id="addonNews_sp_esc_now_dogstrong2"></info_portion>
+	<info_portion id="addonNews_sp_esc_now_dogstrong3"></info_portion>
+	
+</game_information_portions>

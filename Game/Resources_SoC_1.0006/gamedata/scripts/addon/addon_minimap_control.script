@@ -1,12 +1,35 @@
 -- управление отображением миникарты. Осуществляется после инициализации актора
 -- вызовом соответствующих тут функций
--- пока скрипт не используется. Это на будующее
 
 function attach(sm)
-	sm:subscribe({signal = "on_spawn",	fun = this.init_hand_minimap})
+	sm:subscribe({signal = "on_spawn",				fun = this.init_hand_minimap})
+	sm:subscribe({signal = "on_console_command",	fun = this.on_console_comand})
 end
 
 local minimap_static, back_static, frame_static, compass_static
+
+
+function on_console_comand(comand, value) 
+  local value_number = tonumber(value)
+  if (comand == "addon_minimap") then
+	if (value_number ~= nil) then	
+		if (value_number == 0) then
+			minimap_hide()
+			return
+		elseif (value_number == 1) then
+			minimap_show()
+			return
+		end
+	end
+	if (value == "false" or value == "off") then
+		minimap_hide()
+		return
+	elseif (value == "true" or value == "on") then
+		minimap_show()
+		return
+	end
+  end
+end
 
 function init_hand_minimap()
   local wnd = get_main_window()
@@ -14,6 +37,12 @@ function init_hand_minimap()
   back_static    = wnd:GetStatic( "minimap:background" )
   frame_static   = wnd:GetStatic( "minimap:level_frame" )
   compass_static = wnd:GetStatic( "minimap:compass" )
+  
+  if (db.actor:has_info("addon_renderer_minimap")) then
+	minimap_show()
+  elseif (db.actor:dont_has_info("addon_renderer_minimap")) then
+	minimap_hide()
+  end
   
 --[[	-- тут узнаем текущие положения
   if minimap_static then 
@@ -43,16 +72,19 @@ function init_hand_minimap()
 end
 
 function minimap_show()
+  log3("addon_minimap_control: minimap on")
   back_static:SetWndPos		(7, 6)											-- эти координаты из конфига
   frame_static:SetWndRect	(Frect():set( 15.0, 20.0, 138.0, 181.0 ) )		-- эти из расчета положения скриптом(то что закоментировано тут)
   compass_static:SetWndRect	(Frect():set( 113.0, 146.0, 137.0, 178.0 ) ) 	-- эти тоже из расчета скриптом
   minimap_static:Show( true )												-- тут можно просто скрыть
-
+  db.actor:give_info_portion("addon_renderer_minimap")
 end
 
 function minimap_hide()
+  log3("addon_minimap_control: minimap off")
   back_static:SetWndPos		(-1000, 0)
   frame_static:SetWndRect	(Frect():set( -1000, 350, -738, 550 ) )
   compass_static:SetWndRect	(Frect():set( -1000, 365,  549, 400 ) )
   minimap_static:Show( false )
+  db.actor:disable_info_portion("addon_renderer_minimap")
 end
