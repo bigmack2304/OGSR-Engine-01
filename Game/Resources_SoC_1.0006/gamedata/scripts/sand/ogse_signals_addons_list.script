@@ -1,0 +1,33 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+-- сюда вписываются названия скриптов в которых вызывается функция attach(sm)
+
+addons = {
+  "addon_item_sound",
+  "addon_start",
+  "addon_exo_outfit",
+  "addon_effect_blood",
+  "addon_lc",
+  "addon_auto_gloss",
+  "addon_lootmoney",
+  "addon_auto_hemi",
+  "lwc_respawn",
+  "addon_caminert",
+--  "addon_sak_params",
+  "addon_myso",
+  "addon_art",
+  "ogse_unist",
+--  "ogse_st_mgr",
+--  "ui_trade_add",
+--  "xr_s",
+  "addon_icon_hud",
+  "addon_q_saveload",
+  "addon_l14obxod_dof",
+  "addon_dsh_anomaly_detector",
+  "addon_spawn_anomaliy",
+  "addon_news_main",
+  "addon_hide_to_rain",
+  "addon_sk_actor_death",
+  "addon_detectors",
+  "addon_minimap_control",
+  "asu"
+}
