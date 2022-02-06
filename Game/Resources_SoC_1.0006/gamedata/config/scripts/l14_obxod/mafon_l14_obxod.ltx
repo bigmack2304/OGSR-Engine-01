@@ -1,0 +1,35 @@
+[logic]
+active = ph_sound@day
+
+[ph_sound@day]
+tips = switcher_on
+nonscript_usable = false
+on_use = %+obxod_mafon_off =play_snd_from_obj2(device\click10b)%
+snd = obxod_mafon
+on_info = {-obxod_mafon_off -addon_ogsm_surge} ph_sound@day
+on_info2 = {-obxod_mafon_off +addon_ogsm_surge} ph_sound@blowout
+on_info3 = {+obxod_mafon_off} ph_sound@off
+on_signal = sound_end|ph_idle@wait
+
+[ph_idle@wait]
+tips = switcher_on
+nonscript_usable = false
+on_use = %+obxod_mafon_off =play_snd_from_obj2(device\click10b)%
+on_info = {+obxod_mafon_off} ph_sound@off
+on_info2 = {-obxod_mafon_off +addon_ogsm_surge} ph_sound@blowout
+on_timer = 6000| ph_sound@day
+
+[ph_sound@blowout]
+tips = switcher_on
+nonscript_usable = false
+snd = addon_snd_surge
+on_use = %+obxod_mafon_off =play_snd_from_obj2(device\click10b)%
+on_info = {+obxod_mafon_off} ph_sound@off
+on_info2 = {-obxod_mafon_off -addon_ogsm_surge} ph_sound@day
+on_info3 = {-obxod_mafon_off +addon_ogsm_surge} ph_sound@blowout
+
+[ph_sound@off]
+snd = addon_no_sound
+tips = switcher_off
+nonscript_usable = false
+on_use =  %-obxod_mafon_off =play_snd_from_obj2(device\click10b)% ph_sound@day

@@ -1,0 +1,161 @@
+--[[
+выключение экзоскилета при разрядке энергоблока
+ использованы функции lwc_inventory из lost world - trops of doom 
+
+]]
+
+
+function attach(sm)
+	sm:subscribe({signal = "on_item_to_belt",			fun = this.on_belt})
+	sm:subscribe({signal = "on_item_to_ruck",			fun = this.itemtoruck})
+	sm:subscribe({signal = "on_item_to_slot",			fun = this.itemtoslot})
+	sm:subscribe({signal = "on_drop",					fun = this.itemdrop})
+	sm:subscribe({signal = "on_first_update",			fun = this.first_upd})
+end
+
+-- первый абдейт
+function first_upd()
+  local oSuit = db.actor:get_current_outfit()
+  if (oSuit and Exist(system_ini(), "Line", oSuit:section(), "batt_life_standby")) then	
+    if check_belt_ps("power_supply") == 0 then			-- ищем этот предмет на поясе
+	  actor_disable_walk()
+    else
+      actor_enable_walk()
+    end
+  else
+    actor_enable_walk()
+  end
+
+end
+
+-- предмет на поясе
+function on_belt(obj)
+	Belt(obj, true)
+	if obj:section() == "power_supply" then
+		actor_enable_walk()
+	end
+
+end
+
+-- предмет в слоте
+function itemtoslot(obj)
+	Belt(obj, false)
+	
+	if Exist(system_ini(), "Line", obj:section(), "batt_life_standby") then
+	    if check_belt_ps("power_supply") == 0 then
+--		if not tBeltSection["power_supply"] then
+			actor_disable_walk()
+		else
+			actor_enable_walk()
+		end
+	end	
+end
+
+-- предмет в рюкзаке
+function itemtoruck(obj)
+	Belt(obj, false)
+	
+--	if not tBeltSection["power_supply"] then
+    if check_belt_ps("power_supply") == 0 then
+		local oSuit = db.actor:get_current_outfit()
+		if oSuit and Exist(system_ini(), "Line", oSuit:section(), "batt_life_standby") then
+			actor_disable_walk()
+		else
+			actor_enable_walk()
+		end
+	end	
+end
+
+-- предмет выброшен
+function itemdrop(obj)
+	Belt(obj, false)
+	
+--	if not tBeltSection["power_supply"] then
+    if check_belt_ps("power_supply") == 0 then
+		local oSuit = db.actor:get_current_outfit()
+		if oSuit and Exist(system_ini(), "Line", oSuit:section(), "batt_life_standby") then
+			actor_disable_walk()
+		else
+			actor_enable_walk()
+		end
+	end		
+end
+
+-- предметы на поясе
+function Belt(obj, bMode)
+	if bMode then
+		tBeltId[obj:id()] = obj
+		tBeltSection[obj:section()] = (tBeltSection[obj:section()] or 0) + 1
+	else
+		tBeltId[obj:id()] = nil
+		tBeltSection[obj:section()] = (tBeltSection[obj:section()] or 0) - 1
+		if tBeltSection[obj:section()] < 1 then
+			tBeltSection[obj:section()] = nil
+		end
+	end
+end
+
+-- информирование о разряде батареи
+function info() 
+local hud = get_hud()
+local info = hud:GetCustomStatic("info_power_supply")
+  if not info then
+	hud:AddCustomStatic("info_power_supply", true)
+	info = hud:GetCustomStatic("info_power_supply"):wnd()
+	info:SetText(game.translate_string("inf_power_off") )
+	lwc_timer.Add("timer_infopwoff", "addon_exo_outfit.info_off()", 6, 0, 0)
+  end
+end
+
+function info_off()
+local hud = get_hud()
+local info = hud:GetCustomStatic("info_power_supply")
+  if info then
+	hud:RemoveCustomStatic("info_power_supply", true)
+  end
+end
+
+-- Функции запрета\разрешения на передвижение игрока.
+function actor_disable_walk()
+local adactor = db.actor
+
+  if this.load_variable("addon_opt_exobat",1) == 1 and adactor ~= nil then
+-- 	log3("- addon_exo_outfit (on): disable walk")	
+	cmd("unbind forward")
+	cmd("unbind back")
+	cmd("unbind lstrafe")
+	cmd("unbind rstrafe")
+	cmd("unbind jump ")
+  else
+--	log3("- addon_exo_outfit : off")
+	actor_enable_walk()
+  end
+
+end
+
+function actor_enable_walk()
+
+-- log3("- addon_exo_outfit : enable walk")
+ cmd("bind forward kW")
+ cmd("bind back kS")
+ cmd("bind lstrafe kA")
+ cmd("bind rstrafe kD")
+ cmd("bind jump kSPACE")
+ 
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

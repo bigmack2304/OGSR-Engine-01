@@ -1,0 +1,1182 @@
+--[[
+File:  gps_habar.script
+Copyright by Idler (and AMK TEAM 2007-2008 местами :)
+rev: 12/10/09.01
+Метки с хабаром 2.14 для COP <-- и на тч пойдет
+- Отключена установка текстовой метки при выбрасывании маячка (временно)
+]]
+
+--local timer_bind_tab = 0
+
+local is_gps_debug = false -- для включения локальной отладочной информации
+local is_npc_look_box_debug = false -- включение отладочной инфы, что непись пытается вскрыть тайник
+
+local max_comments_strings_on_screen = 35 -- сколько строк комментариев максимально влезает в экран на ПДА
+
+local labels = {} -- в таблице ссылки на тайники помеченные маячками, а также реквизиты маячка (время до заряда  и т.д.). содержит всегда актуальные значения
+local items_in_box = {}
+local full_levels_map = {} -- полный список имен уровней 
+
+
+--  переменные из конфига  misc\gps_habar.ltx
+local activity_time = 0
+local warning_time = 0
+local warning_icons_time = 0
+local habar_list_mode = true
+local auto_recharge = true
+local is_show_quantity = true
+local is_update_on_time = true
+local is_set_label_on_npc = true
+local is_show_health = false
+local is_warning_on_death = false
+local is_color_and_sort_list = true
+
+local is_gps_update_in_process = false -- для устранения коллизий при "on_actor_upade"
+
+-- функции АМК
+local pack_type_num=1
+local pack_type_string=2
+local pack_type_bool=3
+local pack_type_table=4
+local pack_val_endtable=5
+
+function get_byte(str,idx)
+  return string.byte(string.sub(str,idx,idx)),idx+1
+end
+
+function get_string(str,idx)
+  local idx1=string.len(str)+1
+  for i=idx,string.len(str),1 do
+    if string.byte(string.sub(str,i,i))<32 then
+      idx1=i
+      break
+    end
+  end
+  return string.sub(str,idx,idx1-1),idx1
+end
+
+function get_num(str,idx)
+  local st,idx1=get_string(str,idx)
+  return st+0,idx1
+end
+
+function get_bool(str,idx)
+  local st,idx1=get_string(str,idx)
+  return st=="1",idx1
+end
+
+--[[
+ Новый формат упаковки: 
+ table ::= subtable
+ subtable ::= keytype key valuetype ( value | subtable 0x5 )
+ keytype ::= ( 0x1 | 0x2 | 0x3 | 0x4 )
+ valuetype ::= ( 0x1 | 0x2 | 0x3 | 0x4 )
+]]
+function pack_new(tbl)
+  local ret=""
+  for k,v in pairs(tbl) do
+    if type(k)=="number" then
+      ret=ret..string.char(pack_type_num)..k
+    elseif type(k)=="string" then
+      ret=ret..string.char(pack_type_string)..k
+    else
+      abort("unsupported key type "..type(k))
+    end
+    if type(v)=="number" then
+      ret=ret..string.char(pack_type_num)..v
+    elseif type(v)=="string" then
+      ret=ret..string.char(pack_type_string)..v
+    elseif type(v)=="boolean" then
+      ret=ret..string.char(pack_type_bool)..v
+    elseif type(v)=="table" then
+      ret=ret..string.char(pack_type_table)..pack_new(v)..string.char(pack_val_endtable)
+    end
+  end
+  return ret
+end
+
+function parse_new(str,idx)
+  local ret={}
+  idx=idx or 1
+  while true do
+    local key,value
+    if idx>string.len(str) then
+      return ret,idx
+    end
+    vtype,idx=get_byte(str,idx)
+    if vtype==pack_type_num then
+      key,idx=get_num(str,idx)
+    elseif vtype==pack_type_string then
+      key,idx=get_string(str,idx)
+    elseif vtype==pack_val_endtable then
+      return ret,idx
+    else
+      abort("unsupported key type "..tostring(vtype))
+    end
+    vtype,idx=get_byte(str,idx)
+    if vtype==pack_type_num then
+      value,idx=get_num(str,idx)
+    elseif vtype==pack_type_string then
+      value,idx=get_string(str,idx)
+    elseif vtype==pack_type_bool then
+      value,idx=get_bool(str,idx)
+    elseif vtype==pack_type_table then
+      value,idx=parse_new(str,idx)
+    else
+      abort("unsupported key type "..tostring(vtype))
+    end
+    ret[key]=value
+  end
+end
+
+function pack_array_to_string(array)
+  return string.char(1)..pack_new(array)
+end
+
+function unpack_array_from_string(str)
+  if str==nil or str=="" then return {} end
+--  if string.sub(str,1,1)~=string.char(1) then
+    -- Старый формат упаковки
+--    return _parse(str)
+--  else
+    -- новый формат упаковки тэгирован символом c кодом 1.
+    return parse_new(string.sub(str,2,-1))
+--  end
+end
+
+-- Преобразует имя переменной в короткое
+function compress_name(name)
+  return name
+end
+
+--загружаем переменную
+function load_variable(variable_name, value_if_not_found)
+  local vn=compress_name(variable_name)
+  return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+end
+
+--удаляем переменную
+function del_variable(variable_name)
+  local vn=compress_name(variable_name)
+  if db.storage[db.actor:id()].pstor[vn] then
+    db.storage[db.actor:id()].pstor[vn] = nil
+  end
+end
+
+--записываем переменную
+function save_variable(variable_name, value)
+  if value==nil then
+--    amk.mylog("saving nil into "..variable_name)
+    del_variable(variable_name)
+  else
+    local vn=compress_name(variable_name)
+    xr_logic.pstor_store(db.actor, vn, value)
+  end
+end
+
+function save_table(name,tbl)
+  save_variable(name,pack_array_to_string(tbl))
+end
+
+function load_table(name)
+  local var=load_variable(name)
+  return (var==nil and {}) or unpack_array_from_string(var)
+end
+
+function add_spot_on_map(obj_id,type,text)
+  --возможные типы type смотри в ui\map_spots.xml 
+  if obj_id then
+    if text==nil then text=" " end
+    -- Ставим метку на серверный объект чтобы её не пришлось обновлять
+    level.map_add_object_spot_ser(obj_id, type, text)
+  end
+end
+
+--убрать метку с карты
+function remove_spot_from_map(obj_id,type)
+  if obj_id and level.map_has_object_spot(obj_id, type)~= 0 then
+    level.map_remove_object_spot(obj_id, type)
+  end
+end
+
+-- Свои функции
+-- проверим стоит-ли в тайнике маячок
+function is_actor_inv_box(boxId)
+	if boxId and not boxId == 0 then
+		if labels[boxId] then
+			return true
+		end
+	end
+	
+	return false
+end
+
+-- отладочная инфа, когда непись пытается вскрыть тайник
+function look_box_info(victim, v_obj)
+	if not victim or not v_obj then return end
+	
+	if is_npc_look_box_debug and IsHuman(victim) then
+		local lvname = game.translate_string(alife():level_name(game_graph():vertex(v_obj.m_game_vertex_id):level_id()))
+		_text = "На локации " .. tostring(lvname) .. " сталкер " .. get_npc_name(victim) .. " попробовал залезть в тайник с маячком."
+		send_tip(_text, nil, nil, 5)
+	end
+end
+
+-- число аномалий в заданном радиусе
+function get_anomal_count(_id, radius)
+	if not _id or _id == 0 then return 0 end
+	if not radius then radius = 10 end
+
+	local obj = alife():object(_id)
+	if not obj or not obj.position then	return 0 end
+	
+--	local anom_list=amk_anoms.get_anomaly_list_for_pos(obj.position, radius) 
+--	return table.getn(anom_list)
+	return 0
+end
+
+function remove_bad_item(_id)
+	mylog("Удалим неудачный объект id=" .. tostring(_id))
+	local _art = alife():object(_id)
+	if not _art then
+		mylog("нет такого")
+	else
+		mylog("есть такой " .. objinfo(_art))
+		alife():release(_art, true)
+		mylog("удалили")
+	end
+end
+
+function trim(s)
+	return (string.gsub(s, "^%s*(.-)%s*$", "%1"))
+end
+
+function toboolean(_str)
+	if string.find(string.lower(_str), "true") or _str == "1" then
+		return true
+	end
+	
+	return false
+end
+
+function game_minutes()
+	local gtime = level.get_time_days()*60*24+level.get_time_hours()*60+level.get_time_minutes()  --time in game minutes
+	return gtime
+end
+
+function game_hours()
+	local gtime = level.get_time_days()*24+level.get_time_hours() --time in game hours
+	return gtime
+end
+
+function objinfo(obj)
+	local text = ""
+	
+	if is_gps_debug and obj then
+		if IsGameObject(obj) then
+			text = "G-OBJ:"
+			if obj.id then
+				text = text .. "[" .. tostring(obj:id()) .. "] "
+			end
+			if obj.section then
+				text = text .. ", s_name=" .. tostring(obj:section())
+			end
+			if obj.character_name then
+				text = text .. ", c_name=" .. tostring(obj:character_name())
+			end
+			if obj.health then
+				text = text .. ", health=" .. tostring(obj.health)
+			end
+		else
+			text = "A-OBJ:"
+			if obj.id then
+				text = text .. "[" .. tostring(obj.id) .. "] "
+			end
+			if obj.section_name then
+				text = text .. ", s_name=" .. tostring(obj:section_name())
+			end
+			if obj.m_story_id then
+				text = text .. ", sid=" .. tostring(obj.m_story_id)
+			end
+			if obj.clsid then
+				text = text .. ", clsid=" .. tostring(obj:clsid())
+			end
+			if obj.character_name then
+				text = text .. ", c_name=" .. tostring(obj:character_name())
+			end
+			if obj.parent_id then
+				text = text .. ", p_id=" .. tostring(obj.parent_id)
+			end
+			if obj.health then
+				text = text .. ", health=" .. tostring(obj:health())
+			end
+		end
+	end
+	
+	return text
+end
+
+function tableinfo(tbl)
+	if is_gps_debug and tbl then
+--		return amk.pack_array_to_string(tbl)
+		return ""
+	end
+	
+	return ""
+end
+
+-- выводим сообщение и играем звук. Аргументы sender  и sound не учитываем, т.к. функция используется только для вывода сообщений от gps. Аргументы оставлены для совместимости.
+function send_tip(news_text, header, timeout, showtime, sender, sound)
+  if not news_text then return end
+  if not header then header="GPS" end
+  if not timeout then timeout = 0 end
+  if not showtime then showtime = 5 end
+  
+  local player = nil
+  if xr_sound and xr_sound.get_safe_sound_object then
+	player = xr_sound.get_safe_sound_object([[device\pda\pda_tip]]) 
+  end
+  
+  --' Играем дефолтный звук
+  if player and player.play and db and db.actor then
+	player:play(db.actor, timeout, sound_object.s2d)
+  end
+  
+  if db and db.actor and db.actor.give_game_news then
+	local x = 498
+	local y = 283
+	local news_text = "%c[255,160,160,160]"..header.."\\n".."%c[default]"..news_text
+	db.actor:give_game_news(news_text, "ui\\ui_iconsTotal", Frect():set(x,y,83,47), timeout*1000, showtime*1000)
+  end
+  
+  return true
+end
+
+function mylog(msg, is_force_view)
+	if (is_gps_debug or is_force_view == true) and msg and get_console() then
+		get_console():execute("load ~~~ "..string.sub(tostring(msg),1,200))
+--		get_console():execute("flush")
+	end
+end
+
+function IsHuman(object, class_id)
+    local id = class_id or get_clsid (object)
+    if id == clsid.actor or id == clsid.script_stalker or id == clsid.script_trader then
+       return true
+    end
+    return false
+end
+
+function IsGameObject(obj)
+	local bResult = false
+	if (obj and obj.fov) then
+		bResult = true
+	end
+	return bResult
+end
+
+-- получим Id тайника если знаем предмет в нем лежащий
+function get_inventory_box_id(obj)
+	if not obj then
+		return
+	end
+	local aobj = alife():object(obj:id())
+	if aobj and aobj.parent_id then
+		return aobj.parent_id
+	end
+end
+
+function get_health(npc)
+	if npc then
+		if IsGameObject(npc) then
+			mylog("GET_HEALTH: " .. objinfo(npc))
+			return npc.health
+		elseif npc.health then
+			mylog("GET_HEALTH: " .. objinfo(npc))
+			return npc:health()
+		end
+	end
+	
+	return nil
+end
+
+function get_health_str(npc)
+	if get_health(npc) <= 0 then
+		return "погиб"
+	end
+	
+	return "жив"
+end
+
+-- ищем существует-ли item в тайнике box
+function is_find_item(boxId, itemId)
+	if boxId and itemId and items_in_box and items_in_box[boxId] then
+		for i, v in pairs(items_in_box[boxId]) do
+			if v.id == itemId then
+				return true
+			end
+		end
+	end
+	
+	return false
+end
+
+-- что-то положили в тайник. Проверим, если к нам имеет отношение, добавим к списку. 
+function insert_item(boxId, item)
+	if boxId and boxId ~= 0 and boxId ~= 65535 and item then
+		if not is_find_item(boxId, item.id) then 
+			if not items_in_box[boxId] then items_in_box[boxId] = {} end
+			table.insert(items_in_box[boxId], {id = item.id, name=item:name()})
+			mylog("INSERT_ITEM: добавили в items_in_box[" .. boxId .. "] предмет:" .. objinfo(item))
+		end
+	end
+end
+
+-- что-то забрали из тайника, почистим нашу таблицу с хабаром
+function remove_item(boxId, item, is_need_msg_warning)
+	local is_msg_warning = false
+
+	if is_need_msg_warning == nil then
+		is_need_msg_warning = true
+	end
+	
+	if boxId and item then
+		local itemId = item.id
+		if boxId and itemId and items_in_box[boxId] then
+			if labels[boxId] then
+				is_msg_warning = true
+			end
+			
+			for i, v in pairs(items_in_box[boxId]) do
+				if v.id == itemId then
+				mylog("REMOVE_ITEM: удалили из items_in_box[" .. boxId .. "] предмет: " .. objinfo(item))
+				table.remove(items_in_box[boxId], i)
+				end
+			end
+		end
+	end
+	
+	-- если было ограбление и нет мода Заминированные тайники, предупреждаем ГГ
+	if is_need_msg_warning and is_msg_warning and amk_offline_alife and not amk_offline_alife.item_cost and not IsHuman(alife():object(boxId)) then
+		local lvname = ""
+		if boxId then
+			lvname = game.translate_string(
+				alife():level_name(
+					game_graph():vertex(
+						alife():object(boxId).m_game_vertex_id
+					):level_id()
+				)
+			)
+		end
+		send_tip(game.translate_string("%c[255,255,128,128]На локации " .. lvname .. " ограбили тайник!"), nil, nil, 5)
+		update_gps(nil, nil, boxId)
+	end
+end
+
+-- считаем кол-во маячков в тайнике
+function get_gps_count(boxId)
+	if not boxId or boxId == 0 or boxId == 65535 then return 0 end
+
+	local locObj
+	local gps_count = 0
+	
+	if items_in_box[boxId] then
+		for i, v in pairs(items_in_box[boxId]) do
+			locObj = alife():object(v.id)
+			if locObj and locObj:section_name() and locObj:section_name() == "amk_metka" then
+				gps_count = gps_count + 1
+			end
+		end
+	end
+	
+	mylog("GET_GPS_COUNT: в тайнике[" .. boxId .. "] нашли маячков: " .. tostring(gps_count))
+	return gps_count
+end
+
+function get_item_count_in_box(boxId, item_name)
+	if not boxId or boxId == 0 or boxId == 65535 or not item_name then return 0 end
+
+	local locObj
+	local gps_count = 0
+	
+	if items_in_box[boxId] then
+		for i, v in pairs(items_in_box[boxId]) do
+			locObj = alife():object(v.id)
+			if locObj and locObj:section_name() and locObj:section_name() == item_name then
+				gps_count = gps_count + 1
+			end
+		end
+	end
+	
+	mylog("GET_GPS_COUNT: в тайнике[" .. boxId .. "] нашли '" .. tostring(item_name) .. "': " .. tostring(gps_count))
+	return gps_count
+end
+
+-- соствялем таблицу вещей в тайниках.
+function load_items()
+	local aobj
+	for i = 1, 65534 do 
+		aobj =  alife():object(i)
+		if aobj and aobj.parent_id and aobj.parent_id ~= 0 and aobj.parent_id ~=65535 then
+			if not items_in_box[aobj.parent_id] then items_in_box[aobj.parent_id] = {} end
+			table.insert(items_in_box[aobj.parent_id], {id = aobj.id, name=aobj:name()})
+			-- mylog("добавили в items_in_box[" .. aobj.parent_id .. "] предмет Id:" .. aobj.id)
+		end
+	end
+end
+
+function get_local_time(gtime)
+	gdays = math.floor(gtime / 24);
+	ghours = gtime - gdays * 24;
+	
+	local res = ""
+	if gdays > 0 then
+		res = tostring(gdays) .. "дн "
+	end
+	if ghours > 0 then
+		res = res .. tostring(ghours) .. "ч"
+	end
+	
+	return trim(res)
+end
+
+function get_npc_name(box)
+	if box then
+		if news_main then
+			return tostring(news_main.get_npc_name(box))
+		elseif m_amk_news then
+			return tostring(m_amk_news.get_npc_name(box))
+		end
+	end
+	
+	return "'Неизвестный'"
+end
+
+function get_npc_presentation(box)
+	if box then
+		if news_main then
+			return tostring(news_main.get_npc_name(box) .. " (" .. game.translate_string(news_main.get_npc_community(box)) .. ", " .. game.translate_string(news_main.get_npc_rank(box)))
+		elseif m_amk_news then
+			return tostring(m_amk_news.get_npc_name(box) .. " (" .. game.translate_string(m_amk_news.get_npc_community(box)) .. ", " .. game.translate_string(m_amk_news.get_npc_rank(box)))
+		end
+	end
+	
+	return get_npc_name(box)
+end
+
+-- снимаем метки относящиеся к списку хабара с ящика
+function remove_all_spots(boxId)
+	if boxId then
+		remove_spot_from_map(boxId, "habar_location")
+		remove_spot_from_map(boxId, "habar_clear_location")
+		remove_spot_from_map(boxId, "habar_location_w")
+		remove_spot_from_map(boxId, "habar_clear_location_w")
+		remove_spot_from_map(boxId, "gps_stalker")
+	end
+end
+
+-- удаляем ящик из таблицы тайников с метками
+function remove_label(boxId)
+	if boxId then
+		labels[boxId] = nil
+--		table.remove(labels, boxId)
+		mylog("REMOVE_LABEL: удалили метку с тайника [" .. boxId .. "]. Осталось:" .. tableinfo(labels))
+	end
+end
+
+-- почистим тайник от удаленных вещей.
+function reinit_box(boxId)
+	if not boxId or boxId == 0 or boxId == 65535 or not items_in_box then
+		return
+	end
+	
+	if items_in_box[boxId] then
+		local aobj
+		for i, v in pairs(items_in_box[boxId]) do
+			if v.id then
+				aobj = alife():object(v.id)
+				if not aobj then
+					table.remove(items_in_box[boxId], i)
+				elseif aobj.parent_id ~= boxId then
+					table.remove(items_in_box[boxId], i)
+				end
+			end
+		end
+	end
+end
+
+-- перезарядка маячка
+function recharge_gps(item, box)
+	if not auto_recharge then
+		return
+	end
+	
+	if not box then return end
+	
+	-- если неизвестен тайник, получим его из предмета
+	local boxId = nil
+	if box then
+		boxId = box:id()
+	else
+		boxId = get_inventory_box_id(item)
+	end
+	
+	-- если предмет не в тайник и не из тайника - не наш случай
+	if not boxId then
+		return
+	end
+	if boxId == 0 or boxId == 65535 then 
+		return 
+	end
+	
+	-- если метки нет на тайнике,  перезаряжать нечего
+	if not labels[boxId] then
+		return
+	end
+	
+	-- перезаряка новыми значениями
+	labels[boxId].at = activity_time
+	labels[boxId].wr = 0 -- не предупреждали о разряде сообщением
+	labels[boxId].wi = 0 -- не предупреждали о разряде цветом
+	labels[boxId].wt = warning_time
+	labels[boxId].wit = warning_icons_time
+	labels[boxId].gt = game_hours()
+	labels[boxId].upd = game_minutes()
+	labels[boxId].wh = 0 -- не предупреждали о гибели npc
+	
+	save_table("gps_labels", labels)
+	mylog("RECHARGE_GPS: перезарядили маячок в тайнике [" .. tostring(boxId) .. "]")
+end
+
+-- Обновляем список хабара, зная или предмет или ящик
+function update_gps(item, box, boxId, is_new_metka)
+
+	is_gps_update_in_process = true
+
+	-- если неизвестен тайник, получим его из предмета
+	if not boxId then
+		if box then
+			boxId = box:id()
+		else
+			boxId = get_inventory_box_id(item)
+		end
+	end
+
+	if boxId then
+		box = alife():object(boxId)
+	end
+	
+	-- если предмет не в тайник и не из тайника - не наш случай
+	if not boxId then
+		is_gps_update_in_process = false
+		return
+	end
+
+	if not box then
+		-- непись мог погибнуть, ну или тайник могли уничтожить (наверное)
+		local aobj = alife():object(boxId)
+		if not aobj then
+			remove_label(boxId)
+		end
+		
+		is_gps_update_in_process = false
+		return
+	end
+	
+	if boxId == 0 or boxId == 65535 then 
+		is_gps_update_in_process = false
+		return
+	end
+
+	if IsHuman(box) then
+		--mylog("UPDATE_GPS: начато обновление метки сталкера " .. objinfo(box))
+		update_gps_stalker(box, boxId, is_new_metka)
+	else
+		mylog("UPDATE_GPS: начато обновление метки хабара " .. objinfo(box))
+		update_gps_habar(boxId)
+	end
+	
+	is_gps_update_in_process = false
+end
+
+function update_gps_stalker(box, boxId, is_new_metka)
+	local gps_count = get_gps_count(boxId)
+	local is_save_table = false
+	
+	if gps_count > 0 then
+		local fl_send_tip_msg = false
+		local text_metki = ""
+		local gm = game_minutes()
+		local gh = game_hours()
+		
+		-- новая метка, добавляем в таблицу
+		if not labels[boxId] then
+			-- нет команды помечать сталкера
+			if is_new_metka ~= true then
+				return
+			end
+			
+			fl_send_tip_msg = true -- надо сообщить что ставим новую метку
+			labels[boxId] = {wr = 0, wi = 0, gt = gh, wt = warning_time, at = activity_time, wit = warning_icons_time, upd = gm, wh = 0}
+			is_save_table = true
+			mylog("UPDATE_GPS_STALKER: уст. метка на сталкера " .. objinfo(box) .. ". " .. tableinfo(labels[boxId]))
+		end
+
+		local npc_name = get_npc_name(box)
+		
+		-- помеченный погиб, предупредим ГГ
+		local aobj = alife():object(boxId)
+		if is_warning_on_death and aobj and get_health(aobj) <= 0 and labels[boxId].wh == 0 then
+			labels[boxId].wh = 1
+			is_save_table = true
+			send_tip(game.translate_string("%c[255,255,128,128]Погиб сталкер " .. npc_name .. " с GPS-маячком"), nil, nil, 5)
+		end
+		
+		-- на сталкера вешаем другие метки, чем на тайник
+		local text_health = ""
+		if is_show_health then
+			text_health = ", " .. get_health_str(box)
+		end
+		text_metki = get_npc_presentation(box) .. text_health .. ")."
+		
+		local location = "gps_stalker"
+		if fl_send_tip_msg then
+			send_tip("Установлена метка на сталкера " .. get_npc_name(box), nil, nil, 5)
+		end
+
+		--апдейтим список
+		remove_all_spots(boxId)
+		add_spot_on_map(boxId, location, text_metki)
+	else
+		remove_all_spots(boxId)
+		remove_label(boxId)
+		is_save_table = true
+	end
+	
+	if is_save_table then
+		save_table("gps_labels", labels)
+	end
+end
+
+function correct_name(inv_name)
+	if inv_name then
+		if string.find(inv_name, "Патроны") == 1 then
+			return trim(string.gsub(inv_name, "Патроны", "П:"))
+		elseif string.find(inv_name, "Комбинезон") == 1 then
+			return trim(string.gsub(inv_name, "Комбинезон", "Комб"))
+		elseif string.find(inv_name, "Противорадиационные препараты") == 1 or string.find(inv_name, "Антирадиационные препараты") == 1 then
+			return "Антирад"
+		elseif string.find(inv_name, "Радость туриста") then
+			return "Консерва"
+		elseif string.find(inv_name, "Колбаса") == 1 then
+			return "Колбаса"
+		elseif string.find(inv_name, "Энергетический") == 1 or string.find(inv_name, "Энергетик") == 1 then
+			return "Энергетик"
+		end
+	else
+		return ""
+	end
+	
+	return inv_name
+end
+
+function get_color(secName)
+	if not secName or string.len(secName) == 0 then
+		return "%c[default]"
+	end
+	
+	local lsecName = string.lower(secName)
+	
+	if string.find(lsecName, "wpn_") == 1 then -- нашли оружие
+		return "%c[254,243,122,11]" -- оранжевый
+	elseif string.find(lsecName, "ammo_") == 1 or string.find(lsecName, "grenade_") == 1 then -- нашли патроны
+		return "%c[254,129,129,11]" -- хаки
+	elseif string.find(lsecName, "mutant_") then -- нашли часть монстра
+		return "%c[208,100,100,255]" --  синий
+	elseif string.find(lsecName, "af_") == 1 then -- нашли артефакт
+		return "%c[207,200,1,1]" -- красный
+	elseif string.find(lsecName, "outfit") or string.find(lsecName, "exo") then -- нашли броник
+		return "%c[100,200,200,1]" -- желтый
+	elseif string.find(lsecName, "pda") or string.find(lsecName, "flash") then -- нашли пда
+		return "%c[50,1,150,1]" -- зеленый
+	end
+
+	return "%c[default]"
+end
+
+function spawn_m_inv()
+	for i = 1, 65534 do 
+		aobj =  alife():object(i)
+		if aobj and aobj.section_name and aobj:section_name() == "m_inventory_box" then
+			add_spot_on_map(aobj.id, "red_location", "рюкзак")
+		end
+	end
+end
+
+function update_gps_habar(boxId)
+--	spawn_m_inv()
+	-- если в тайнике есть метка, апдейтим или ставим список. иначе снимаем маркер
+	local gps_count = get_gps_count(boxId)
+	if gps_count > 0 then
+		local fl_send_tip_msg = false
+		local text_metki = ""
+		local gm = game_minutes()
+		local gh = game_hours()
+		
+		-- новая метка, добавляем в таблицу
+		if not labels[boxId] then
+			fl_send_tip_msg = true -- надо сообщить что ставим новую метку
+			labels[boxId] = {wr = 0, wi = 0, gt = gh, wt = warning_time, at = activity_time, wit = warning_icons_time, upd = gm, wh = 0}
+			save_table("gps_labels", labels)
+			mylog("UPDATE_GPS_HABAR: уст. новая метка с хабаром на тайник. " .. tableinfo(labels[boxId]))
+		end
+
+		--составляем список предметов
+		if items_in_box[boxId] then
+			local secName, invName, locObj
+			local itemsbox = {}
+			local is_yes
+			
+			for i, v in pairs(items_in_box[boxId]) do
+--				if table.getn(itemsbox) > 51 then
+--					break
+--				end
+				
+				locObj = alife():object(v.id)
+				if locObj and locObj:section_name() then
+					secName = locObj:section_name()
+					invName = correct_name(game.translate_string(system_ini():r_string(secName, "inv_name")))
+					
+					is_yes = false
+					-- mylog("itemsbox = " .. table.getn(itemsbox))
+					for k, kk in pairs(itemsbox) do
+						-- mylog("k = " .. k)
+						if kk.sn == secName then
+							kk.cnt = kk.cnt + 1
+							is_yes = true
+							break
+						end
+					end
+					
+					if not is_yes then
+						table.insert(itemsbox, {sn = secName, inv = invName, cnt = 1, clr = get_color(secName)})
+					end
+				end
+			end
+			
+			-- сортируем по section_name, чтобы список хабара получился с какой-то закономерностью, а не в разброд.
+			table.sort(	itemsbox, 
+						function(a,b)
+							return (a.clr > b.clr)
+						end
+			)
+			
+			-- лежит только мячок, считаем что тайник пустой
+			if table.getn(itemsbox) == 1 and itemsbox[1].sn == "amk_metka" and itemsbox[1].cnt == 1 then
+			else
+--				local items_count = 0
+				local is_one_item_on_string = true
+				
+				-- если много предметов, выключаем режим "один предмет на строку"
+				if table.getn(itemsbox) > max_comments_strings_on_screen then
+					is_one_item_on_string = false
+				end
+				
+				-- формируем текст метки
+				local all_cnt = 0
+				local color_code  = ""
+				for i, v in pairs(itemsbox) do
+					--mylog("i = " .. i .. " name = " .. v.sn)
+					if not (v.sn == "amk_metka" and v.cnt == 1) then
+--						items_count = items_count + 1
+						
+--						if items_count > 50 then
+--							text_metki = text_metki .. ", ..."
+--							break
+--						end
+
+						if is_color_and_sort_list then
+							color_code = v.clr
+						end
+						
+						if is_one_item_on_string then
+							if text_metki ~= "" then 
+								text_metki = text_metki .. "\\n"
+							end
+							text_metki = text_metki .. color_code .. v.inv
+						else
+							if text_metki ~= "" then 
+								text_metki = text_metki .. ", "
+							end
+							text_metki = text_metki .. game.translate_string(color_code .. v.inv)
+						end
+						
+						if is_show_quantity then 
+							text_metki = text_metki .. "(" .. tostring(v.cnt) .. ")" 
+							all_cnt = all_cnt + v.cnt
+						end
+					end
+				end
+
+				if is_show_quantity then 
+					text_metki = text_metki .. "\\n%c[255,255,255,255]Итого " .. tostring(all_cnt) .. " предм" 
+				end
+			end
+		end
+
+		-- mylog("Список хабара: " .. text_metki)
+	
+		--смотрим какого цвета нужны иконки
+		local is_warning = false
+		local labels_item = labels[boxId]
+		if habar_list_mode and labels_item.at > 0 and labels_item.wit > 0 and ((gh - labels_item.gt) >= (labels_item.at - labels_item.wit)) then
+			is_warning = true
+		end
+		
+		local location = ""
+		-- смотрим пустой тайник или есть что-то?
+		if text_metki == "" then
+			if fl_send_tip_msg then
+				--send_tip("В схроне нет хабара. Установлена метка пустого тайника. В радиусе 20 метров " .. tostring(get_anomal_count(boxId, 20)) .. " аномалий", nil, nil, 5)
+				--news_manager.send_tip(db.actor, game.translate_string("st_gps_add_null_treasure"))
+				--  send_tip("В схроне нет хабара. Установлена метка пустого тайника.", nil, nil, 10)
+
+				  amk_utils.send_tip("В схроне нет хабара. Установлена метка пустого тайника.", "GPS: ", 1, 6, "gps", nil)
+
+			end
+			if is_warning then
+				location = "habar_clear_location_w"
+			else
+				location = "habar_clear_location"
+			end
+			
+			text_metki = "Пустой тайник."
+		else
+			text_metki = text_metki .. "."
+			if fl_send_tip_msg then
+				--send_tip("Установлена метка со списком хабара.  В радиусе 20 метров " .. tostring(get_anomal_count(boxId, 20)) .. " аномалий", nil, nil, 5)
+				--news_manager.send_tip(db.actor, game.translate_string("st_gps_add_treasure"))
+				--  send_tip("Установлена метка со списком хабара.", nil, nil, 10)
+				  amk_utils.send_tip("Установлена метка со списком хабара.", "GPS: ", 1, 6, "gps", nil)
+			end
+			if is_warning then
+				location = "habar_location_w"
+			else
+				location = "habar_location"
+			end
+		end
+		
+		-- добавим инфу о разряде
+		if habar_list_mode and labels_item.at > 0 then
+			text_metki = get_local_time(labels_item.gt + labels_item.at - gh) .. ". " .. text_metki
+		end
+		
+		--апдейтим список
+		mylog("удалим метку с плана")
+		remove_all_spots(boxId)
+		mylog("поставим новую")
+		add_spot_on_map(boxId, location, text_metki)
+	else
+		remove_all_spots(boxId)
+		remove_label(boxId)
+		save_table("gps_labels", labels)
+	end
+end
+
+function update_gps_state()
+	local aobj, lvname
+	local is_save_table = false
+	
+	-- если юзаем режим разряда маячков
+	if habar_list_mode then
+		local gm = game_minutes()
+		local gh = game_hours()
+		
+		for i, v in pairs(labels) do
+			-- если надо предупредить о разряде сообщением
+			if v.at > 0 and v.wt > 0 and v.wr == 0 and gh - v.gt > v.at - v.wt then
+				aobj = alife():object(i)
+				lvname = ""
+				if aobj then
+					lvname = game.translate_string(alife():level_name(game_graph():vertex(aobj.m_game_vertex_id):level_id()))
+				end
+
+--					mylog("i = " .. i)
+				v.wr = 1
+				send_tip(game.translate_string("%c[255,255,128,128]Через ".. tostring(gh - v.gt) .. " ч. на маячке на локации " .. lvname .. " надо сменить батарею."), nil, nil, 5)
+				is_save_table = true
+			end
+			
+			-- апдейтим информацию каждые 3 минуты или если надо предупредить о разряде сменой иконок
+			if (gm - v.upd > 3 and is_update_on_time) or (v.wit > 0 and v.wi == 0 and gh - v.gt > v.at - v.wit) then
+--						mylog("i = " .. i)
+				v.wi = 1
+				v.upd = gm;
+				
+				if not is_gps_update_in_process then
+					update_gps(nil, nil, i)
+				end
+				is_save_table = true
+			end
+			
+			-- если время вышло, выключаем метку
+			if v.at > 0 and gh - v.gt > v.at then
+				aobj = alife():object(i)
+				lvname = ""
+				if aobj then
+					lvname = game.translate_string(alife():level_name(game_graph():vertex(aobj.m_game_vertex_id):level_id()))
+				end
+				send_tip(game.translate_string("%c[255,255,128,128]На маячке на локации " .. lvname .. " села батарея. Связь потеряна."), nil, nil, 5)
+
+				remove_all_spots(i)
+				remove_label(i)
+				is_save_table = true
+			end	
+		end
+	end
+	
+	if is_save_table then
+		save_table("gps_labels", labels)
+	end
+end
+
+function show_dlg_dots_npc(obj)
+	if not obj or not is_set_label_on_npc then
+		return
+	end
+
+	-- это не маячок или маячок, но лежит на улице или у ГГ в инвентаре, заканчиваем
+	local secName = obj:section()
+	local boxId = get_inventory_box_id(obj)
+	if not boxId or boxId == 0 or boxId == 65535 or not secName or secName ~= "amk_metka" then
+		return
+	end
+	
+	-- маячок попал не сталкеру или метка уже установлена, заканчиваем.
+	local box = alife():object(boxId)
+	if not box then 
+		return
+	end
+	if not IsHuman(box) or labels[boxId] then
+		return
+	end
+	
+	local spwn=ui_gps_trade.gps_trade(get_hud(), boxId)
+	level.start_stop_menu(spwn,true)
+end
+
+-- колбеки
+-- при загрузке игры
+function on_game_load()
+	mylog("Инициализация переменных модуля gps_habar.")
+
+	local gps_ini = ini_file("misc\\gps_habar.ltx")
+	
+	activity_time = tonumber(gps_ini:r_string("amk_metka", "activity_time"))
+	warning_time = tonumber(gps_ini:r_string("amk_metka", "warning_time"))
+	warning_icons_time = tonumber(gps_ini:r_string("amk_metka", "warning_icons_time"))
+	habar_list_mode = toboolean(gps_ini:r_string("amk_metka", "habar_list_mode"))
+	auto_recharge = toboolean(gps_ini:r_string("amk_metka", "auto_recharge"))
+	is_show_quantity = toboolean(gps_ini:r_string("amk_metka", "show_quantity"))
+	is_update_on_time = toboolean(gps_ini:r_string("amk_metka", "update_on_time"))
+	is_color_and_sort_list = toboolean(gps_ini:r_string("amk_metka", "color_and_sort_list"))
+	
+	-- метки на сталкерах
+	is_set_label_on_npc = toboolean(gps_ini:r_string("amk_metka", "set_label_on_npc"))
+	is_show_health = toboolean(gps_ini:r_string("amk_metka", "show_health"))
+	is_warning_on_death = toboolean(gps_ini:r_string("amk_metka", "warning_on_death"))
+	
+	-- загружаем таблицу привязки ящиков к меткам.
+	labels = load_table("gps_labels")
+	load_items()
+	--mylog("Загрузили таблицу меток: " .. tableinfo(labels))
+end
+
+--колбэк на взятие предмета в инвентарь ГГ
+-- вызываем из amk.script
+function on_item_take(item)
+	-- если взяли метку, проверяем всех помеченных. вдруг меку купили у одного из них.
+	if item and item.section and item:section() == "amk_metka" then
+		for i, v in pairs(labels) do
+			reinit_box(i)
+			update_gps(nil, nil, i)
+		end
+	end
+end
+
+function on_item_take_from_box(box, item)
+	mylog("ON_ITEM_TAKE_FROM_BOX: взят предмет " .. objinfo(item) .. ". Из ящика. Id: " .. tostring(boxId))
+	-- если удалили из ящика почистим items_in_box
+	if item and item.id and box and box.id then
+		remove_item(box:id(), alife():object(item:id()), false)
+	end
+	
+	recharge_gps(item, box)
+	update_gps(item, box, nil)
+end
+
+--колбэк на потерю предмета из инвентаря ГГ
+-- вызываем из amk.script
+function on_item_drop(obj)
+
+	mylog("ON_ITEM_DROP: потерян предмет: " .. objinfo(obj))
+	if obj and obj.id then
+		insert_item(get_inventory_box_id(obj), alife():object(obj:id()))
+	end
+
+	show_dlg_dots_npc(obj)
+	recharge_gps(obj, nil)
+	update_gps(obj, nil, nil)
+end
+
+--колбэк на апдейт ГГ (удобно для проверки условий, так как вызывается постоянно, нельзя перегружать, а то будут лаги)
+-- вызываем из amk.script
+function on_actor_update(e)
+	update_gps_state()
+--	bind_tab(delta)
+end
+
+function show_obj(name)
+	get_console():execute("load ~~~ ищем объект " .. tostring(name))
+
+	for i = 1, 65534 do
+		obj = alife():object(i)
+		if obj and obj.section_name and obj:section_name() == name then
+			get_console():execute("load ~~~ нашли! Показали на плане.")
+			add_spot_on_map(obj.id, "gps_stalker", tostring(obj:section_name()))
+		end
+	end
+end
+
+function show_all_stalkers()
+	local lname
+	local n_stalkers
+	local stalk
+	local obj
+
+	for i = 1, 65534 do
+		obj = alife():object(i)
+		if obj and obj.id and IsHuman(obj) and get_health(obj) > 0 then 
+			add_spot_on_map(obj.id, "gps_stalker", get_npc_presentation(obj) .. ")")
+		end
+	end
+end
+
+function effector_spawn(effector, cnt)
+
+	--if not count then count = 1 end
+	for i = 1, cnt do
+		local p = db.actor:position()
+		local l = db.actor:level_vertex_id()
+		local g = db.actor:game_vertex_id()
+		local x = 1
+		local z = 1
+		
+		alife():create(effector, vector():set( p.x + x, p.y, p.z + z ), l,g)
+	end
+end
+
+function init()
+	event("actor_net_spawn"):register(on_game_load)
+	event("actor_update"):register(on_actor_update)
+end

@@ -1,0 +1,24 @@
+[logic]
+active = ph_sound@day
+
+[ph_sound@day]
+tips = switcher_on
+nonscript_usable = false
+on_use = %+sidorovih_mafon_off =play_snd_from_obj2(device\click10b)%
+snd = esc_sidor_mafon
+on_info = {-sidorovih_mafon_off} ph_sound@day
+on_info2 = {+sidorovih_mafon_off} ph_sound@off
+on_signal = sound_end|ph_idle@wait
+
+[ph_idle@wait]
+tips = switcher_on
+nonscript_usable = false
+on_use = %+sidorovih_mafon_off =play_snd_from_obj2(device\click10b)%
+on_info = {+sidorovih_mafon_off} ph_sound@off
+on_timer = 15000| ph_sound@day
+
+[ph_sound@off]
+snd = addon_no_sound
+tips = switcher_off
+nonscript_usable = false
+on_use =  %-sidorovih_mafon_off =play_snd_from_obj2(device\click10b)% ph_sound@day

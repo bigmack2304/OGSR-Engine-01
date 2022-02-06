@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<upgrade_menu>	
+	<background x="0" y="0" width="492" height="491">
+		<texture>ui_upg_menu</texture>
+	</background>
+
+	<icon x="51" y="56" width="100" height="150">
+		<texture>npc_icon_band_outfit</texture>
+	</icon>
+	
+	<aa x="172" y="56" width="90" height="44">  
+		<texture_e>now_aa_e</texture_e>
+		<texture_t>now_aa_t</texture_t>
+		<texture_h>now_aa_h</texture_h>
+	</aa>
+
+	<aa_i x="172" y="56" width="90" height="44"> 
+		<texture>now_aa_i</texture> 
+	</aa_i>
+
+	<ab x="272" y="56" width="90" height="44">
+		<texture_e>now_ab_e</texture_e>
+		<texture_t>now_ab_t</texture_t>
+		<texture_h>now_ab_h</texture_h>
+	</ab>
+
+	<ab_i x="272" y="56" width="90" height="44">
+		<texture>now_ab_i</texture>
+	</ab_i>
+
+	<ac x="372" y="56" width="90" height="44">
+		<texture_e>now_ac_e</texture_e>
+		<texture_t>now_ac_t</texture_t>
+		<texture_h>now_ac_h</texture_h>
+	</ac>
+
+	<ac_i x="372" y="56" width="90" height="44">
+		<texture>now_ac_i</texture>
+	</ac_i>
+	
+	<ba x="172" y="108" width="90" height="44">
+		<texture_e>now_ba_e</texture_e>
+		<texture_t>now_ba_t</texture_t>
+		<texture_h>now_ba_h</texture_h>
+	</ba>
+
+	<ba_i x="172" y="108" width="90" height="44">
+		<texture>now_ba_i</texture>
+	</ba_i>
+
+	<bb x="272" y="108" width="90" height="44">
+		<texture_e>now_bb_e</texture_e>
+		<texture_t>now_bb_t</texture_t>
+		<texture_h>now_bb_h</texture_h>
+	</bb>
+
+	<bb_i x="272" y="108" width="90" height="44">
+		<texture>now_bb_i</texture>
+	</bb_i>
+
+	<bc x="372" y="108" width="90" height="44">
+		<texture_e>now_bc_e</texture_e>
+		<texture_t>now_bc_t</texture_t>
+		<texture_h>now_bc_h</texture_h>
+	</bc>
+
+	<bc_i x="372" y="108" width="90" height="44">
+		<texture>now_bc_i</texture>
+	</bc_i>
+
+	<aa_r1 x="172" y="108" width="90" height="44">
+		<texture>upgrade_red_i</texture>
+	</aa_r1>
+
+	<aa_r2 x="172" y="161" width="90" height="44">
+		<texture>upgrade_red_i</texture>
+	</aa_r2>
+
+	<ba_r3 x="172" y="56" width="90" height="44">
+		<texture>upgrade_red_i</texture>
+	</ba_r3>
+
+	<ba_r4 x="172" y="161" width="90" height="44">
+		<texture>upgrade_red_i</texture>
+	</ba_r4>
+
+
+	<btn_repair x="62" y="424" width="117" height="29">
+		<texture_e>ui_button_main01_e</texture_e>
+		<texture_t>ui_button_main01_t</texture_t>
+		<texture_h>ui_button_main01_h</texture_h>
+		<text x="13" y="8" align="c" font="letterica18" r="200" g="200" b="200">ui_inv_repair</text>
+	</btn_repair>
+
+	<btn_quit x="282" y="424" width="117" height="29">
+		<texture_e>ui_button_main01_e</texture_e>
+		<texture_t>ui_button_main01_t</texture_t>
+		<texture_h>ui_button_main01_h</texture_h>
+		<text x="13" y="8" align="c" font="letterica18" r="200" g="200" b="200">ui_inv_exit</text>
+	</btn_quit>
+</upgrade_menu>

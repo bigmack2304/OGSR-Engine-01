@@ -1,0 +1,276 @@
+--[[
+Copyright: © SomeFaggot, Gmod4Ever, Ирбиs, Real Wolf
+
+использование предметов
+]]
+
+local iUpdateTime = 0
+local bHided = false
+function Use(e)
+	local actor = db.actor
+
+	FixPortions(e)
+	
+	if (db.actor ~= nil) and (e.obj ~= nil) then
+		if e.obj:section() == "medkit" or 
+		   e.obj:section() == "medkit_army" or
+		   e.obj:section() == "medkit_scientic" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\medkit\inv_med]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+
+		elseif e.obj:section() == "bread" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\food\inv_food]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+
+		elseif e.obj:section() == "kolbasa" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\food\inv_farsh]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+
+		elseif e.obj:section() == "conserva" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\food\inv_food_conserva]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+
+		elseif e.obj:section() == "vodka" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\food\inv_vodka]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+
+		elseif e.obj:section() == "energy_drink" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\food\inv_softdring]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+
+		elseif e.obj:section() == "addon_fh_voda" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\food\inv_softdrink]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+
+		elseif e.obj:section() == "antirad" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\medkit\inv_pills]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+			
+		elseif e.obj:section() == "sigaret" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\inv_ruck_food]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+
+		elseif e.obj:section() == "bandage" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\medkit\inv_bandage]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+
+		elseif e.obj:section() == "inv_ruck" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\devices\inv_ruckzak]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+				local oRuck = alife():create("active_ruck", db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id() )
+				amk_utils.send_tip("Тайник заложен.", "Рюкзак: ", 1, 6, "inv_bag", nil)
+
+		elseif e.obj:section() == "inv_ruck2" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\devices\inv_ruckzak]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+				local oRuck = alife():create("active_ruck2", db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id() )
+				amk_utils.send_tip("Тайник заложен.", "Рюкзак: ", 1, 6, "inv_bag", nil)
+
+		elseif e.obj:section() == "inv_ruck3" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\devices\inv_ruckzak]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+				local oRuck = alife():create("active_ruck3", db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id() )
+				amk_utils.send_tip("Тайник заложен.", "Рюкзак: ", 1, 6, "inv_bag", nil)
+
+		elseif e.obj:section() == "device_torch_bat" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\devices\inv_accum]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+
+		elseif e.obj:section() == "device_pnv_bat" then
+			if this.load_variable("addon_opt_sndusitm",1) == 1 and actor ~= nil then
+				Sound(2, [[interface\devices\inv_accum]])
+			end
+			if this.load_variable("addon_opt_disusitm",1) == 1 and actor ~= nil then
+				level.disable_input()
+				lwc_timer.Add("use_item", "addon_lwc_use.control_on()", 8, 0, 0)
+				cmd("unbind quit")
+			end
+
+		elseif e.obj:section() == "matras" then			
+			local oSleepWnd = ui_sleep.sleep(get_hud() )
+			local bFlag = true
+			if db.actor.radiation > 0.5 then
+				amk_utils.send_tip("Невозможно заснуть с высоким уровнем радиации.", "Спальный мешок: ", 1, 4, "addon_son", "news")
+				bFlag = false
+			elseif db.actor:get_bleeding() > 0 then
+				amk_utils.send_tip("Невозможно заснуть с кровотечением.", "Спальный мешок: ", 1, 4, "addon_son", "news")
+				bFlag = false
+			elseif db.Flag2==1 then
+				amk_utils.send_tip("Невозможно заснуть во время выброса.", "Спальный мешок: ", 1, 4, "addon_son", "news")
+				bFlag = false				
+			end
+			AddObjInv("matras")
+			if bFlag then
+				level.start_stop_menu(oSleepWnd, true)
+			end
+
+
+	--	elseif e.oItem:section() == "zaryd_torch" then
+	--		addon_torch.zarad()
+	--		Sound(2, [[inv_sounds\inv_accum]])
+
+	--	elseif e.oItem:section() == "voltmetr" then
+	--		addon_lwc_timer.Add("timer_voltmetr", "addon_torch.infdet()", 10, 0, 0)
+	--		Sound(2, [[inv_sounds\inv_use]])
+
+		end
+	end
+end
+
+function Sound(iTime, sSound)
+	if db.actor:alive() then
+		if sSound then
+			PlaySound(sSound)
+		end
+		if not bHided then
+			--db.actor:hide_weapon()
+			bHided = true
+		end
+		local iLastTime = iUpdateTime - time_global()
+		if iLastTime < 0 then
+			iLastTime = 0
+		end
+		iUpdateTime = time_global() + (iTime * 1000) + iLastTime
+	end
+end
+
+function Update()
+	if iUpdateTime > 0 and iUpdateTime <= time_global() then
+		iUpdateTime = 0
+		bHided = false
+		--db.actor:restore_weapon()
+	end
+end
+
+function control_on()
+level.enable_input()
+cmd("bind quit kescape")
+end
+
+--[[
+	Исправление сброса количества использований
+--]]
+function FixPortions(e)
+	local iMaxPortions = ReadLine(system_ini(), "Number", e.obj:section(), "eat_portions_num", -1)
+	local aditem = e.obj:section()
+
+	if iMaxPortions > 1 then
+		local oBinder = e.obj:binded_object()
+		if not oBinder then
+		--	Log("У предмета, который можно использовать несколько раз нету биндера: " + oItem:section() )
+			log1("# lwc_use.script (FixPortions): У предмета [ "..aditem.." ] нету биндера." )
+			return
+		end		
+		local iCurrPortions = oBinder.iPortions
+		if iCurrPortions < iMaxPortions then
+			oBinder.iPortions = iCurrPortions + 1
+		else
+			lwc_timer.Add("DelFood", "DelObj("..e.obj:id()..")", 0.1)
+		end
+	end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("use_item"):register(Use)
+	event("actor_update"):register(Update)
+end

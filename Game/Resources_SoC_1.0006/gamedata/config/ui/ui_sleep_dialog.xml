@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+
+<sleep_dialog_wnd> 
+	<background x="80" y="172" width="748" height="324" stretch="1">
+		<texture x="0" y="154" width="748" height="324">ui\sleep\ui_sleep_dialog.dds</texture>
+	</background>
+
+
+	<time_scale_back x="166" y="383" width="596" height="22" stretch="1">
+		<texture x="0" y="483" width="596" height="22">ui\sleep\ui_sleep_dialog.dds</texture>
+	</time_scale_back>
+	
+
+	<sky_panorama_1 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="115" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_1.dds</texture>
+	</sky_panorama_1>
+
+	<sky_panorama_2 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="230" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_1.dds</texture>
+	</sky_panorama_2>
+
+	<sky_panorama_3 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="345" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_1.dds</texture>
+	</sky_panorama_3>
+
+	<sky_panorama_4 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="460" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_1.dds</texture>
+	</sky_panorama_4>
+
+	<sky_panorama_5 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="575" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_1.dds</texture>
+	</sky_panorama_5>
+
+	<sky_panorama_6 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="690" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_1.dds</texture>
+	</sky_panorama_6>
+
+	<sky_panorama_7 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="805" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_1.dds</texture>
+	</sky_panorama_7>
+
+	<sky_panorama_8 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="0" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_2.dds</texture>
+	</sky_panorama_8>
+
+	<sky_panorama_9 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="115" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_2.dds</texture>
+	</sky_panorama_9>
+
+	<sky_panorama_10 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="230" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_2.dds</texture>
+	</sky_panorama_10>
+
+	<sky_panorama_11 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="345" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_2.dds</texture>
+	</sky_panorama_11>
+
+	<sky_panorama_12 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="460" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_2.dds</texture>
+	</sky_panorama_12>
+
+	<sky_panorama_13 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="575" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_2.dds</texture>
+	</sky_panorama_13>
+
+	<sky_panorama_14 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="690" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_2.dds</texture>
+	</sky_panorama_14>
+
+	<sky_panorama_15 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="805" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_2.dds</texture>
+	</sky_panorama_15>
+
+	<sky_panorama_16 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="0" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_3.dds</texture>
+	</sky_panorama_16>
+
+	<sky_panorama_17 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="115" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_3.dds</texture>
+	</sky_panorama_17>
+
+	<sky_panorama_18 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="230" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_3.dds</texture>
+	</sky_panorama_18>
+
+	<sky_panorama_19 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="345" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_3.dds</texture>
+	</sky_panorama_19>
+
+	<sky_panorama_20 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="460" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_3.dds</texture>
+	</sky_panorama_20>
+
+	<sky_panorama_21 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="575" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_3.dds</texture>
+	</sky_panorama_21>
+
+	<sky_panorama_22 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="690" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_3.dds</texture>
+	</sky_panorama_22>
+
+	<sky_panorama_23 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="805" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_3.dds</texture>
+	</sky_panorama_23>
+	
+	<sky_panorama_0 x="176" y="248" width="576" height="115" stretch="1">
+		<texture x="0" y="0" width="576" height="115">ui\sleep\ui_sleep_sky_panorama_1.dds</texture>
+	</sky_panorama_0>
+
+	
+    <sleep_st_1 x="176" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="35" g="167" b="42"/>
+    </sleep_st_1>
+    <sleep_st_2 x="200" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="35" g="167" b="42"/>
+    </sleep_st_2>
+    <sleep_st_3 x="224" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="35" g="167" b="42"/>
+    </sleep_st_3>
+    <sleep_st_4 x="248" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="35" g="167" b="42"/>
+    </sleep_st_4>
+    <sleep_st_5 x="272" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="35" g="167" b="42"/>
+    </sleep_st_5>
+    <sleep_st_6 x="296" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="35" g="167" b="42"/>
+    </sleep_st_6>
+    <sleep_st_7 x="320" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="239" g="223" b="0"/>
+    </sleep_st_7>
+    <sleep_st_8 x="344" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="239" g="223" b="0"/>
+    </sleep_st_8>
+    <sleep_st_9 x="368" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="239" g="223" b="0"/>
+    </sleep_st_9>
+    <sleep_st_10 x="392" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="239" g="223" b="0"/>
+    </sleep_st_10>
+    <sleep_st_11 x="416" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="239" g="223" b="0"/>
+    </sleep_st_11>
+    <sleep_st_12 x="440" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="239" g="223" b="0"/>
+    </sleep_st_12>
+    <sleep_st_13 x="464" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="255" g="140" b="0"/>
+    </sleep_st_13>
+    <sleep_st_14 x="488" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="255" g="140" b="0"/>
+    </sleep_st_14>
+    <sleep_st_15 x="512" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="255" g="140" b="0"/>
+    </sleep_st_15>
+    <sleep_st_16 x="536" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="255" g="140" b="0"/>
+    </sleep_st_16>
+    <sleep_st_17 x="560" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="255" g="140" b="0"/>
+    </sleep_st_17>
+    <sleep_st_18 x="584" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="255" g="140" b="0"/>
+    </sleep_st_18>
+    <sleep_st_19 x="608" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="247" g="47" b="0"/>
+    </sleep_st_19>
+    <sleep_st_20 x="632" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="247" g="47" b="0"/>
+    </sleep_st_20>
+    <sleep_st_21 x="656" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="247" g="47" b="0"/>
+    </sleep_st_21>
+    <sleep_st_22 x="680" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="247" g="47" b="0"/>
+    </sleep_st_22>
+    <sleep_st_23 x="704" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="247" g="47" b="0"/>
+    </sleep_st_23>
+    <sleep_st_24 x="728" y="386" width="22" height="15" complex_mode="0">
+        <text align="c" vert_align="c" font="letterica16" r="247" g="47" b="0"/>
+    </sleep_st_24>	
+	
+	
+	<panorama_window x="136" y="230" width="657" height="149">
+		<texture x="0" y="0" width="657" height="149">ui\sleep\ui_sleep_dialog.dds</texture>
+	</panorama_window>	
+	
+	
+	<caption_1 x="150" y="175" width="50" height="35">
+		<text font="graffiti22" r="238" g="155" b="23">Сон</text>
+	</caption_1>
+
+
+	<btn_1 x="176" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_1>
+
+	<btn_2 x="200" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_2>
+
+	<btn_3 x="224" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_3>
+
+	<btn_4 x="248" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_4>
+
+	<btn_5 x="272" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_5>
+
+	<btn_6 x="296" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_6>
+	
+	<btn_7 x="320" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_7>
+
+	<btn_8 x="344" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_8>
+
+	<btn_9 x="368" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_9>
+
+	<btn_10 x="392" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_10>
+	
+	<btn_11 x="416" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_11>
+
+	<btn_12 x="440" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_12>
+
+	<btn_13 x="464" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_13>
+
+	<btn_14 x="488" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_14>
+
+	<btn_15 x="512" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_15>
+
+	<btn_16 x="536" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_16>
+
+	<btn_17 x="560" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_17>
+
+	<btn_18 x="584" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_18>
+
+	<btn_19 x="608" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_19>
+
+	<btn_20 x="632" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_20>
+
+	<btn_21 x="656" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_21>
+
+	<btn_22 x="680" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_22>
+
+	<btn_23 x="704" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_23>
+	
+	<btn_24 x="728" y="248" width="22" height="157">
+		<texture_e>ui_btn_slp_e</texture_e>
+		<texture_t>ui_btn_slp_t</texture_t>
+		<texture_h>ui_btn_slp_h</texture_h>
+	</btn_24>
+
+	
+	<btn_cancel x="410" y="439" width="112" height="32">
+		<texture_e>ui\sleep\ui_tab_button_big_h</texture_e>
+		<texture_t>ui\sleep\ui_tab_button_big_t</texture_t>
+		<texture_h>ui\sleep\ui_tab_button_big_e</texture_h>
+		<text font="letterica18">ui_inv_exit</text>
+	</btn_cancel>
+</sleep_dialog_wnd>

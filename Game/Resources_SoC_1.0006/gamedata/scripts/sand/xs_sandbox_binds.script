@@ -1,0 +1,30 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+-- сюда вписываются названия скриптов в которых вызывается функция init
+
+binds = {
+  "addon_rx_shoot_effect",
+  "addon_ogse_wpn_explode_fx",
+  "addon_wpn_cam",
+  "addon_wpn_klin_cam",
+--  "addon_art",
+  "addon_nv",
+  "addon_wpn_snd",
+  "addon_wpn_hofss",
+  "addon_xr_mask",
+--"testeradd",
+  "addon_autosave",
+  "addon_ogse_benchmark",
+ -- "addon_item_sound",
+  "addon_inv_dof",
+  "addon_ustal",
+  "addon_lwc_use",
+  "addon_medkit_use",
+--  "autopause_timer",
+  "gps_habar",
+  "addon_torch",
+  "addon_radiofon",
+  "addon_marsh_radiation",
+  "addon_dof_reload",
+--  "addon_ruk_hud"
+--  "addon_map_level"
+}

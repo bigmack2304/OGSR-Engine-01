@@ -1,0 +1,111 @@
+-------------------------------------------------------------
+-- 14.09.19
+-- Автонастройка параметра r2_gloss_factor
+-- намокание при дожде и высыхание при его отсутствии.
+-- отключение намокания в подземных локациях
+-------------------------------------------------------------
+--cmd(("r2_gloss_factor %s"):format(n))  -- если устанавливать значение таким образом
+-- 23 07 21 -  надо так cmd(("r2_gloss_factor %f"):format(n))
+--					    то оно почемуто не сохраняется
+--cmd("r2_gloss_factor "..n.."")	 -- установка значения с сохранением
+-------------------------------------------------------------
+
+
+function attach(sm)
+	sm:subscribe({signal = "on_update",	fun = this.rain_upd})
+end
+		
+local iNextUpdate 	= 0		  -- таймер абдейта
+local float_time 	= 2 		  -- интервал апдейта
+local float_tm		= 100		  -- множитель значения (float_time), если 1000 то (float_time - сек), если 100 то (float_time) - м.сек
+local rain 		= 0		  -- текущее игровое значение дождя
+local n 		= 0		  -- переменная для расчета gloss factor
+local np		= 0.04		  -- значение на которое будет увеличиватся\уменьшатся gloss factor	
+local gfloat		= 0		  -- текущее игровое значение r2_gloss_factor
+local glossmin		= 0.2		  -- минимальное значение r2_gloss_factor
+local glossmax		= 3.30		  -- максимальное значение r2_gloss_factor
+local stop		= 0
+
+					  -- уровни на которых намокания не может быть
+local under_level = {
+	["l03u_agr_underground"] 	= true,
+	["l04u_labx18"] 		= true,
+	["l08u_brainlab"] 		= true,
+	["l10u_bunker"] 		= true,
+	["l12u_control_monolith"] 	= true,
+	["l12u_sarcofag"] 		= true
+}
+
+function check_ulevel()
+  if under_level[level.name()] then
+    	return true
+  else
+	return false
+  end
+end
+
+function rain_upd()
+local actor = db.actor
+
+if stop==1 then return end
+
+if this.load_variable("addon_opt_agloss",1) == 1 and actor ~= nil then
+  if iNextUpdate <= time_global() then
+    rain = level.rain_factor()
+      if rain >= 0.2 then
+	  if not check_ulevel() then
+	    gloss_pl()
+	    --log3("- addon_auto_gloss.script : no under level")
+	  else
+	    gloss_min()
+	    --log3("- addon_auto_gloss.script : in under level")
+	  end
+	    --log3("- addon_auto_gloss.script : rain_coef = "..rain.."")
+      else
+	    --log3("- addon_auto_gloss.script : rain_coef = "..rain.."")
+	  gloss_min()
+      end
+	--log3("- addon_auto_gloss.script : rain_coef = "..rain.."")
+    iNextUpdate = time_global() + float_time*float_tm
+  end
+else
+  stop = 1
+--  cmd("r2_gloss_factor "..glossmin.."")
+  --log3("- addon_auto_gloss.script : auto gloss factor - off")
+  return
+end
+end
+
+function gloss_pl()
+gfloat = get_con_float( "r2_gloss_factor" )
+--log3("- addon_auto_gloss.script : gloss_float = "..gfloat.."")
+  if gfloat < glossmax then
+	n = gfloat + np
+	cmd("r2_gloss_factor "..n.."")
+  end
+end
+
+function gloss_min()
+gfloat = get_con_float( "r2_gloss_factor" )
+--log3("- addon_auto_gloss.script : gloss_float = "..gfloat.."")
+  if gfloat > glossmin then
+	n = gfloat - np
+   	cmd("r2_gloss_factor "..n.."")
+  end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

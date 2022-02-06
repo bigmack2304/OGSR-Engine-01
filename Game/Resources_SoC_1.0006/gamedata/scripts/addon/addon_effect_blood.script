@@ -1,0 +1,120 @@
+-- дополнительные эффекты при ранении актора
+-- 26.10.2019 добавлена динамическа€ система расчета
+-- параметров drop_item_on_crit_prob и crit_treshold
+
+function attach(sm)
+	sm:subscribe({signal = "on_update",	fun = this.wounded_pp_update})
+end
+
+local lite_treshold 			= 0.05 		-- насколько должно уменьшитьс€ здоровье с предыдущего обновлени€ чтоб экран окрасилс€ в красный 0.05
+local crit_treshold 			= 0 		-- насколько должно уменьшитьс€ здоровье с предыдущего обновлени€ чтоб √√ начало шатать 0.20
+local drop_item_on_crit_prob 	= 0 		-- веро€тность того что √√ выронит оружие 0.35 (вычисл€етс€ исход€ из состо€ни€ выносливости (0.10-0.92))
+local min_power 				= 0.80		-- значение усталости менее которого (drop_item_on_crit_prob) будет повышатс€
+local drop_mins 				= 0.09		-- шанс что гг выранит оружие если выносливость в норме
+local min_heal	 				= 0.80		-- значение здорови€ менее которого (crit_treshold) будет понижатс€
+local crit_mins 				= 0.27		-- насколько должно уменьшитьс€ здоровье с предыдущего обновлени€ чтоб √√ начало шатать
+local effector_power_coeff 		= 0.7
+local prev_health 				= -1
+local chk_h_t 					= 0
+
+ -- предметы кторые нельз€ выбрасывать
+local exclude_items = {
+	["bolt"]             =true,
+	["wpn_knife"]        =true,
+	["wpn_binoc"]        =true
+	}
+
+function wounded_pp_update()
+
+local adactor = db.actor
+
+if this.load_variable("addon_opt_hiteff",1) == 1 and adactor ~= nil then
+  if (chk_h_t or 0) < time_global() then
+    chk_h_t = time_global()+1000
+    if prev_health > (db.actor.health + lite_treshold) then
+
+      level.add_pp_effector("fire_hit.ppe", 2012, false)
+      local effector_power = (prev_health - db.actor.health)*100*effector_power_coeff
+      level.set_pp_effector_factor(2012, effector_power)
+      local health = db.actor.health
+	    if health <= min_heal then 
+		  crit_treshold = (0.19+(health/100)*90)/3.5
+	    else
+	      crit_treshold = crit_mins
+	    end 
+        if prev_health > db.actor.health + crit_treshold then		  
+	      si142()
+		  si143()
+          local power = db.actor.power
+	        if power <= min_power then 
+	          drop_item_on_crit_prob = (0.81-(power/100)*90)/0.88
+	        else
+	          drop_item_on_crit_prob = drop_mins
+	        end 
+	          if math.random() < drop_item_on_crit_prob then
+                local active_item = db.actor:active_item()
+	  	          if active_item and not check_item() then
+	     	         db.actor:drop_item(active_item)
+                  end
+              end
+        end
+    end
+    prev_health = db.actor.health
+  end
+end
+end
+
+function check_item()
+	local actitem = db.actor:active_item()
+	if actitem and exclude_items[actitem:section()] then 
+		return true
+	else
+		return false
+	end
+end
+
+function si142()
+    local reward_snd = math.random(1,4)
+    if reward_item == 1 then
+        local snd_obj1 = xr_sound.get_safe_sound_object([[actor\pain_3]])
+	snd_obj1:play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 1.0)
+    end
+    if reward_snd == 2 then 
+        local snd_obj2 = xr_sound.get_safe_sound_object([[actor\hit_5]])
+	snd_obj2:play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 1.0)
+    end
+    if reward_snd == 3 then   
+        local snd_obj3 = xr_sound.get_safe_sound_object([[actor\pain_4]])
+	snd_obj3:play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 1.0)
+    end
+    if reward_snd == 4 then 
+        local snd_obj4 = xr_sound.get_safe_sound_object([[actor\hit_6]])
+	snd_obj4:play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 1.0)
+    end
+end
+
+function si143()
+    local reward_snd = math.random(1,2)
+    if reward_item == 1 then
+		level.add_cam_effector("camera_effects\\fusker.anm", 998, false, "")
+    end
+    if reward_snd == 2 then 
+		level.add_cam_effector("camera_effects\\head_shot.anm", 999, false, "")
+    end
+end
+
+----------------------------------------------------------------
+-- функции дл€ сохранени€ настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

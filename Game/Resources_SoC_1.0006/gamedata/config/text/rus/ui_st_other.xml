@@ -87,6 +87,9 @@
 	<string id="ui_st_your_items">
 		<text>Вещи Меченого</text>
 	</string>
+	<string id="addui_st_your_items">
+		<text>Продать</text>
+	</string>
 	<string id="st_level">
 		<text>Уровень</text>
 	</string>
@@ -206,13 +209,6 @@
 		<text>Удалить метку</text>
 	</string>
 
-	<string id="st_move">
-		<text>перенести</text>
-	</string>
-	<string id="st_move_all">
-		<text>перенести все</text>
-	</string>
-
 	<string id="st_move_to_slot_1">
 		<text>переместить в первый слот</text>
 	</string>
@@ -242,9 +238,11 @@
 	<string id="game_object_drag">
 		<text>Перетащить предмет (SHIFT+$$ACTION_USE$$)</text>
 	</string>
-
-	<string id="st_press_any_key">
-		<text>Нажмите любую клавишу для перехода к игре</text>
+	<string id="menu_autopause">
+		<text>Нажмите W для перехода к игре</text>
+	</string>
+	<string id="ui_st_condition">
+		<text>Состояние</text>
 	</string>
 
 </string_table>

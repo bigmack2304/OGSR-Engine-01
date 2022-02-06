@@ -1,0 +1,121 @@
+--[[
+	Создано на замену CUIMessageBoxEx()
+	Автор: Real Wolf
+--]]
+
+--[[
+	Параметры класса:
+	sHeader - Заголовок окна, по умолчанию его нету.
+	sText - Текст самого сообщения, ручной перенос строк работает.
+	sMode - Режим: Ок или Да\Нет, указывать как "OK" или "YesNo". По умолчанию "OK".
+	sFile - Файл, откуда брать описание координат. Указывать без расширения. По умолчанию "ui_message".
+	tFunctions - Таблица с ф-циями, при режиме "YesNo" указывать первой ф-цию для кнопки "Yes".
+		Пример: tFunctions[1] = "lwc.yes()"
+				tFunctions[2] = "lwc.no()"
+	tPos - Положение сообщения на экране. По умолчанию - 264, 250. Передавать в виде { 264, 250 }.
+--]]
+
+class "CMessageWindow" (CUIScriptWnd)
+function CMessageWindow:__init(sHeader, sText, sMode, sFile, tFunctions, tPos) super()
+	self.sText = sText
+	if not sFile then
+		self.sFile = "ui_message"
+	else
+		self.sFile = sFile
+	end
+	if not sMode then
+		self.sMode = "OK"
+	else
+		self.sMode = sMode
+	end
+	if not tPos then
+		self.tPos = {}
+		self.tPos[1] = 264
+		self.tPos[2] = 250
+	else
+		self.tPos = tPos
+	end
+	self.sCaption = sHeader
+	self.tFunctions = tFunctions
+	self:InitControls()
+	self:InitCallBacks()
+end
+
+function CMessageWindow:__finalize() 
+end
+
+function CMessageWindow:InitControls()
+	self:Init(self.tPos[1], self.tPos[2], 1024, 768)
+
+	local oXml = CScriptXmlInit()
+	oXml:ParseFile(self.sFile..".xml")
+
+	oXml:InitStatic("background", self)
+	
+	local oText = oXml:InitStatic("caption", self)
+	oText:SetWindowName("caption")	
+	
+	oText = oXml:InitStatic("text", self)
+	oText:SetWindowName("text")
+	
+	if self.sMode == "OK" then
+		self:Register(oXml:Init3tButton("btn_ok", self), "btn_ok")
+	elseif self.sMode == "YesNo" then
+		self:Register(oXml:Init3tButton("btn_yes", self), "btn_yes")
+		self:Register(oXml:Init3tButton("btn_no", self), "btn_no")
+	end	
+end
+
+function CMessageWindow:InitCallBacks()
+	if self.sMode == "OK" then
+		self:AddCallback("btn_ok", ui_events.BUTTON_CLICKED, self.BtnOk, self)
+	elseif self.sMode == "YesNo" then
+		self:AddCallback("btn_yes", ui_events.BUTTON_CLICKED, self.BtnYes, self)
+		self:AddCallback("btn_no", ui_events.BUTTON_CLICKED, self.BtnNo, self)
+	end
+	local oText = self:GetStatic("text")
+	oText:SetText(self.sText)
+	
+	oText = self:GetStatic("caption")
+	oText:SetText(self.sCaption)
+end
+
+function CMessageWindow:BtnOk()
+	if self.tFunctions and self.tFunctions[1] then
+		local oFunction = loadstring(self.tFunctions[1])
+		oFunction()
+	end
+	
+	self:Quit()
+end
+
+function CMessageWindow:BtnYes()
+	self:Quit()
+	if self.tFunctions and self.tFunctions[1] then
+		local oFunction = loadstring(self.tFunctions[1])
+		oFunction()
+	end
+end
+
+function CMessageWindow:BtnNo()
+	self:Quit()
+	if self.tFunctions and self.tFunctions[2] then
+		local oFunction = loadstring(self.tFunctions[2])
+		oFunction()
+	end
+end
+
+function CMessageWindow:OnKeyboard(iKey, iAction)
+	CUIScriptWnd.OnKeyboard(self, iKey, iAction)
+	
+	if iAction == ui_events.WINDOW_KEY_PRESSED then
+		if iKey == DIK_keys.DIK_ESCAPE or iKey == DIK_keys.DIK_RETURN then
+			self:Quit()
+		end		
+	end
+	return true
+end
+
+function CMessageWindow:Quit()
+	self:GetHolder():start_stop_menu(self, true)
+end

@@ -1,0 +1,78 @@
+--[[
+	Схема создания респавнера.
+	Авторы: Refresh, Real Wolf.
+--]]
+
+function attach(sm)
+	sm:subscribe({signal = "on_spawn",	fun = this.Init})
+end
+
+existing_respawn = {}
+local dbg_option = true	-- при включении, переопределяет все гейм и левел вертексы в момент создания респавнера
+
+function Init()
+	local oIni = ini_file("respawn\\respawner.ltx")
+	local i = 1
+	local sRespawn = level.name().."_"..i
+	
+	-- Если нету первой секции, или же респавн на этой локации уже был.
+	if not is_sect_exist(sRespawn, oIni) or existing_respawn[sRespawn] then
+		return
+	end
+	
+	repeat
+				local tData = {}
+	
+				tData["RespawnSections"] = ReadLine(oIni, "String", sRespawn, "sections")				
+				tData["MaxSpawn"] = ReadLine(oIni, "Number", sRespawn, "max_spawn", 1)
+				tData["MaxCount"] = ReadLine(oIni, "Number", sRespawn, "max_count", tData["MaxSpawn"])
+				tData["MinCount"] = ReadLine(oIni, "Number", sRespawn, "min_count", tData["MaxCount"])
+				tData["Conditions"] = ReadLine(oIni, "String", sRespawn, "conditions", 100)	
+				tData["iIdleSpawn"] = ReadLine(oIni, "String", sRespawn, "idle_spawn", "medium")
+				tData["sLogic"] = ReadLine(oIni, "String", sRespawn, "logic", "nil")
+				tData["sCount"] = ReadLine(oIni, "String", sRespawn, "count", "nil")
+				tData["Type"] = ReadLine(oIni, "Number", sRespawn, "type", 1)
+
+				local sPosition = ReadLine(oIni, "String", sRespawn, "position")
+				local tPos = SplitString(sPosition, 1, ",")
+				local radius = ReadLine(oIni, "Number", sRespawn, "mob_home_radius", math.random(db.switch_distance/5, db.switch_distance/2) )
+				local sCustomData = "[respawn]\n" ..
+					"name = "..sRespawn.."\n" ..
+					"respawn_section = "..tData["RespawnSections"].."\n" ..
+					"max_spawn = "..tData["MaxSpawn"].."\n" ..
+					"idle_spawn = "..tData["iIdleSpawn"].."\n" ..
+					"conditions	= "..tData["Conditions"].."\n" ..
+					"logic = "..tData["sLogic"].."\n" ..
+					"count = "..tData["sCount"].."\n" ..
+					"type = "..tData["Type"]
+
+				local vPos = vector():set(tonumber(tPos[1]), tonumber(tPos[2]), tonumber(tPos[3]) )
+-- new	
+				if dbg_option == true then
+				  local c_lvid, c_gid = get_gvid_levelid(vPos) 
+				    if not (c_lvid == nil and c_gid == nil) then
+--				      local oRespawn = alife():create("respawn", vPos.x, vPos.y, vPos.z, c_lvid, c_gid)
+					  log3("resp: "..sRespawn.." pos: "..vPos.x..", "..vPos.y..", "..vPos.z..", "..c_lvid..", "..c_gid.."")
+				    end
+				end
+-- new
+				local oRespawn = alife():create("respawn", vPos, tonumber(tPos[4]), tonumber(tPos[5]) )
+
+				tData = net_packet_read.GetRespawn(oRespawn)	
+				
+				tData.tShape = {}
+				tData.tShape[1] = {}
+				tData.tShape[1].iShapeType = 0
+				tData.tShape[1].iRadius = radius
+				tData.tShape[1].vCenter = vector():set(0, 0, 0)
+				
+				tData.sCustomData = sCustomData		
+				net_packet_write.SetRespawn(tData, oRespawn)	
+				se_respawn.RegisterInit(oRespawn)
+		
+		log3("# lwc_respawn.script : add respawn "..sRespawn.."")
+
+		i = i + 1
+		sRespawn = level.name().."_"..i
+	until not is_sect_exist(sRespawn, oIni)
+end

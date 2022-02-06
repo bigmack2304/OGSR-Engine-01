@@ -1,0 +1,132 @@
+--[[
+	биндер аномалии искажающей время.
+	специально для addon_dt - ogsr
+	сделано на основе биндера аномалий от Real Wolf
+	
+	принцып такой, чем ближе мы к центру аномалии тем быстрее будет
+	идти время по пда(день ночь) но при этом для актора время пойдет медленнее.
+--]]
+
+local alife_time_factor = 2			-- нормальная скорость времяни
+local get_tFactor 		= 1			-- далее, получает текущую скорость времяни
+local float_tf 			= 1			-- далее, расчетная искажения времяни для дня и ночи
+local float_actor_tf 	= 1			-- далее, расчетная искажения времяни для актора
+local check_actor_t 	= true		-- искажение времяни для актора
+local distort_t 		= 2			-- максимальное ускорение времяни для дня и ночи, параметр addon_time_distortion, читается из секции обьекта. 
+local distort_actor_t 	= 0.35		-- максимальное замедление времяни для актора
+local anom_radius 		= 1			-- радиус аномалии, в пределах которого будет искажатся время, параметр addon_shape_radius, читается из секции обьекта.  
+local GoodModeBool		= 0
+local GoodModeRead		= 0		  	
+
+function Init(oAnom)
+	local oNewBinder = CTimeAnomBinder(oAnom)
+	oAnom:bind_object(oNewBinder)
+end
+
+class "CTimeAnomBinder" (object_binder)
+function CTimeAnomBinder:__init(obj) super(obj)
+	self.object_id = self.object:id()
+	self.parent = self.object:parent()
+	self.pos = self.object:position()
+end 
+
+function CTimeAnomBinder:reload(section)
+	object_binder.reload(self, section)
+end
+
+function CTimeAnomBinder:reinit()
+	object_binder.reinit(self)
+	db.addon_anoms[self.object:id()] = self.object
+	self.st = db.addon_anoms[self.object:id()]
+end
+
+function CTimeAnomBinder:net_save_relevant()
+	return true
+end
+
+function CTimeAnomBinder:update(delta)
+	object_binder.update(self, delta)
+
+	get_tFactor = level.get_time_factor()
+	GoodModeBool = get_con_bool( "g_god" )
+
+	alife_time_factor = TimeFactor()	
+	self.object_id = self.object:id()
+	self.object_sect = self.object:section()
+	local oSGA_o = alife():object(self.object_id )
+	
+  if oSGA_o then
+   self.pos = self.object:position()
+   anom_radius = ReadLine(system_ini(), "Number", self.object_sect, "addon_shape_radius", 0)   
+   distort_t = ReadLine(system_ini(), "Number", self.object_sect, "addon_time_distortion", 0)   
+   local dist = db.actor:position():distance_to(self.pos)
+   
+	if dist < anom_radius then
+		float_tf = addon_map_float(dist, anom_radius, 0, alife_time_factor, distort_t)
+		float_actor_tf = addon_map_float(dist, 0, anom_radius, distort_actor_t, 1)
+		read_tFactor()		
+	      if GoodModeBool == false and GoodModeRead == 0 then
+	        cmd("g_god 1")
+	        GoodModeRead = 1
+	    --    log3("# bind_test_anom.script: 1")
+	      end		  
+	else
+		normal_tFactor()		
+		  if GoodModeBool == true and GoodModeRead == 1 then
+		    cmd("g_god 0")
+		    GoodModeRead = 0
+		--    log3("# bind_test_anom.script: 0")
+	      end		  
+	end
+  end
+  
+end
+
+function read_tFactor()
+  if db.actor:dont_has_info("addon_set_time_debug") then
+	level.set_time_factor(float_tf)
+	if check_actor_t then
+	  cmd("time_factor "..float_actor_tf.."")
+	end
+	db.inDistortAnom = 1
+--	log3("# bind_test_anom.script: set "..float_tf.." time_factor, for actor "..float_actor_tf.."")
+  end
+end
+
+function normal_tFactor()
+  if db.actor:dont_has_info("addon_set_time_debug") then
+    if get_tFactor ~= alife_time_factor then
+	  if check_actor_t then
+	    cmd("time_factor 1")
+	  end
+	  level.set_time_factor(TimeFactor() )
+	  db.inDistortAnom = 0
+--	  log3("# bind_test_anom.script: set normal time_factor")
+    end
+  end
+end
+
+function CTimeAnomBinder:save(packet)
+	object_binder.save(self, packet)
+end
+
+function CTimeAnomBinder:load(reader)
+	object_binder.load(self, reader)
+end
+
+function CTimeAnomBinder:net_spawn(data)
+	if not object_binder.net_spawn(self, data) then
+		return false
+	end
+	
+	tTAnom[self.object:id()] = self.object
+	db.addon_anoms[self.object:id()] = self.object
+	
+	return true
+end
+
+function CTimeAnomBinder:net_destroy()
+	object_binder.net_destroy(self)
+	db.addon_anoms[self.object:id()] = nil	-- Таблица содержащая все аномалии
+	tTAnom[self.object:id()] = nil			-- Таблица содержащая временные аномалии
+end

@@ -1,0 +1,36 @@
+-- текст перехода на локацию
+
+function attach(sm)
+	sm:subscribe({signal = "lc_action",			fun = this.on_level_chenger})
+end
+
+function on_level_chenger( obj, wnd )
+  local adactor = db.actor
+  local sobj = obj:get_alife_object()
+  local lc   = sobj:get_level_changer()
+  local dest_vertex = lc.dest_game_vertex_id
+  local dest_lname  = alife():level_name(game_graph():vertex( dest_vertex ):level_id())
+  local msg_text_wnd = wnd:FindChild( "message_box_change_level:message_text" )
+
+	if this.load_variable("addon_opt_lcinf",1) == 1 and adactor ~= nil then
+  		msg_text_wnd:GetCUIStatic():SetText( game.translate_string( "pre_lc_invitation_addon" ) .. " - " .. game.translate_string( dest_lname ) .. ", ".. game.translate_string( "lc_invitation_addon" ))
+	else
+  		msg_text_wnd:GetCUIStatic():SetText( game.translate_string( "level_changer_invitation" ))
+	end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

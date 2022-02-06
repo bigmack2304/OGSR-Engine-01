@@ -1,0 +1,87 @@
+-- для xs_sandbox
+
+actor_net_spawn 	- спавн актора
+actor_update		- абдейт актора
+wpn_reload		- перезарядка оружия
+actor_item_take		- взятие предмета
+actor_item_drop		- выбрасывание предмета
+actor_item_toruck	- перемещение предмета в рюкзак
+actor_item_toslot	- перемещение предмета в слот
+actor_on_key		- нажатие клавиши
+actor_on_key_free	- отпускание клавиши
+actor_on_key_hold	- удержание клавиши
+actor_item_tobelt	- перемещение предмета на пояс
+actor_inventory_open    - открыт инвентарь
+on_actor_death		- смерть гг
+use_item		- использование предмета
+actor_load		- загрузка
+actor_save		- сохранение
+take_item_from_box	- взятие предмета из ящика
+
+
+
+
+-- для ogse_signals
+
+on_take			- взятие предмета
+on_update		- абдейт актора
+on_monster_dead		- смерть мутанта
+monster_obj_use		- юзание тушки монстра
+use_deadnpc		- юзание мертвого нпс
+on_npc_update		- абдейт неписей
+on_npc_spawn		- спавн нпс
+on_npc_net_destroy	- 
+physic_obj_use		- видимо использование обьектов xr_motivator
+physic_obj_use		- bind_physics_object
+on_npc_death		- смерть нпс
+on_load_before_all	- эти 2 из - actor_binder:__init
+on_init
+on_finalize		- из - __finalize()
+on_spawn		- при спавне актора
+on_info			- из - info_callback
+on_take			- поднятие предмета
+on_drop			- выбрасывание предмета
+on_item_to_ruck		- перемещение в рюкзак
+on_item_to_belt		- перемещение на пояс
+on_key_down		- нажатие кнопки
+on_wheel_rotation	- хз, чтото связанное с мышкой
+on_select_item		- выбор предмета в инвенторе
+on_cell_item_focus	- наведение мышки на иконку вроде
+on_cell_item_focus_lost	- на какой предмет наводили мышку
+on_cell_item_mouse	- хз возможно координаты мышки
+on_key_up		- отпускание кнопки
+on_key_hold		- удержание кнопки
+on_mouse_move		- движение мышки
+on_item_to_slot		- перемещение предмета в слот
+on_actor_death_sm	- смерть гг
+lc_action		- окно перехода на локу
+on_first_update		- 1 абдейт
+on_update		- постоянный обдейт
+on_save			- сохранение
+on_console_command" 	- ввод консольной команды user_command (command, com_value)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

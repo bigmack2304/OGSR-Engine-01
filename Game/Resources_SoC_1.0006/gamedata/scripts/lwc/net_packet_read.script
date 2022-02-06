@@ -1,0 +1,480 @@
+--[[
+	Функции чтения нет пакета различных объектов
+	Авторы: Refresh, Real Wolf
+--]]
+
+
+--[[
+	Читаем net пакет серверного обьекта сталкера.
+--]]
+function GetStalker(oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+	
+	oServerObj:STATE_Write(oStt)
+	oServerObj:UPDATE_Write(oUpd)
+
+	local iSize = oStt:w_tell()
+	
+	local tData = {}	
+	cse_alife_human_stalker(tData, oStt, oUpd, iSize)	
+	se_stalker(tData, oStt, oUpd, iSize)
+
+	return tData
+end
+
+--[[
+	Читаем net пакет серверного обьекта перехода.
+--]]
+function GetLevelChanger(oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+	
+	oServerObj:STATE_Write(oStt)
+	oServerObj:UPDATE_Write(oUpd)
+
+	local tData = {}
+	
+	cse_alife_object(tData, oStt, oUpd)
+	cse_shape(tData, oStt, oUpd)
+	cse_alife_space_restrictor(tData, oStt, oUpd)
+	cse_alife_level_changer(tData, oStt, oUpd)
+	
+	return tData
+end
+
+--[[
+	Читаем net пакет серверного обьекта монстра.
+--]]
+function GetMonster(oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+	
+	oServerObj:STATE_Write(oStt)
+	oServerObj:UPDATE_Write(oUpd)
+
+	local iSize = oStt:w_tell()
+	
+	local tData = {}	
+	cse_alife_monster_base(tData, oStt, oUpd)	
+	se_monster(tData, oStt, oUpd, iSize)
+
+	return tData
+end
+
+--[[
+	Читаем net пакет серверного обьекта рестриктора.
+--]]
+function GetRestrictor(oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+	
+	oServerObj:STATE_Write(oStt)
+	oServerObj:UPDATE_Write(oUpd)
+	
+	local tData = {}	
+	
+	cse_alife_object(tData, oStt, oUpd)
+	cse_shape(tData, oStt, oUpd)
+	cse_alife_space_restrictor(tData, oStt, oUpd)
+	
+	return tData
+end
+
+--[[
+	Читаем net пакет серверного обьекта аномалии.
+--]]
+function GetAnomaly(oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+	
+	oServerObj:STATE_Write(oStt)
+	oServerObj:UPDATE_Write(oUpd)
+	
+	local tData = {}	
+
+	cse_alife_object(tData, oStt, oUpd)
+	cse_shape(tData, oStt, oUpd)
+	cse_alife_space_restrictor(tData, oStt, oUpd)
+	cse_alife_custom_zone(tData, oStt, oUpd)
+	cse_alife_anomalous_zone(tData, oStt, oUpd)
+	se_zone_anom(tData, oStt, oUpd)
+	
+	return tData
+end
+
+--[[
+	Читаем net пакет серверного обьекта освещения.
+--]]
+function GetHangingLamp(oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+	
+	oServerObj:STATE_Write(oStt)
+	oServerObj:UPDATE_Write(oUpd)
+	
+	local tData = {}	
+	
+	cse_alife_object(tData, oStt, oUpd)
+	cse_visual(tData, oStt, oUpd)
+	cse_ph_skeleton(tData, oStt, oUpd)	
+	cse_alife_object_hanging_lamp(tData, oStt, oUpd)
+	
+	return tData
+end
+
+--[[
+	Читаем net пакет серверного обьекта респавнера.
+--]]
+function GetRespawn(oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+	
+	oServerObj:STATE_Write(oStt)
+	oServerObj:UPDATE_Write(oUpd)
+	
+	local tData = {}	
+	
+	cse_alife_object(tData, oStt, oUpd)
+	cse_shape(tData, oStt, oUpd)
+	cse_alife_space_restrictor(tData, oStt, oUpd)
+	se_respawn(tData, oStt, oUpd)
+	
+	return tData
+end
+
+--[[
+	Читаем данные типа l32u8v
+--]]
+function getl32u8v(oStt)
+	local tTmpTbl = {}
+	local iLen = oStt:r_s32()
+	for i = 1, iLen, 1 do
+		table.insert(tTmpTbl, oStt:r_u8())
+	end
+	return tTmpTbl
+end
+
+--[[
+	Читаем данные типа l32u16v
+--]]
+function getl32u16v(oStt)
+	local tTmpTbl = {}
+	local iLen = oStt:r_s32()
+	for i = 1, iLen, 1 do
+		table.insert(tTmpTbl, oStt:r_u16())
+	end
+	return tTmpTbl
+end
+
+--[[
+	Читаем данные типа u8vN, где N количество данных.
+--]]
+function getu8vN(oPacket, iLength)
+	local tTmpTbl = {}
+	for i = 1, iLength, 1 do
+		table.insert(tTmpTbl, oPacket:r_u8() )
+	end
+	return tTmpTbl
+end
+
+
+--[[
+	Читаем данные, которые сохраняет se_stalker.script
+--]]
+function se_stalker(tData, oStt, oUpd, iSize)
+	tData.iStateOnline = oStt:r_u8()
+	if tData.iStateOnline > 2 then
+		tData.sCondlist = oStt:r_stringZ()
+	end
+	
+	tData.bWasSmartTerrain = oStt:r_bool()
+	tData.bDeathDroped 	  = oStt:r_bool()
+	
+	tData.tTrash = {}
+	for iIndex = oStt:r_tell(), iSize - 1, 1 do
+		table.insert(tData.tTrash, oStt:r_u8())
+	end		
+	return tData
+end
+
+--[[
+--	Читаем данные, которые сохраняет se_monster.script
+--]]
+function se_monster(tData, oStt, oUpd, iSize)
+	tData.iStateOnline = oStt:r_u8()
+	if tData.iStateOnline > 2 then
+		tData.sCondlist = oStt:r_stringZ()
+	end	
+	tData.bWasSmartTerrain = oStt:r_bool()
+	tData.tTrash = {}
+	for iIndex = oStt:r_tell(), iSize - 1, 1 do
+		table.insert(tData.tTrash, oStt:r_u8())
+	end		
+	return tData
+end
+
+--[[
+	Читаем данные, которые сохраняет se_zones.script
+--]]
+function se_zone_anom(tData, oStt, oUpd)
+	tData.iLastSpawnTimePresent	= oStt:r_u8()
+	return tData
+end
+
+--[[
+	Читаем данные, которые сохраняет se_respawn.script
+--]]
+function se_respawn(tData, oStt, oUpd)
+	tData.iYear 	   = oStt:r_u8()
+	
+	if tData.iYear ~= 0 then
+		tData.iMonth    = oStt:r_u8()
+		tData.iDay      = oStt:r_u8() 
+		tData.iHours    = oStt:r_u8() 
+		tData.iMinutes  = oStt:r_u8()
+		tData.iSeconds  = oStt:r_u8()
+		tData.iMilisecs = oStt:r_u16()
+	end
+	
+	tData.iSpawnedObjCount = oStt:r_u8()
+	
+	for i = 1, tData.iSpawnedObjCount do
+		table.insert(tData.tSpawnedObjects, oStt:r_u16() )
+	end
+	
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_alife_human_stalker
+--]]
+function cse_alife_human_stalker(tData, oStt, oUpd, size)
+	cse_alife_human_abstract(tData, oStt, oUpd)
+	cse_ph_skeleton(tData, oStt, oUpd)
+	
+	tData.sUpdStartDialog = oUpd:r_stringZ()		
+	return tData
+end
+
+
+--[[
+	Читаем данные класса cse_alife_monster_base
+--]]
+function cse_alife_monster_base(tData, oStt, oUpd)
+	cse_alife_monster_abstract(tData, oStt, oUpd)
+	cse_ph_skeleton(tData, oStt, oUpd)
+	
+	tData.iSpecObjectId = oStt:r_u16()	 				
+	return tData
+end
+
+
+--[[
+	Читаем данные класса cse_alife_human_abstract
+--]]
+function cse_alife_human_abstract(tData, oStt, oUpd)
+	cse_alife_trader_abstract(tData, oStt, oUpd)
+	cse_alife_monster_abstract(tData, oStt, oUpd)
+	
+	tData.tPredicate5 = getl32u8v(oStt)
+	tData.tPredicate4 = getl32u8v(oStt)
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_ph_skeleton
+--]]
+function cse_ph_skeleton(tData, oStt, oUpd)
+	tData.sSkeletonName 		= oStt:r_stringZ()
+	tData.iSkeletonFlags 	= oStt:r_u8()
+	tData.iSourceId 			= oStt:r_u16()
+	
+	tData.iUpdSkeletonFlags 	= oUpd:r_u8()
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_alife_trader_abstract
+--]]
+function cse_alife_trader_abstract(tData, oStt, oUpd)
+	tData.iMoney				= oStt:r_s32()
+	tData.sCharacter			= oStt:r_stringZ()
+	tData.iTraderFlags		= oStt:r_s32()
+	tData.sCharacterProfile 	= oStt:r_stringZ()
+	tData.iCommunityIndex   	= oStt:r_s32()
+	tData.iRank				= oStt:r_s32()
+	tData.iReputation		= oStt:r_s32()
+	tData.sCheckCharacters  	= oStt:r_stringZ()
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_alife_monster_abstract
+--]]
+function cse_alife_monster_abstract(tData, oStt, oUpd)
+	cse_alife_creature_abstract(tData, oStt, oUpd)
+	
+	tData.sBaseOutRes 		= oStt:r_stringZ()
+	tData.sBaseInRes 		= oStt:r_stringZ()
+	tData.iSmartId 			= oStt:r_u16()
+	tData.iSmartTaskActive 	= oStt:r_u8()
+
+	tData.iUpdu16u1 			= oUpd:r_u16()
+    tData.iUpdu16u2 			= oUpd:r_u16()
+    tData.iUpds32u3 			= oUpd:r_s32()
+    tData.iUpds32u4 			= oUpd:r_s32()
+  
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_alife_creature_abstract
+--]]
+function cse_alife_creature_abstract(tData, oStt, oUpd)
+	cse_alife_dynamic_object_visual(tData, oStt, oUpd)
+
+	tData.iTeam			= oStt:r_u8()
+	tData.iSquad			= oStt:r_u8()
+	tData.iGroup			= oStt:r_u8()
+	tData.iHealth		= oStt:r_float()
+	tData.tDynOutRest	= getl32u16v(oStt)
+	tData.tDynInRest		= getl32u16v(oStt)  
+	tData.iKillerId		= oStt:r_u16()
+	tData.tGameDeathTime	= getu8vN(oStt, 8)
+
+	tData.iUpdHealth		= oUpd:r_float()
+	tData.iUpdTimeStamp	= oUpd:r_s32()
+	tData.iUpdCrtFlags	= oUpd:r_u8()
+	tData.vUpdPosition	= oUpd:r_vec3()	
+	tData.iUpdModel		= oUpd:r_float()
+	tData.iUpdDir		= oUpd:r_vec3()	
+	tData.iUpdTeam		= oUpd:r_u8()
+	tData.iUpdSquad		= oUpd:r_u8()
+	tData.iUpdGroup		= oUpd:r_u8()
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_alife_dynamic_object_visual
+--]]
+function cse_alife_dynamic_object_visual(tData, oStt, oUpd)
+	cse_alife_object(tData, oStt, oUpd)
+	cse_visual(tData, oStt, oUpd)	
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_alife_object
+--]]
+function cse_alife_object(tData, oStt, oUpd)
+	tData.iGameVertex	= oStt:r_u16()
+	tData.iDist 		= oStt:r_float()
+	tData.iDirControl 	= oStt:r_s32()
+	tData.iLevelVertex 	= oStt:r_s32()	
+	tData.iObjFlags		= oStt:r_s32()
+	tData.sCustomData 	= oStt:r_stringZ()
+	tData.iStoryId 		= oStt:r_s32()	
+	tData.iSpawnSid 	= oStt:r_s32()
+	return tData
+end
+
+--[[
+--	Читаем данные класса cse_visual
+--]]
+function cse_visual(tData, oStt, oUpd)
+	tData.sVisualName 	= oStt:r_stringZ()
+	tData.iVisualFlags 	= oStt:r_u8()
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_shape
+--]]
+function cse_shape(tData, oStt, oUpd)
+	local iCount = oStt:r_u8()
+	tData.tShape = {}
+	for i = 1, iCount do
+		local iShapeType = oStt:r_u8()
+		tData.tShape[i] = {}
+		tData.tShape[i].iShapeType = iShapeType
+		if iShapeType == 0 then
+			tData.tShape[i].vCenter = oStt:r_vec3()
+			tData.tShape[i].iRadius = oStt:r_float()
+		else
+			tData.tShape[i].v1 = oStt:r_vec3()
+			tData.tShape[i].v2 = oStt:r_vec3()
+			tData.tShape[i].v3 = oStt:r_vec3()
+			tData.tShape[i].vOffset = oStt:r_vec3()
+		end
+	end 
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_alife_space_restrictor
+--]]
+function cse_alife_space_restrictor(tData, oStt, oUpd)
+	tData.iRestType = oStt:r_u8()
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_alife_level_changer
+--]]
+function cse_alife_level_changer(tData, oStt, oUpd)
+	tData.iDestGameVertex 	= oStt:r_u16()
+	tData.iDestLevelVertex 	= oStt:r_u32()
+	tData.vDestPosition	 	= oStt:r_vec3()
+	tData.vDirection 		= oStt:r_vec3()
+	tData.sLevelName 		= oStt:r_stringZ()
+	tData.sGraphPoint 		= oStt:r_stringZ()
+	tData.iSilentMode 		= oStt:r_u8()
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_alife_object_hanging_lamp.
+--]]
+function cse_alife_object_hanging_lamp(tData, oStt, oUpd)
+	tData.iMainColor			= oStt:r_s32()
+	tData.iMainBrightness		= oStt:r_float()
+	tData.sMainColorAnimator	= oStt:r_stringZ()
+	tData.iMainRange			= oStt:r_float()
+	tData.iLightFlags			= oStt:r_s16()
+	tData.sStartupAnimation		= oStt:r_stringZ()
+	tData.sLampFixedBones		= oStt:r_stringZ()
+	tData.iHealth				= oStt:r_float()
+	tData.iMainVirtualSize		= oStt:r_float()	
+	tData.iAmbientRadius		= oStt:r_float()
+	tData.iAmbientPower			= oStt:r_float()
+	tData.sAmbientTexture		= oStt:r_stringZ()
+	tData.sMainTexture			= oStt:r_stringZ()
+	tData.sMainBone				= oStt:r_stringZ()
+	tData.iMainConeAngle		= oStt:r_float()
+	tData.sGlowTexture			= oStt:r_stringZ()
+	tData.iGlowRadius			= oStt:r_float()
+	tData.sAmbientBone			= oStt:r_stringZ()
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_alife_custom_zone.
+--]]
+function cse_alife_custom_zone(tData, oStt, oUpd)
+	tData.iMaxPower 		= oStt:r_float()
+	tData.iOwnerId			= oStt:r_s32()
+	tData.iEnabledTime 		= oStt:r_s32()
+	tData.iDisabledTime 	= oStt:r_s32()
+	tData.iStartTimeShift 	= oStt:r_s32()
+	return tData
+end
+
+--[[
+	Читаем данные класса cse_alife_anomalous_zone.
+--]]
+function cse_alife_anomalous_zone(tData, oStt, oUpd)
+	tData.iOfflineInteractiveRadius = oStt:r_float()
+	tData.iArtefactSpawnCount 		= oStt:r_u16()
+	tData.iArtefactPositionOffset	= oStt:r_s32()
+end

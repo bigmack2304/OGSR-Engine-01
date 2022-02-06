@@ -1,0 +1,57 @@
+--[[
+	Схема разрыва тел
+	Автор: Decane, Real Wolf
+
+	05 03 18 теперь кастрированая схема разрыва тел
+
+--]]
+
+
+local tWeaponEffect = {
+	["wpn_rpg7"]		= "gore_efx\\gore_explode",
+	["wpn_rg-6"]		= "gore_efx\\gore_explode"
+}
+
+local pParams = particle_params(vector():set(0, 0, 0.3), vector(), vector():set(1, 0, 0) )
+
+function NpcDeath(oVictim, oWho)
+	local actor = db.actor
+	local oActiveWeapon = oWho:active_item()
+		if this.load_variable("addon_opt_blood",1) == 0 and actor ~= nil then
+	--	log1("addon_bb_mod.script : off")
+			return
+		end
+	--	log1("addon_bb_mod.script : on")
+	if oActiveWeapon and IsStalker(oWho) then
+		local sWeaponSection = oActiveWeapon:section()
+		local sEffect = tWeaponEffect[sWeaponSection]
+		if sEffect then
+			local oParticle = particles_object(sEffect)
+			oParticle:play_at_pos(oVictim:position() )
+
+			--local iID = oVictim:id()
+			--net_packet_utils.Switch(iID, false)
+			--addon_lwc_timer.Add("Death", DelObj, iID, 0, 5)
+			
+			return true
+		end
+	end
+	return false
+end
+
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

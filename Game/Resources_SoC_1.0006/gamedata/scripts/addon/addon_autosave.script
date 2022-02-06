@@ -1,0 +1,123 @@
+-- скрипт автосохранения.
+-- сохраняемся каждые 3 минуты.
+-- 05.10.2015 введено ограниечение на открытое окно пда/рюкзака/диалога/торговли.
+-- 21.03.2019 адоптация под OGSR
+
+local hit 		= 0
+local iTimer 
+local ded 		= 0
+
+function starttimer()
+iTimer = time_global() + 3*60000
+end 
+
+function timerminutes()
+if iTimer and iTimer < time_global() then
+iTimer = nil
+save() 
+end 
+end 
+
+function hiton() 
+hit = 1
+end 
+
+function save()
+
+local wnd_inventory 	= level.get_inventory_wnd()  -- окно инвинтаря
+local wnd_pda 		= level.get_pda_wnd()	     -- окно пда
+local wnd_talk		= level.get_talk_wnd()       -- окно диалога
+local wnd_trade 	= level.get_trade_wnd()      -- окно торговли
+local wnd_body	 	= level.get_car_body_wnd()   -- окно обыска
+local adactor 		= db.actor
+
+	if hit==1 then
+		return
+	end
+
+	if ded==1 then
+		return
+	end
+
+	if this.load_variable("addon_opt_autosav",1) == 0 and adactor ~= nil then
+		return
+	end
+
+	if wnd_trade and wnd_trade:IsShown() then
+	sound2()
+	starttimer()
+else	
+	if  wnd_talk and wnd_talk:IsShown() then
+	sound2()
+	starttimer()
+else	
+	if  wnd_body and wnd_body:IsShown() then
+	sound2()
+	starttimer()
+else	
+	if  wnd_inventory and wnd_inventory:IsShown() then
+	sound2()
+	starttimer()
+else	
+	if  wnd_pda and wnd_pda:IsShown() then
+	sound2()
+	starttimer()
+--else
+--	if db.actor:has_info("addon_invt_on") then
+--	sound2()
+--	Start_Timer()
+else
+	cmd("save addon_script_autosave")
+	starttimer()
+	sound()
+--        end
+	end
+       end
+     end
+    end
+  end
+end
+
+function sound()
+local adactor = db.actor
+	if this.load_variable("addon_opt_autosav",1) == 1 and adactor ~= nil then
+		local snd = sound_object([[device\pda\pda_tip_0]]) 
+		snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 2.0) 
+	end
+end 
+
+function sound2() 
+local adactor = db.actor
+	if this.load_variable("addon_opt_autosav",1) == 1 and adactor ~= nil then
+		local snd = sound_object([[ogse\decoder]]) 
+		snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 2.0) 
+	end
+end 
+
+-- вызывается при смерти гг
+function actor_dead()
+ded = 1
+--log1("# ustal.script (actor_dead): dead actor")
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("actor_net_spawn"):register(starttimer)
+	event("actor_update"):register(timerminutes)
+	event("on_actor_death"):register(actor_dead)
+end

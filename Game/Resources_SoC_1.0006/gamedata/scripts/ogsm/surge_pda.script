@@ -1,0 +1,85 @@
+--[[
+	кусок кода из lwc, помехи в кпк во время выброса.
+	Авторы: Real Wolf , Gun12 
+--]]
+
+local oPda = nil
+local oHelpWnd = nil
+local tSpot = {}
+local sLanguage = "Russian"
+
+class "CHelpWindow" (CUIScriptWnd)
+function CHelpWindow:__init() super()
+   	self:Init(0, 0, 1, 1)		
+end
+
+function CHelpWindow:__finalize() 
+end
+
+function PdaOpen()
+local adactor 		= db.actor
+	oHelpWnd = CHelpWindow()	
+	oPda = level.main_input_receiver()
+
+	if not oPda then
+		return
+	end
+
+if this.load_variable("addon_opt_sound_pda",1) == 1 and adactor ~= nil then
+	local snd = sound_object([[interface\devices\pdaon]]) 
+	snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 2.0)
+end
+
+if this.load_variable("addon_opt_surge_pda",1) == 1 and adactor ~= nil then
+if load_variable("pdns",0) == 1 then
+		oInterference = CUIStatic()
+		oInterference:SetAutoDelete(true)
+		oPda:AttachChild(oInterference)
+		oInterference:SetStretchTexture(true)
+		oInterference:SetWndRect(105, 100, 774, 534)
+		oInterference:InitTexture("ui\\ui_noise")
+		
+	--	return
+	end		
+	
+end
+
+	event("evt_pda_open"):trigger()
+
+end
+
+function PdaHide()
+local adactor = db.actor
+
+	local tWindows = {
+		oInterference
+	}
+
+if this.load_variable("addon_opt_sound_pda",1) == 1 and adactor ~= nil then
+	local snd = sound_object([[interface\devices\pdaoff]]) 
+	snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 2.0)
+end
+	for iKey, oWnd in pairs(tWindows) do
+		if oWnd then
+			oWnd:Show(false)
+			oWnd = nil
+		end
+	end
+
+	event("evt_pda_hide"):trigger()
+	
+end
+
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+-- Загружаем переменную
+function load_variable(variable_name, value_if_not_found)
+	return xr_logic.pstor_retrieve(db.actor, variable_name, value_if_not_found)
+end

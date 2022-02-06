@@ -1,0 +1,113 @@
+--[[
+Copyright: © Ирбиs , Real Wolf
+]]
+
+--профиль нпс и список костюмов с которыми он может работать
+local tNpc = {	
+	["escape_trader"] = { 
+		["novice_outfit"] 		= true,
+		["bandit_outfit"] 		= true,
+		["scientific_outfit"] 	= true,
+		["exo_outfit"] 			= true
+--		["killer_outfit"] = true,
+--		["monolit_outfit"] = true,
+--		["specops_outfit"] = true,
+--		["military_outfit"] = true,
+--		["stalker_outfit"] = true,
+--		["exo_outfit"] = true,
+--		["svoboda_light_outfit"] = true,
+--		["svoboda_heavy_outfit"] = true,
+--		["dolg_outfit"] = true,
+--		["dolg_scientific_outfit"] = true,
+--		["ecolog_outfit"] = true,
+--		["protection_outfit"] = true
+	}
+}
+		
+--прекондишон, нпс и инфопоршень. Можно реализовать квест с поиском инструментов, после чего нпс сможет работать с оружием\броней		
+local tPrecond = { 
+--	["kardan"] = "upi_repair_kit_for_kardan_quest_end" 
+}
+
+function is_not_slot()
+	if not (db.actor:item_in_slot(1) and db.actor:item_in_slot(2) ) then
+		return true
+	end
+	return false
+end
+
+function precond(oActor, oNpc)
+	local sPrecond =  tPrecond[oNpc:name()] or tPrecond[oNpc:section()]
+	if sPrecond then
+		if has_alife_info(sPrecond) then
+			return true
+		end
+	else
+		return true
+	end
+	return false
+end	
+
+function precond_1()
+	if (db.actor:item_in_slot(1)  or db.actor:item_in_slot(2) ) then
+		return true
+	end
+	return false
+end
+
+function is_not_outfit()
+	local oSuit = db.actor:item_in_slot(6)
+	if not oSuit then
+		return true
+	end
+	return false
+end
+
+function is_allowed_outfit(oNpc, oActor)
+	local oSuit = db.actor:item_in_slot(6)
+	if not oSuit then
+		return false
+	end	
+	
+	local tSuits = tNpc[oNpc:name()] or tNpc[oNpc:section()]
+	if tSuits then
+		local sRealOutfit = lwc_upgrade_outfit.GetRealSection("Section")
+		if tSuits[sRealOutfit] then
+			return true
+		end
+	end
+	return false
+end
+
+function is_outfit(oNpc, oActor)
+	local oSuit = db.actor:item_in_slot(6)
+	if not oSuit then
+		return true
+	end
+	
+	local tSuits = tNpc[oNpc:name()] or tNpc[oNpc:section()]
+	if tSuits then
+		local sRealOutfit = lwc_upgrade_outfit.GetRealSection("Section")
+		if tSuits[sRealOutfit] then
+			return false
+		end
+	end
+	return true
+end
+
+function start_upgrade(oActor, oNpc)
+	oActor:stop_talk()
+	oNpc:stop_talk()
+	
+	local oUpgrade = lwc_upgrade_outfit.CUpgradeOutfit()
+	level.start_stop_menu(oUpgrade, true)		
+end
+
+
+function start_upgrade_weapons(oFirstSpeaker, oSecondSpeaker)
+	oFirstSpeaker:stop_talk()
+	oSecondSpeaker:stop_talk()
+	
+	local oSelectWnd = lwc_upgrade_weapon_select.CSelectWeapon()
+	level.start_stop_menu(oSelectWnd, true)		
+end

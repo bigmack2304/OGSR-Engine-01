@@ -1,0 +1,455 @@
+--[[
+	Функции записи в нет пакет различных объектов
+	Авторы: Refresh, Real Wolf
+--]]
+
+
+--[[
+	Записываем в net пакеты серверного обьекта сталкера.
+--]]
+function SetStalker(tData, oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+  	
+	cse_alife_human_stalker(tData, oStt, oUpd)	
+	se_stalker(tData, oStt, oUpd)
+	
+	local iSize	= oStt:w_tell()
+
+	oStt:r_seek(0)
+	oUpd:r_seek(0)
+	
+	oServerObj:STATE_Read(oStt, iSize)
+	oServerObj:UPDATE_Read(oUpd)
+end
+
+--[[
+	Записываем в net пакеты серверного обьекта монстра.
+--]]
+function SetMonster(tData, oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+	
+	cse_alife_monster_base(tData, oStt, oUpd)	
+	se_monster(tData, oStt, oUpd)
+	
+	local iSize = oStt:w_tell()
+	
+	oStt:r_seek(0)
+	oUpd:r_seek(0)
+	
+	oServerObj:STATE_Read(oStt, iSize)
+	oServerObj:UPDATE_Read(oUpd)
+end
+
+--[[
+	Записываем в net пакеты серверного обьекта  аномалии.
+--]]
+function SetAnomaly(tData, oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+
+	cse_alife_object(tData, oStt, oUpd)
+	cse_shape(tData, oStt, oUpd)
+	cse_alife_space_restrictor(tData, oStt, oUpd)
+	cse_alife_custom_zone(tData, oStt, oUpd)
+	cse_alife_anomalous_zone(tData, oStt, oUpd)
+	se_zone_anom(tData, oStt, oUpd)
+	
+	local iSize = oStt:w_tell()
+	
+	oStt:r_seek(0)
+	oUpd:r_seek(0)
+	
+	oServerObj:STATE_Read(oStt, iSize)
+	oServerObj:UPDATE_Read(oUpd)
+end
+
+--[[
+	Записываем в net пакеты серверного обьекта  рестриктора.
+--]]
+function SetRestrictor(tData, oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+
+	cse_alife_object(tData, oStt, oUpd)
+	cse_shape(tData, oStt, oUpd)	
+	cse_alife_space_restrictor(tData, oStt, oUpd)	
+	
+	local iSize = oStt:w_tell()
+	
+	oStt:r_seek(0)
+	oUpd:r_seek(0)
+	
+	oServerObj:STATE_Read(oStt, iSize)
+	oServerObj:UPDATE_Read(oUpd)
+end
+
+--[[
+	Записываем в net пакеты серверного обьекта  освещения.
+--]]
+function SetHangingLamp(tData, oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+	
+	cse_alife_object(tData, oStt, oUpd)
+	cse_visual(tData, oStt, oUpd)
+	cse_ph_skeleton(tData, oStt, oUpd)	
+	cse_alife_object_hanging_lamp(tData, oStt, oUpd)
+	
+	local iSize = oStt:w_tell()
+	
+	oStt:r_seek(0)
+	oUpd:r_seek(0)
+	
+	oServerObj:STATE_Read(oStt, iSize)
+	oServerObj:UPDATE_Read(oUpd)
+end
+
+--[[
+	Записываем в net пакеты серверного обьекта  перехода.
+--]]
+function SetLevelChanger(tData, oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+	
+	cse_alife_object(tData, oStt, oUpd)
+	cse_shape(tData, oStt, oUpd)
+	cse_alife_space_restrictor(tData, oStt, oUpd)
+	cse_alife_level_changer(tData, oStt, oUpd)	
+	
+	local iSize = oStt:w_tell()
+	
+	oStt:r_seek(0)
+	oUpd:r_seek(0)
+	
+	oServerObj:STATE_Read(oStt, iSize)
+	oServerObj:UPDATE_Read(oUpd)
+end
+
+--[[
+	Записываем в net пакеты серверного обьекта  респавнера
+--]]
+function SetRespawn(tData, oServerObj)
+	local oStt = net_packet()
+	local oUpd = net_packet()
+
+	cse_alife_object(tData, oStt, oUpd)
+	cse_shape(tData, oStt, oUpd)	
+	cse_alife_space_restrictor(tData, oStt, oUpd)
+	se_respawn(tData, oStt, oUpd)
+	
+	local iSize = oStt:w_tell()
+	
+	oStt:r_seek(0)
+	oUpd:r_seek(0)
+	
+	oServerObj:STATE_Read(oStt, iSize)
+	oServerObj:UPDATE_Read(oUpd)
+end
+
+--[[
+	Записываем данные типа l32u8v
+--]]
+function setl32u8v(tData, oStt)
+	local iLen = table.getn(tData)
+	oStt:w_s32(iLen)
+	for i = 1, iLen, 1 do
+		oStt:w_u8(tData[i])
+	end
+end
+
+--[[
+	Записываем данные типа l32u16v
+--]]
+function setl32u16v(tData, oStt)
+	local iLen = table.getn(tData)
+	oStt:w_s32(iLen)
+	for i = 1, iLen, 1 do
+		oStt:w_u16(tData[i])
+	end
+end
+
+--[[
+	Записываем данные типа u8vN
+--]]
+function setu8vN(tData, oPacket)
+	local iLen = table.getn(tData)
+	for i = 1, iLen, 1 do
+		oPacket:w_u8(tData[i])
+	end
+end
+
+--[[
+	Записываем данные, которые сохраняет se_stalker.script
+--]]
+function se_stalker(tData, oStt, oUpd)
+	oStt:w_u8(tData.iStateOnline)
+	if tData.iStateOnline > 2 then
+		oStt:w_stringZ(tData.sCondlist)
+	end	
+	oStt:w_bool(tData.bWasSmartTerrain)
+	oStt:w_bool(tData.bDeathDroped)
+
+	for k,v in ipairs(tData.tTrash) do
+		oStt:w_u8(v)
+	end	
+end
+
+--[[
+	Записываем данные, которые сохраняет se_monster.script
+--]]
+function se_monster(tData, oStt, oUpd)
+	oStt:w_u8(tData.iStateOnline)
+	if tData.iStateOnline > 2 then
+		oStt:w_stringZ(tData.sCondlist)
+	end	
+	oStt:w_bool(tData.bWasSmartTerrain)
+	
+	for k,v in ipairs(tData.tTrash) do
+		oStt:w_u8(v)
+	end	
+end
+
+--[[
+	Записываем данные, которые сохраняет se_respawn.script
+--]]
+function se_respawn(tData, oStt, oUpd)
+	oStt:w_u8(tData.iYear)
+	
+	if tData.iYear ~= 0 then
+		oStt:w_u8(tData.iMonth)
+		oStt:w_u8(tData.iDay) 
+		oStt:w_u8(tData.iHours) 
+		oStt:w_u8(tData.iMinutes)
+		oStt:w_u8(tData.iSeconds)
+		oStt:w_u16(tData.iMilisecs)
+	end
+	
+	oStt:w_u8(tData.iSpawnedObjCount)
+	
+	for i = 1, tData.iSpawnedObjCount do
+		oStt:w_u16(tData.tSpawnedObjects[i])
+	end
+end
+
+--[[
+	Записываем данные, которые сохраняет se_zones.script
+--]]
+function se_zone_anom(tData, oStt, oUpd)
+	oStt:w_u8(tData.iLastSpawnTimePresent)
+end
+
+--[[
+	Записываем данные класса cse_alife_human_stalker
+--]]
+function cse_alife_human_stalker(tData, oStt, oUpd)
+	cse_alife_human_abstract(tData, oStt, oUpd)
+	cse_ph_skeleton(tData, oStt, oUpd)
+	
+	oUpd:w_stringZ(tData.sUpdStartDialog)
+end
+
+--[[
+	Записываем данные класса cse_alife_monster_base
+--]]
+function cse_alife_monster_base(tData, oStt, oUpd)
+	cse_alife_monster_abstract(tData, oStt, oUpd)
+	cse_ph_skeleton(tData, oStt, oUpd)
+	
+	oStt:w_u16(tData.iSpecObjectId)	 				
+	return tData
+end
+
+--[[
+	Записываем данные класса cse_alife_human_abstract
+--]]
+function cse_alife_human_abstract(tData, oStt, oUpd)
+	cse_alife_trader_abstract(tData, oStt, oUpd)
+	cse_alife_monster_abstract(tData, oStt, oUpd)
+	
+	setl32u8v(tData.tPredicate5, oStt)
+	setl32u8v(tData.tPredicate4, oStt)	
+end
+
+--[[
+	Записываем данные класса cse_ph_skeleton
+--]]
+function cse_ph_skeleton(tData, oStt, oUpd)
+	oStt:w_stringZ(tData.sSkeletonName)
+	oStt:w_u8(tData.iSkeletonFlags)
+	oStt:w_u16(tData.iSourceId)
+	
+	oUpd:w_u8(tData.iUpdSkeletonFlags)
+end
+
+--[[
+	Записываем данные класса cse_alife_trader_abstract
+--]]
+function cse_alife_trader_abstract(tData, oStt, oUpd)
+	oStt:w_s32(tData.iMoney)
+	oStt:w_stringZ(tData.sCharacter)
+	oStt:w_s32(tData.iTraderFlags)
+	oStt:w_stringZ(tData.sCharacterProfile)
+	oStt:w_s32(tData.iCommunityIndex)
+	oStt:w_s32(tData.iRank)
+	oStt:w_s32(tData.iReputation)
+	oStt:w_stringZ(tData.sCheckCharacters)
+end
+
+--[[
+	Записываем данные класса cse_alife_monster_abstract
+--]]
+function cse_alife_monster_abstract(tData, oStt, oUpd)
+	cse_alife_creature_abstract(tData, oStt, oUpd)
+	
+	oStt:w_stringZ(tData.sBaseOutRes)
+	oStt:w_stringZ(tData.sBaseInRes)
+	oStt:w_u16(tData.iSmartId)
+	oStt:w_u8(tData.iSmartTaskActive)	
+
+	oUpd:w_u16(tData.iUpdu16u1)
+	oUpd:w_u16(tData.iUpdu16u2)
+	oUpd:w_s32(tData.iUpds32u3)
+	oUpd:w_s32(tData.iUpds32u4)	
+end
+
+--[[
+	Записываем данные класса cse_alife_creature_abstract
+--]]
+function cse_alife_creature_abstract(tData, oStt, oUpd)
+	cse_alife_dynamic_object_visual(tData, oStt, oUpd)
+
+	oStt:w_u8(tData.iTeam)
+	oStt:w_u8(tData.iSquad)
+	oStt:w_u8(tData.iGroup)
+	oStt:w_float(tData.iHealth)
+	setl32u16v(tData.tDynOutRest, oStt)
+	setl32u16v(tData.tDynInRest, oStt)  
+	oStt:w_u16(tData.iKillerId)
+	setu8vN(tData.tGameDeathTime, oStt)
+
+	oUpd:w_float(tData.iUpdHealth)
+	oUpd:w_s32(tData.iUpdTimeStamp)
+	oUpd:w_u8(tData.iUpdCrtFlags)
+	oUpd:w_vec3(tData.vUpdPosition)	
+	oUpd:w_float(tData.iUpdModel)	
+	oUpd:w_vec3(tData.iUpdDir)	
+	oUpd:w_u8(tData.iUpdTeam)
+	oUpd:w_u8(tData.iUpdSquad)
+	oUpd:w_u8(tData.iUpdGroup)
+end
+
+--[[
+	Записываем данные класса cse_alife_dynamic_object_visual
+--]]
+function cse_alife_dynamic_object_visual(tData, oStt, oUpd)
+	cse_alife_object(tData, oStt, oUpd)
+	cse_visual(tData, oStt, oUpd)
+end
+
+--[[
+	Записываем данные класса cse_alife_object
+--]]
+function cse_alife_object(tData, oStt, oUpd)
+	oStt:w_u16(tData.iGameVertex)
+	oStt:w_float(tData.iDist)
+	oStt:w_s32(tData.iDirControl)
+	oStt:w_s32(tData.iLevelVertex)	
+	oStt:w_s32(tData.iObjFlags)
+	oStt:w_stringZ(tData.sCustomData)
+	oStt:w_s32(tData.iStoryId)	
+	oStt:w_s32(tData.iSpawnSid)
+end
+
+--[[
+	Записываем данные класса cse_visual
+--]]
+function cse_visual(tData, oStt, oUpd)
+	oStt:w_stringZ(tData.sVisualName)
+	oStt:w_u8(tData.iVisualFlags)
+end
+
+--[[
+	Записываем данные класса cse_shape
+--]]
+function cse_shape(tData, oStt, oUpd)
+	local iCount = table.getn(tData.tShape)
+	oStt:w_u8(iCount)
+	for i = 1, iCount do
+		oStt:w_u8(tData.tShape[i].iShapeType)
+		if tData.tShape[i].iShapeType == 0 then
+			oStt:w_vec3(tData.tShape[i].vCenter)
+			oStt:w_float(tData.tShape[i].iRadius)
+		else
+			oStt:w_vec3(tData.tShape[i].v1)
+			oStt:w_vec3(tData.tShape[i].v2)
+			oStt:w_vec3(tData.tShape[i].v3)
+			oStt:w_vec3(tData.tShape[i].vOffset)
+		end
+	end
+end
+
+--[[
+	Записываем данные класса  cse_alife_space_restrictor
+--]]
+function cse_alife_space_restrictor(tData, oStt, oUpd)	
+	oStt:w_u8(tData.iRestType)
+end
+
+--[[
+	Записываем данные класса cse_alife_level_changer
+--]]
+function cse_alife_level_changer(tData, oStt, oUpd)
+	oStt:w_u16(tData.iDestGameVertex)
+	oStt:w_u32(tData.iDestLevelVertex)
+	oStt:w_vec3(tData.vDestPosition)
+	oStt:w_vec3(tData.vDirection)
+	oStt:w_stringZ(tData.sLevelName)
+	oStt:w_stringZ(tData.sGraphPoint)
+	oStt:w_u8(tData.iSilentMode)
+end
+
+--[[
+	Записываем данные класса cse_alife_object_hanging_lamp
+--]]
+function cse_alife_object_hanging_lamp(tData, oStt, oUpd)
+	oStt:w_s32(tData.iMainColor)
+	oStt:w_float(tData.iMainBrightness)
+	oStt:w_stringZ(tData.sMainColorAnimator)
+	oStt:w_float(tData.iMainRange)
+	oStt:w_s16(tData.iLightFlags)
+	oStt:w_stringZ(tData.sStartupAnimation)
+	oStt:w_stringZ(tData.sLampFixedBones)
+	oStt:w_float(tData.iHealth)
+	oStt:w_float(tData.iMainVirtualSize)	
+	oStt:w_float(tData.iAmbientRadius)
+	oStt:w_float(tData.iAmbientPower)
+	oStt:w_stringZ(tData.sAmbientTexture)
+	oStt:w_stringZ(tData.sMainTexture)
+	oStt:w_stringZ(tData.sMainBone)
+	oStt:w_float(tData.iMainConeAngle)
+	oStt:w_stringZ(tData.sGlowTexture)
+	oStt:w_float(tData.iGlowRadius)
+	oStt:w_stringZ(tData.sAmbientBone)
+end
+
+--[[
+	Записываем данные класса cse_alife_custom_zone
+--]]
+function cse_alife_custom_zone(tData, oStt, oUpd)
+	oStt:w_float(tData.iMaxPower)
+	oStt:w_s32(tData.iOwnerId)
+	oStt:w_s32(tData.iEnabledTime)
+	oStt:w_s32(tData.iDisabledTime)
+	oStt:w_s32(tData.iStartTimeShift)
+end
+
+--[[
+	Записываем данные класса cse_alife_anomalous_zone
+--]]
+function cse_alife_anomalous_zone(tData, oStt, oUpd)
+	oStt:w_float(tData.iOfflineInteractiveRadius)
+	oStt:w_u16(tData.iArtefactSpawnCount)
+	oStt:w_s32(tData.iArtefactPositionOffset)
+end

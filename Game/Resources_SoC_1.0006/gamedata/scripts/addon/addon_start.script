@@ -1,0 +1,24 @@
+-- вызывается при первом запуске игры
+
+function attach(sm)
+	sm:subscribe({signal = "on_update",	fun = this.startup})
+	sm:subscribe({signal = "on_spawn",	fun = this.startactor})
+end
+
+function startup()
+	if not has_alife_info("addon_game_start") then
+--		lwc_respawn.Init()
+--		addon_spawn_anomaliy.spawn_anom_test_bind()		-- for test
+
+		db.actor:give_info_portion("addon_game_start")
+		ogse_signals.get_mgr():call("addon_started_game")
+       	log1("- addon_start.script : game start")
+	end
+end
+
+function startactor()
+--	lwc_respawn.Init()
+--	log1("- addon_start.script : actor start")
+cmd("time_factor 1")
+event("addon_actor_lstart"):trigger() 
+end

@@ -974,5 +974,291 @@
 	<string id="video_settings_desc_64">
 		<text>Ёта настройка регулирует, какой по очереди кадр будет рендеритьс€ в 3D прицел. ѕо умолчанию - каждый второй. ≈сли еЄ увеличить - FPS в игре повыситс€, но понизитс€ FPS в 3D прицеле.</text>
 	</string>
+	
+	<string id="st_press_any_key">
+		<text>Ќажмите любую клавишу дл€ перехода к игре</text>
+	</string>
+	
+	<string id="hud_options">
+		<text>Х ƒинамический худ костюмов</text>
+	</string>
+	<string id="amk_options">
+		<text>ƒќѕ. Ќј—“–ќ… »</text>
+	</string>
+	<string id="dynamic_hud_off">
+		<text>ќтключить</text>
+	</string>
+	<string id="dynamic_hud_on">
+		<text>¬ключить</text>
+	</string>
+	<string id="ui_addon_opt_game1">
+		<text>—траница 1</text>
+	</string>
+	<string id="ui_addon_opt_game2">
+		<text>—траница 2</text>
+	</string>
+	<string id="ui_addon_opt_game3">
+		<text>ѕуста€ страница</text>
+	</string>
+	<string id="ui_addon_inv_ok">
+		<text>ѕрименить</text>
+	</string>
+	<string id="ui_addon_inv_cancel">
+		<text>ќтмена</text>
+	</string>	
+	<string id="switcher_off">
+		<text>¬ключить ($$ACTION_USE$$).</text>
+	</string>
+	<string id="switcher_on">
+		<text>¬ыключить ($$ACTION_USE$$).</text>
+	</string>
+	<string id="option_addon_dinhudsnd">
+		<text>Х —криптовый контроль дыхани€ в костюме</text>
+	</string>
+	<string id="option_addon_dinhudsnd2">
+		<text>Х «вук дыхани€ в костюме</text>
+	</string>
+	<string id="option_addon_se">
+		<text>Х –аскачка камеры при стрельбе</text>
+	</string>
+	<string id="option_addon_wpnrask">
+		<text>Х –аскачка оружи€</text>
+	</string>
+	<string id="option_addon_batoryfanar">
+		<text>Х Ёнергозависимый фонарик</text>
+	</string>
+	<string id="option_addon_wpn_hd">
+		<text>Х ƒинамический худ оружи€</text>
+	</string>
+	<string id="option_addon_wpn_rl">
+		<text>Х ѕокачивание камеры при перезар€дке</text>
+	</string>
+	<string id="option_addon_pasmenu">
+		<text>Х ѕауза после загрузки</text>
+	</string>
+	<string id="option_addon_wpn_inert">
+		<text>Х ”величенна€ инерци€ худа оружи€</text>
+	</string>
+	<string id="option_addon_blood">
+		<text>Х Ёффект разрыва тел</text>
+	</string>
+	<string id="option_addon_buildpsdog">
+		<text>Х јтака псевдособаки из билда 1935</text>
+	</string>
+	<string id="option_addon_fps">
+		<text>Х ќтображать FPS</text>
+	</string>
+	<string id="option_addon_itemstat">
+		<text>Х ѕодсвечивать предметы в слотах (дл€ торговли\обыска)</text>
+	</string>
+	<string id="option_addon_inv">
+		<text>Х јльтернативное открывание инвентар€</text>
+	</string>
+	<string id="addon_opt_afhit">
+		<text>Х Ќаносить урон при подн€тии артефакта</text>
+	</string>
+	<string id="option_addon_ustal">
+		<text>Х —криптовый контроль усталости</text>
+	</string>
+	<string id="option_addon_slots">
+		<text>Х –авнозначные слоты</text>
+	</string>
+	<string id="option_addon_newsdyn">
+		<text>Х ƒинамические сообщени€</text>
+	</string>
+	<string id="option_addon_newsdead">
+		<text>Х —ообщени€ о смерти сталкеров</text>
+	</string>
+	<string id="option_addon_lmon">
+		<text>Х —н€тие денег с трупов</text>
+	</string>
+	<string id="option_addon_lmoninf">
+		<text>Х —ообщение о сн€тых деньгах</text>
+	</string>
+	<string id="option_addon_sakbody">
+		<text>Х ќбыск монстров только с ножом</text>
+	</string>
+	<string id="option_addon_autosav">
+		<text>Х јвтосохранение каждые 3 минуты</text>
+	</string>
+	<string id="option_addon_savenum">
+		<text>Х «вук при быстром сохранени€</text>
+	</string>
+	<string id="option_addon_saveday">
+		<text>Х ƒни в названии быстрых сохранений</text>
+	</string>
 
+
+	<string id="addon_opt_hoffs">
+		<text>Х —криптовый контроль zoom_offset</text>
+	</string>
+	<string id="addon_opt_rukhud">
+		<text>Х «вук удара капель дожд€ об костюм</text>
+	</string>
+	<string id="addon_opt_sitem">
+		<text>Х «вук при подн€тии предметов</text>
+	</string>
+	<string id="addon_opt_swpn">
+		<text>Х «вук при подн€тии оружи€</text>
+	</string>
+	<string id="addon_opt_autosav">
+		<text>Х јвтосохранение каждые 3 минуты</text>
+	</string>
+	<string id="addon_opt_invdof">
+		<text>Х ¬ключать DOF при открытии инвентар€, пда, обыске</text>
+	</string>
+	<string id="addon_opt_blood">
+		<text>Х Ёффект разрыва тел</text>
+	</string>
+	<string id="addon_opt_explw">
+		<text>Х –азрыв оружи€ при сильном износе</text>
+	</string>
+	<string id="addon_opt_winert">
+		<text>Х јнимаци€ камеры при стрельбе</text>
+	</string>
+	<string id="addon_opt_relin">
+		<text>Х јнимаци€ камеры при перезар€дке</text>
+	</string>
+	<string id="addon_opt_dinhud">
+		<text>Х ƒинамический худ костюмов</text>
+	</string>
+	<string id="addon_opt_dinhudsnd">
+		<text>Х «вук дыхани€ в костюме</text>
+	</string>
+	<string id="addon_opt_dinhudrdr">
+		<text>Х —криптовый контроль каплель от дожд€ на стекле шлема</text>
+	</string>
+	<string id="addon_opt_ustal">
+		<text>Х —криптовый контроль усталости</text>
+	</string>
+	<string id="addon_opt_sndusitm">
+		<text>Х «вук при использовании предметов</text>
+	</string>
+	<string id="addon_opt_disusitm">
+		<text>Х ќтключить управление при использовании предметов</text>
+	</string>
+	<string id="addon_opt_realmed">
+		<text>Х «амедленное действие медикоментов</text>
+	</string>	
+	<string id="addon_opt_autopaus">
+		<text>Х ѕауза после загрузки</text>
+	</string>
+	<string id="addon_opt_surge">
+		<text>Х ¬ыброс</text>
+	</string>
+	<string id="addon_opt_surge_npc">
+		<text>Х —талкеры пр€чутс€ от выброса</text>
+	</string>
+	<string id="addon_opt_surge_pda">
+		<text>Х ѕомехи в пда при выбросе</text>
+	</string>
+	<string id="addon_opt_surge_news">
+		<text>Х —ообщени€ о выбросе</text>
+	</string>
+	<string id="addon_opt_surge_info">
+		<text>Х √олосовое сообщение о выбросе</text>
+	</string>
+	<string id="addon_opt_nnpceye">
+		<text>Х ”худшение зрени€ нпс по ночам</text>
+	</string>
+	<string id="addon_opt_invkg">
+		<text>Х ќграниечение тайников по весу</text>
+	</string>
+	<string id="addon_opt_sound_pda">
+		<text>Х «вук при включении  ѕ </text>
+	</string>
+	<string id="addon_opt_corpse_food">
+		<text>Х ѕорча еды от радиации</text>
+	</string>
+	<string id="addon_opt_torch_battery">
+		<text>Х Ёнергозависимый фонарик</text>
+	</string>
+	<string id="option_addon_pnvbat">
+		<text>Х Ёнергозависимый ѕЌ¬</text>
+	</string>
+	<string id="option_addon_nnpctorch">
+		<text>Х ¬ли€ние фонарика на стелс</text>
+	</string>
+	<string id="addon_opt_sakbody">
+		<text>Х ќбыск монстров только с ножом</text>
+	</string>
+	<string id="addon_opt_exobat">
+		<text>Х Ёнергозависимые экзоскелеты</text>
+	</string>
+	<string id="addon_opt_hiteff">
+		<text>Х ƒоп.эффекты при ранении</text>
+	</string>
+	<string id="addon_opt_lcinf">
+		<text>Х јльтернативный текст перехода на локацию</text>
+	</string>
+	<string id="addon_opt_agloss">
+		<text>Х јвтонастройка параметра r2_gloss_factor</text>
+	</string>
+	<string id="addon_opt_newtalk">
+		<text>Х »змененна€ информаци€ о предметах при разговоре</text>
+	</string>
+	<string id="addon_opt_lonmon">
+		<text>Х —бор денег с трупов</text>
+	</string>
+	<string id="addon_opt_lonmoninf">
+		<text>Х —ообщение о собранных деньгах</text>
+	</string>
+	<string id="addon_opt_ahemi">
+		<text>Х јвтонастройка консольных параметров hemi и amb</text>
+	</string>
+	<string id="addon_opt_radfon">
+		<text>Х –адиационный фон на локаци€х</text>
+	</string>
+	<string id="addon_opt_dinhudblr">
+		<text>Х «апотевание стекла шлема</text>
+	</string>
+	<string id="addon_opt_campower">
+		<text>Х «ависимость cam_inert от выносливости</text>
+	</string>
+	<string id="addon_opt_camheal">
+		<text>Х «ависимость cam_inert от здорови€</text>
+	</string>
+	<string id="addon_opt_sndbody">
+		<text>Х «вук при обыске</text>
+	</string>
+	<string id="addon_opt_mysosh">
+		<text>Х Ёффект отрезани€ частей монстров</text>
+	</string>
+	<string id="addon_opt_buildpsdogi">
+		<text>Х јтака псевдособаки из билда 1935</text>
+	</string>
+	<string id="addon_opt_camdrv">
+		<text>Х јнимаци€ камеры при подготовке оружи€</text>
+	</string>
+	<string id="addon_opt_camjs">
+		<text>Х јнимаци€ камеры при прыжке и стрейфах</text>
+	</string>
+	<string id="addon_opt_camhid">
+		<text>Х јнимаци€ камеры при убирании оружи€</text>
+	</string>
+	<string id="addon_opt_nqsave">
+		<text>Х Ќумераци€ быстрых сохранений</text>
+	</string>
+	<string id="addon_opt_dinhud_hit">
+		<text>Х ѕовреждени€ на худе костюмов</text>
+	</string>
+	<string id="addon_opt_deathnews">
+		<text>Х —ообщени€ о смерти сталкеров</text>
+	</string>
+	<string id="addon_opt_reldof">
+		<text>Х ¬ключать DOF при перезар€дке</text>
+	</string>
+	<string id="addon_opt_newsrnd">
+		<text>Х –андомные сообщени€</text>
+	</string>
+	<string id="addon_opt_newsdyn">
+		<text>Х ƒинамические сообщени€</text>
+	</string>
+	<string id="addon_opt_newsdynmn">
+		<text>Х –еальные сообщ. о по€в. мутантах</text>
+	</string>
+	<string id="addon_opt_dinhudvis">
+		<text>Х —криптовый сонтроль visor reflections</text>
+	</string>
+	
 </string_table>

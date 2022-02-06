@@ -1,0 +1,107 @@
+--[[
+	Схема выбора слота оружия для его модификации.
+	Автор: Real Wolf
+--]]
+
+class "CSelectWeapon" (CUIScriptWnd)
+function CSelectWeapon:__init() super()
+   	self:InitControls()
+  	self:InitCallBacks()	
+end
+
+function CSelectWeapon:__finalize() 
+end
+
+function CSelectWeapon:InitControls()
+    self:Init(266, 138, 492, 491)
+	
+    local oXml = CScriptXmlInit()			
+    oXml:ParseFile("ui_upgrade_main.xml")
+
+    oXml:InitStatic("background", self)
+
+	local oSlotTextureO = CUIStatic()
+	oSlotTextureO:SetAutoDelete(true)
+	self:AttachChild(oSlotTextureO)
+	oSlotTextureO:SetStretchTexture(true)	
+	oSlotTextureO:SetWndRect(80, 60, 326, 128)
+	oSlotTextureO:InitTexture("ui_slot_texture")
+
+	local oSlot = db.actor:item_in_slot(1)
+	if oSlot and isWeapon(oSlot) then
+		self:Register(oXml:Init3tButton("slot1", self), "first_slot")
+		
+		local sRealSection = lwc_upgrade_weapon.GetRealSect(oSlot:section() )
+
+		local iX, iY, iWidth, iHeight = lwc_upgrade_weapon.GetPosition(sRealSection)
+
+		local oWeaponTexture = CUIStatic()
+		oWeaponTexture:SetAutoDelete(true)
+		self:AttachChild(oWeaponTexture)	
+		oWeaponTexture:InitTexture("ui\\ui_icon_equipment")
+		oWeaponTexture:SetStretchTexture(true)
+		oWeaponTexture:SetOriginalRect(iX, iY, iWidth, iHeight)
+		oWeaponTexture:Init(100, 85, iWidth, iHeight)
+	end
+
+	local oSlotTextureS = CUIStatic()
+	oSlotTextureS:SetAutoDelete(true)
+	self:AttachChild(oSlotTextureS)
+	oSlotTextureS:SetStretchTexture(true)	
+	oSlotTextureS:SetWndRect(80, 235, 326, 128)
+	oSlotTextureS:InitTexture("ui_slot_texture")
+
+	oSlot = db.actor:item_in_slot(2)
+	if oSlot and isWeapon(oSlot) then
+		self:Register(oXml:Init3tButton("slot2", self), "second_slot")
+
+		local sRealSection = lwc_upgrade_weapon.GetRealSect(oSlot:section() )
+		
+		local iX, iY, iWidth, iHeight = lwc_upgrade_weapon.GetPosition(sRealSection)
+
+		local oWeaponTexture = CUIStatic()
+		oWeaponTexture:SetAutoDelete(true)
+		self:AttachChild(oWeaponTexture)	
+		oWeaponTexture:InitTexture("ui\\ui_icon_equipment")
+		oWeaponTexture:SetStretchTexture(true)
+		oWeaponTexture:SetOriginalRect(iX, iY, iWidth, iHeight)
+		oWeaponTexture:Init(100, 240, iWidth, iHeight)
+	end	
+	
+	self:Register(oXml:Init3tButton("btn_quit", self), "btn_quit")	
+end
+
+
+function CSelectWeapon:InitCallBacks()
+	self:AddCallback("btn_quit", ui_events.BUTTON_CLICKED, self.Quit, self)
+	self:AddCallback("first_slot", ui_events.BUTTON_CLICKED, self.OnButtonFirstSlot, self)
+	self:AddCallback("second_slot", ui_events.BUTTON_CLICKED, self.OnButtonSecondSlot, self)
+end
+
+function CSelectWeapon:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self,dik,keyboard_action)
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		if dik == DIK_keys.DIK_ESCAPE then
+			self:Quit()
+		end
+	end
+	return true
+end
+
+function CSelectWeapon:OnButtonFirstSlot()
+	self:GetHolder():start_stop_menu (self, true)
+	
+	local oWeaponWnd = lwc_upgrade_weapon.CWeaponUpgrade(1)
+	level.start_stop_menu(oWeaponWnd, true)	
+end
+
+function CSelectWeapon:OnButtonSecondSlot()
+	self:GetHolder():start_stop_menu (self, true)
+	
+	local oWeaponWnd = lwc_upgrade_weapon.CWeaponUpgrade(2)
+	level.start_stop_menu(oWeaponWnd, true)		
+end
+
+function CSelectWeapon:Quit()
+	self:GetHolder():start_stop_menu (self, true)
+end

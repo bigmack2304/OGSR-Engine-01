@@ -1,0 +1,381 @@
+-----------------------------------------------------------------------------------------------------------------------------------
+-- модуль контроля приборов ночного видиния
+-----------------------------------------------------------------------------------------------------------------------------------
+
+local names1 = 0   	-- имя секции
+local names2 = 0   	-- имя секции
+local nvis = 0		-- наличие пнв в слоте
+local n = 0		-- состояние пнв (вкл выкл)
+local ndeb = 0		-- доп. флаг состояния пнв (вкл выкл) для дебага
+local loadoff = 0	-- отключение повторной загрузки состояния
+local iNextUpdate	= 0  	-- постоянная таймера
+local float_time 	= 13	-- еденица времяни за которую разрядется батарея на (float_hit)
+local float_hit 	= 0.02  -- степень разряда батареи за еденицу времяни (float_time)
+
+-- проверка наличия прибора в слоте
+function checknv(e)
+local item = db.actor:item_in_slot(11)
+	if item then								-- если пнв в слоте
+    	  local section_nv = item:section()						-- загрузка секции
+
+----	  addon_save_variable("store_slot11", section_nv)				-- сохранение секции в памяти
+	  set_var("store_slot11", section_nv)
+
+-- 	  log3("- addon_nv : slot11 section_nv "..section_nv.." stored")
+   	  nvis = 1									-- флаг наличия пнв в слоте
+	--  log3("# nv : in slot")
+          db.actor:give_info_portion("nv_in_slot")					-- доп.флаг наличия пнв в слоте
+	  return
+	else									-- если слот пуст
+
+
+----	  addon_del_variable("store_slot11")						-- удаление секции из памяти
+	  set_var("store_slot11", none)
+
+--        log3("- addon_nv : slot11 section_nv delete")					
+	  nvis = 0									-- флаг отсутствия пнв в слоте
+	  nveffectoff()									-- отключение пнв
+	  n = 0										-- флаг выключенного пнв
+	--  log3("# nv : no slot")
+	  db.actor:disable_info_portion("nv_in_slot")					-- доп.флаг отсутствия пнв в слоте
+
+		if ndeb==1 then								-- если доп.дебаг.флаг состояния пнв включен
+	  		db.actor:disable_info_portion("nv_in_slot_on")			-- доп. флаг отключения пнв
+			--log3("# nv debug : disable - nv_in_slot_on")
+		end
+
+	  return
+	end
+end
+
+-- функция контроля нажатия кнопки включения или выключения прибора
+
+function nvon(e)
+	if e.key == 49 and n==0 and nvis==1 then				-- если ната клавиша (N) и состояние пнв (выкл) и пнв в слоте
+	  db.actor:give_info_portion("nv_in_slot_on")					-- доп. флаг включения пнв
+	  n = 1	
+ndeb = 1									-- флаг включения пнв
+	--  log3("# nv : on")
+	  nveffecton()									-- включение пнв
+	  return
+	end
+	if e.key == 49 and n==1 and nvis==1 then				-- если ната клавиша (N) и состояние пнв (вкл) и пнв в слоте
+nveffectoff()									-- отключение пнв
+	  db.actor:disable_info_portion("nv_in_slot_on")				-- доп. флаг отключения пнв
+	  n = 0	
+ndeb = 2									-- флаг отключения пнв
+	--  log3("# nv : off")
+	  return
+	end
+end
+
+-- функция загрузки сосояния
+
+function loadstat()
+	if loadoff==1 then
+	  return
+	end
+
+  cmd("unbind night_vision")
+
+	if db.actor:dont_has_info("nv_in_slot_on") then				-- если отсутствует (доп. флаг включения пнв)
+	  n = 0										-- флаг отключения пнв
+
+	  ndeb = 2
+
+
+--	  nvis = 0									-- 
+	  nveffectoff()									-- отключение пнв
+	  loadoff = 1
+	--  log3("# nv state loaded : off")
+	  return
+	end
+	if db.actor:has_info("nv_in_slot_on") then				-- если есть (доп. флаг включения пнв)
+--        names1 = addon_load_variable("store_slot11", nil)
+-- 	  log3("- addon_nv : slot11 section_nv "..names1.." loaded")
+	  nvis = 1									-- флаг наличия пнв в слоте
+	  n = 1										-- флаг включения пнв
+	  
+
+	  ndeb = 1
+	  
+
+	  nveffecton()									-- включение пнв
+	  loadoff = 1
+	--  log3("# nv state loaded : on")
+--        log3("- addon_nv : slot11 section_nv delete")
+          return
+	end
+end
+
+-- функция включения и выключения эффектов прибора
+
+--local tVision = {
+--	["device_pnv_1"] = "nightvision_elite.ppe",
+--	["good_night_vision"] = "nightvision_elite.ppe",
+--	["bad_night_vision"] = "nightvision_green.ppe",
+--	["addondt_night_vision"] = "nightvision_scope.ppe"
+--}
+
+function nveffecton()
+
+
+--names2 = addon_load_variable("store_slot11", nil)
+names2 = get_var("store_slot11")
+
+local hud = get_hud()
+
+if names2=="device_pnv_1" then							-- если в слоте предмет с секцией device_pnv_1
+	level.add_pp_effector("nightvision_elite.ppe", 2387, true)			-- включаем эффект
+		if ndeb==1 or ndeb==2 then								
+			play_snd([[interface\devices\nv_start]])
+		end
+	hud:AddCustomStatic("hud_lwcpnv", true)
+ogse_signals.get_mgr():call("addon_remove_hud")
+	return
+end
+
+if names2=="device_pnv_2" then							-- если в слоте предмет с секцией device_pnv_2
+level.set_blender_mode_main(1)
+		if ndeb==1 or ndeb==2 then								
+			play_snd([[interface\devices\scope_nv_on]])
+		end
+	return
+end
+
+if names2=="device_pnv_3" then							-- если в слоте предмет с секцией device_pnv_1
+	level.add_pp_effector("nightvision_scope.ppe", 2387, true)			-- включаем эффект
+		if ndeb==1 or ndeb==2 then								
+			play_snd([[interface\devices\nv_start]])
+		end
+	hud:AddCustomStatic("hud_lwcpnv", true)
+ogse_signals.get_mgr():call("addon_remove_hud")
+	return
+end
+
+if names2=="device_pnv_4" then							-- если в слоте предмет с секцией device_pnv_1
+	level.add_pp_effector("nightvision_bad.ppe", 2387, true)			-- включаем эффект
+		if ndeb==1 or ndeb==2 then								
+			play_snd([[interface\devices\nv_start]])
+		end
+	hud:AddCustomStatic("hud_lwcpnv", true)
+ogse_signals.get_mgr():call("addon_remove_hud")
+	return
+end
+
+if names2=="device_pnv_5" then							-- если в слоте предмет с секцией device_pnv_1
+	level.add_pp_effector("nightvision_green.ppe", 2387, true)			-- включаем эффект
+		if ndeb==1 or ndeb==2 then								
+			play_snd([[interface\devices\nv_start]])
+		end
+	hud:AddCustomStatic("hud_lwcpnv", true)
+ogse_signals.get_mgr():call("addon_remove_hud")
+	return
+end
+
+if names2=="device_pnv_6" then							-- если в слоте предмет с секцией device_pnv_1
+	level.add_pp_effector("nightvision_good.ppe", 2387, true)			-- включаем эффект
+		if ndeb==1 or ndeb==2 then								
+			play_snd([[interface\devices\nv_start]])
+		end
+	hud:AddCustomStatic("hud_lwcpnv", true)
+ogse_signals.get_mgr():call("addon_remove_hud")
+	return
+end
+
+if names2=="device_pnv_7" then							-- если в слоте предмет с секцией device_pnv_1
+	level.add_pp_effector("nightvision_elite.ppe", 2387, true)			-- включаем эффект
+		if ndeb==1 or ndeb==2 then								
+			play_snd([[interface\devices\nv_start]])
+		end
+	hud:AddCustomStatic("hud_lwcpnv", true)
+ogse_signals.get_mgr():call("addon_remove_hud")
+	return
+end
+end
+
+function nveffectoff()
+local hud = get_hud()
+names3 = get_var("store_slot11")
+level.remove_pp_effector(2387)	
+hud:RemoveCustomStatic("hud_lwcpnv", false)	
+level.set_blender_mode_main(0)
+
+if names3=="device_pnv_1" and n==1 then	
+	play_snd([[interface\devices\nv_off]])
+	return
+end
+
+if names3=="device_pnv_2" and n==1 then	
+	play_snd([[interface\devices\scope_nv_off]])
+	return
+end
+
+if names3=="device_pnv_3" and n==1 then	
+	play_snd([[interface\devices\nv_off]])
+	return
+end
+
+if names3=="device_pnv_4" and n==1 then	
+	play_snd([[interface\devices\nv_off]])
+	return
+end
+
+if names3=="device_pnv_5" and n==1 then	
+	play_snd([[interface\devices\nv_off]])
+	return
+end
+
+if names3=="device_pnv_6" and n==1 then	
+	play_snd([[interface\devices\nv_off]])
+	return
+end
+
+if names3=="device_pnv_7" and n==1 then	
+	play_snd([[interface\devices\nv_off]])
+	return
+end
+
+if n==1 then						
+	play_snd([[interface\devices\nv_off]])
+end
+end
+
+-- функция для воспроизведения звука
+function play_snd(sound,obj)
+	if obj == nil then obj = db.actor end
+	snd = xr_sound.get_safe_sound_object(sound)
+	snd:play_no_feedback(obj,sound_object.s2d,0,vector(),1.0)
+end
+
+--разряд батареи со времянем
+function pnv_hit()
+
+if nvis==1 and db.actor:has_info("nv_in_slot") then			-- условие что пнв в слоте
+
+  local pnv_inslot = db.actor:item_in_slot(11)
+  local section_pnv = pnv_inslot:section()
+  local id_pnv = pnv_inslot:id()
+  local name_nv = get_var("store_slot11")
+  local nv_cond = pnv_inslot:condition()
+  local nv_cond_n = math.floor(nv_cond * 100)
+  local adactor = db.actor
+
+   if ndeb==1 and db.actor:has_info("nv_in_slot_on") then		-- условие что пнв включен
+     if this.load_variable("addon_opt_pnv_battery",1) == 1 and adactor ~= nil then
+      if nv_cond <= 0.04 then   					-- полный разряд
+ 	  nveffectoff()
+	  n = 0
+	  ndeb = 2
+	  db.actor:disable_info_portion("nv_in_slot_on")
+	  info()
+	--  log3("# addon_nv.script (nv_hit): nv "..name_nv.." cond = "..nv_cond_n.." id = "..id_pnv.." nv - off")
+	  return
+      end
+     end
+
+      if iNextUpdate <= time_global() then				-- процес разряда
+	if this.load_variable("addon_opt_pnv_battery",1) == 1 and adactor ~= nil then
+  	  pnv_inslot:set_condition(nv_cond - float_hit)
+	--  log3("# addon_nv.script (nv_hit): nv "..name_nv.." cond = "..nv_cond_n.." id = "..id_pnv.." true hit")
+	else
+  	  pnv_inslot:set_condition(0.98)
+	 -- log3("# addon_nv.script (nv_hit): nv "..name_nv.." cond = "..nv_cond_n.." id = "..id_pnv.." otion state pnv_battory - false, hit - false")
+	end
+	iNextUpdate = time_global() + float_time*1000
+      end
+   end
+end
+end
+
+-- вызывается в момент использования батареек
+function use_bat(e)
+if nvis==1 and db.actor:has_info("nv_in_slot") then
+
+  local pnv_inslot = db.actor:item_in_slot(11)
+  local name_nv = get_var("store_slot11")
+  local nv_cond = pnv_inslot:condition()
+
+         if e.obj:section() == "device_pnv_bat" then
+              if ndeb==1 and db.actor:has_info("nv_in_slot_on") then
+	         nveffectoff()
+	         n = 0
+	         ndeb = 2
+	         db.actor:disable_info_portion("nv_in_slot_on")
+	        -- log3("# addon_nv.script (use_bat): battery replacement - pnv off")
+	      else
+	        -- log3("# addon_nv.script (use_bat): battery replacement")
+	      end
+ 	    pnv_inslot:set_condition(nv_cond + 1)
+	    infoz()
+         end	
+end
+end
+
+-- информирование о разряде батареи
+function info() 
+local hud = get_hud()
+local infopn = hud:GetCustomStatic("info_pnv_off")
+  if not infopn then
+	hud:AddCustomStatic("info_pnv_off", true)
+	infopn = hud:GetCustomStatic("info_pnv_off"):wnd()
+	infopn:SetText(game.translate_string("inf_pnv_off") )
+	lwc_timer.Add("timer_infopnoff", "addon_nv.info_off()", 6, 0, 0)
+  end
+end
+
+function info_off()
+local hud = get_hud()
+local infopn = hud:GetCustomStatic("info_pnv_off")
+  if infopn then
+	hud:RemoveCustomStatic("info_pnv_off", true)
+  end
+end
+
+-- информирование о замене батареи
+function infoz()
+local hud = get_hud()
+local infozpn = hud:GetCustomStatic("infoz_pnv_off")
+  if not infozpn then
+	hud:AddCustomStatic("infoz_pnv_off", true)
+	infozpn = hud:GetCustomStatic("infoz_pnv_off"):wnd()
+	infozpn:SetText(game.translate_string("infz_pnv_off") )
+	lwc_timer.Add("timer_infopnz", "addon_nv.infoz_off()", 12, 0, 0)
+  end
+end
+
+function infoz_off()
+local hud = get_hud()
+local infozpn = hud:GetCustomStatic("infoz_pnv_off")
+  if infozpn then
+	hud:RemoveCustomStatic("infoz_pnv_off", true)
+  end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("actor_update"):register(loadstat)
+	event("actor_update"):register(pnv_hit)
+	event("use_item"):register(use_bat)
+	event("actor_item_take"):register(checknv)
+	event("actor_item_drop"):register(checknv)
+	event("actor_item_toruck"):register(checknv)
+	event("actor_item_toslot"):register(checknv)
+--	event("actor_item_tobelt"):register(checknv)	-- временно убрал, если будут баги с пнв то надо вернуть
+	event("actor_on_key"):register(nvon)
+end

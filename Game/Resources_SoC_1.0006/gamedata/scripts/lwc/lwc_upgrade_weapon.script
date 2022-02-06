@@ -1,0 +1,743 @@
+--[[
+	Схема модификации оружия.
+	Автор: Real Wolf
+	
+	исправлен баг когда при модификации оружия с установленными аддонами,
+	установленные аддоны исчезают
+--]]
+
+local tExcludedWeapons = {       
+	["wpn_rpg7"] 			= true,
+	["wpn_gauss"] 			= true,
+	["wpn_rg-6"] 			= true
+}	   
+
+local tWeaponGroups = {	
+	["wpn_pm"] 				= 1,
+	["wpn_pb"] 				= 1,
+	["wpn_usp"] 			= 1,
+	["wpn_beretta"] 		= 1,
+	["wpn_fort"] 			= 1,
+	["wpn_sig220"] 			= 1,
+	["wpn_hpsa"] 			= 1,
+	["wpn_colt1911"] 		= 1,
+	["wpn_walther"] 		= 1,
+	["wpn_desert_eagle"] 	= 1,
+	["wpn_toz34"] 			= 3,
+	["wpn_wincheaster1300"] = 3,
+	["wpn_spas12"] 			= 3,
+	["wpn_bm16"] 			= 3,
+	["wpn_svd"] 			= 1,
+	["wpn_svu"] 			= 1,
+	["wpn_vintorez"] 		= 1,
+	["wpn_groza"] 			= 4,
+	["wpn_val"] 			= 4,
+	["wpn_fn2000"] 			= 4,
+	["wpn_mp5"] 			= 4,
+	["wpn_ak74u"] 			= 1,
+	["wpn_ak74"] 			= 1,
+	["wpn_l85"] 			= 1,
+	["wpn_g36"] 			= 1,
+	["wpn_sig550"] 			= 1,
+	["wpn_lr300"] 			= 1,
+	["wpn_abakan"] 			= 1
+}
+
+local oWnd = -1
+
+class "CWeaponUpgrade" (CUIScriptWnd)		 
+function CWeaponUpgrade:__init(iSlot) super()
+	self.iSlot = iSlot
+	self.iRepairCost = 0
+	self.bRepaired = false
+	self.sUpgrade = "nil"
+	self.iCost = 0	
+	self.oItem = db.actor:item_in_slot(iSlot)
+	
+	self:InitControls()
+	self:InitCallBacks()
+end
+
+function CWeaponUpgrade:__finalize() end
+
+function CWeaponUpgrade:InitControls()
+	self:Init(266, 138, 492, 491)
+	local xml = CScriptXmlInit()
+
+	xml:ParseFile("ui_upgrade_slot.xml")
+
+	self.message_box = CUIMessageBoxEx()
+	self:Register(self.message_box, "msg_box")
+
+	xml:InitStatic("background", self)
+	xml:InitStatic("slot", self)
+
+	self:Register(xml:Init3tButton("btn_quit", self),"btn_quit")
+	self:Register(xml:Init3tButton("btn_repair", self),"btn_repair")
+
+	db.actor:hide_weapon()	
+	
+	local sRealSection = GetRealSect(self.oItem:section() )
+	
+	local iX, iY, iWidth, iHeight = GetPosition(sRealSection)
+	
+	local oWeaponTexture = CUIStatic()
+	oWeaponTexture:SetAutoDelete(true)
+	self:AttachChild(oWeaponTexture)	
+	oWeaponTexture:InitTexture("ui\\ui_icon_equipment")
+	oWeaponTexture:SetStretchTexture(true)
+	oWeaponTexture:SetOriginalRect(iX, iY, iWidth, iHeight)
+	oWeaponTexture:Init(48, 48, iWidth, iHeight)	
+	
+	if tExcludedWeapons[self.oItem:section()] or GetUpgrade(self.oItem:section() ) == "m" then	
+		return false
+	end
+	
+	local sUpgrade = GetUpgrade(self.oItem:section() )
+
+	if tWeaponGroups[sRealSection] ~= 3 then
+		self:Register(xml:Init3tButton("a", self),"a")
+	end
+
+	if tWeaponGroups[sRealSection] == 1 then
+		self:Register(xml:Init3tButton("ba", self),"ba")
+		self:Register(xml:Init3tButton("bb", self),"bb")
+		self:Register(xml:Init3tButton("c", self),"cb")
+		
+	elseif tWeaponGroups[sRealSection] == 4 then
+		self:Register(xml:Init3tButton("ba", self),"ba")
+		self:Register(xml:Init3tButton("bb", self),"bb")
+		self:Register(xml:Init3tButton("ca", self),"ca")
+		self:Register(xml:Init3tButton("cb", self),"cb")
+		
+	elseif tWeaponGroups[sRealSection] == 3 then
+		self:Register(xml:Init3tButton("e", self),"a")
+		self:Register(xml:Init3tButton("b", self),"bb")
+		
+	elseif tWeaponGroups[sRealSection] == 2 then
+		self:Register(xml:Init3tButton("ba", self),"ba")
+		self:Register(xml:Init3tButton("bb", self),"bb")
+		
+	elseif tWeaponGroups[sRealSection] == 5 then
+		self:Register(xml:Init3tButton("ba", self),"ba")
+		self:Register(xml:Init3tButton("bb", self),"bb")
+		self:Register(xml:Init3tButton("d", self),"ca")
+	end
+
+	if sUpgrade == "a" then
+		local oTextureA = CUIStatic()
+		oTextureA:SetAutoDelete(true)
+		self:AttachChild(oTextureA)
+		oTextureA:SetStretchTexture(true)	
+		oTextureA:SetWndRect(34, 183, 90, 44)
+		oTextureA:InitTexture("seva_aa_i")
+		
+	elseif sUpgrade == "ba" and tWeaponGroups[sRealSection] ~= 3  then
+		oTextureA = CUIStatic()
+		oTextureA:SetAutoDelete(true)
+		self:AttachChild(oTextureA)
+		oTextureA:SetStretchTexture(true)	
+		oTextureA:SetWndRect(34, 183, 90, 44)
+		oTextureA:InitTexture("seva_aa_i")
+
+		local oTextureBA = CUIStatic()
+		oTextureBA:SetAutoDelete(true)
+		self:AttachChild(oTextureBA)
+		oTextureBA:SetStretchTexture(true)	
+		oTextureBA:SetWndRect(145, 161, 90, 44)
+		oTextureBA:InitTexture("seva_aa_i")
+
+		local oTextureBAR = CUIStatic()
+		oTextureBAR:SetAutoDelete(true)
+		self:AttachChild(oTextureBAR)
+		oTextureBAR:SetStretchTexture(true)	
+		oTextureBAR:SetWndRect(145, 209, 90, 44)
+		oTextureBAR:InitTexture("base_r")
+		
+	elseif sUpgrade == "bb" then
+		local oTextureA = CUIStatic()
+		oTextureA:SetAutoDelete(true)
+		self:AttachChild(oTextureA)
+		oTextureA:SetStretchTexture(true)	
+		oTextureA:SetWndRect(34, 183, 90, 44)
+		oTextureA:InitTexture("seva_aa_i")
+
+		local oTextureBB = CUIStatic()
+		oTextureBB:SetAutoDelete(true)
+		self:AttachChild(oTextureBB)
+		oTextureBB:SetStretchTexture(true)
+		
+		if tWeaponGroups[sRealSection] == 3 then	
+			oTextureBB:SetWndRect(145,183,90,44)
+		else
+			oTextureBB:SetWndRect(145, 209, 90, 44)
+
+			local oTextureBBR = CUIStatic()
+			oTextureBBR:SetAutoDelete(true)
+			self:AttachChild(oTextureBBR)
+			oTextureBBR:SetStretchTexture(true)	
+			oTextureBBR:SetWndRect(145, 161, 90, 44)
+			oTextureBBR:InitTexture("base_r")
+		end
+		
+		oTextureBB:InitTexture("seva_aa_i")
+		
+	elseif tWeaponGroups[sRealSection] == 1 or tWeaponGroups[sRealSection] == 4 then
+		if sUpgrade == "ca" or sUpgrade == "cb" then
+			if string.find(self.oItem:section(), "_ba_") then
+				local oTextureBA = CUIStatic()
+				oTextureBA:SetAutoDelete(true)
+				self:AttachChild(oTextureBA)
+				oTextureBA:SetStretchTexture(true)	
+				oTextureBA:SetWndRect(145, 161, 90, 44)
+				oTextureBA:InitTexture("seva_aa_i")
+
+				local oTextureBAR = CUIStatic()
+				oTextureBAR:SetAutoDelete(true)
+				self:AttachChild(oTextureBAR)
+				oTextureBAR:SetStretchTexture(true)	
+				oTextureBAR:SetWndRect(145, 209, 90, 44)
+				oTextureBAR:InitTexture("base_r")
+				
+			elseif string.find(self.oItem:section(), "_bb_") then
+				local oTextureBB = CUIStatic()
+				oTextureBB:SetAutoDelete(true)
+				self:AttachChild(oTextureBB)
+				oTextureBB:SetStretchTexture(true)	
+				oTextureBB:SetWndRect(145, 209, 90, 44)
+				oTextureBB:InitTexture("seva_aa_i")
+
+				local oTextureBBR = CUIStatic()
+				oTextureBBR:SetAutoDelete(true)
+				self:AttachChild(oTextureBBR)
+				oTextureBBR:SetStretchTexture(true)	
+				oTextureBBR:SetWndRect(145, 161, 90, 44)
+				oTextureBBR:InitTexture("base_r")
+			end
+		end
+		
+		if sUpgrade == "ca" then
+			local oTextureA = CUIStatic()
+			oTextureA:SetAutoDelete(true)
+			self:AttachChild(oTextureA)
+			oTextureA:SetStretchTexture(true)	
+			oTextureA:SetWndRect(34, 183, 90, 44)
+			oTextureA:InitTexture("seva_aa_i")
+
+			local oTextureCA = CUIStatic()
+			oTextureCA:SetAutoDelete(true)
+			self:AttachChild(oTextureCA)
+			oTextureCA:SetStretchTexture(true)
+			
+			if tWeaponGroups[sRealSection] == 5 then	
+				oTextureCA:SetWndRect(257, 183, 90, 44)
+			else
+				oTextureCA:SetWndRect(257, 161, 90, 44)
+
+				oTextureCAr = CUIStatic()
+				oTextureCAr:SetAutoDelete(true)
+				self:AttachChild(oTextureCAr)
+				oTextureCAr:SetStretchTexture(true)	
+				oTextureCAr:SetWndRect(257,209,90,44)
+				oTextureCAr:InitTexture("base_r")
+			end
+			
+			oTextureCA:InitTexture("seva_aa_i")
+			
+		elseif sUpgrade == "cb" then
+			local oTextureA = CUIStatic()
+			oTextureA:SetAutoDelete(true)
+			self:AttachChild(oTextureA)
+			oTextureA:SetStretchTexture(true)	
+			oTextureA:SetWndRect(34, 183, 90, 44)
+			oTextureA:InitTexture("seva_aa_i")
+
+			local oTextureCB = CUIStatic()
+			oTextureCB:SetAutoDelete(true)
+			self:AttachChild(oTextureCB)
+			oTextureCB:SetStretchTexture(true)
+			
+			if tWeaponGroups[sRealSection] == 1 then
+				oTextureCB:SetWndRect(257, 183, 90, 44)
+			else	
+				oTextureCB:SetWndRect(257,209,90,44)
+
+				local oTextureCBR = CUIStatic()
+				oTextureCBR:SetAutoDelete(true)
+				self:AttachChild(oTextureCBR)
+				oTextureCBR:SetStretchTexture(true)	
+				oTextureCBR:SetWndRect(257, 161, 90, 44)
+				oTextureCBR:InitTexture("base_r")
+			end
+			oTextureCB:InitTexture("seva_aa_i")
+		end
+	end		
+end
+
+
+function CWeaponUpgrade:InitCallBacks()
+	self:AddCallback("btn_quit", ui_events.BUTTON_CLICKED, self.Quit, self)
+	self:AddCallback("btn_repair", ui_events.BUTTON_CLICKED, self.OnButtonRepair, self)
+	self:AddCallback("msg_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.OnMsgYes, self)
+	self:AddCallback("msg_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.OnMsgNo, self)
+
+	local sRealSection = GetRealSect(self.oItem:section() )	
+	
+	if tExcludedWeapons[self.oItem:section()] then 
+		return false
+	end
+
+	self:AddCallback("a", ui_events.BUTTON_CLICKED, self.OnButtonA, self)
+	if tWeaponGroups[sRealSection] ~= 3 then
+		self:AddCallback("ba", ui_events.BUTTON_CLICKED, self.OnButtonBA, self)
+	end
+	self:AddCallback("bb", ui_events.BUTTON_CLICKED, self.OnButtonBB, self)
+	if tWeaponGroups[sRealSection] == 1 then
+		self:AddCallback("cb", ui_events.BUTTON_CLICKED, self.OnButtonCB, self)
+		
+	elseif tWeaponGroups[sRealSection] == 5 then
+		self:AddCallback("ca", ui_events.BUTTON_CLICKED, self.OnButtonCA, self)
+		
+	elseif tWeaponGroups[sRealSection] == 4 then
+		self:AddCallback("ca", ui_events.BUTTON_CLICKED, self.OnButtonCA, self)
+		self:AddCallback("cb", ui_events.BUTTON_CLICKED, self.OnButtonCB, self)
+	end
+end
+
+function CWeaponUpgrade:OnKeyboard(iKey, iAction)
+	CUIScriptWnd.OnKeyboard(self, iKey, iAction)
+	if iAction == ui_events.WINDOW_KEY_PRESSED then
+		if iKey == DIK_keys.DIK_ESCAPE then
+			self:Quit()
+		end
+	end
+	return true
+end
+
+function ScriptMessageYes()
+	oWnd:OnMsgYes()
+end
+
+function ScriptMessageNo()
+	oWnd:OnMsgNo()
+end
+
+function CWeaponUpgrade:OnMsgYes()
+	local sRealSection = GetRealSect(self.oItem:section() )
+
+	if self.bRepaired then
+		if db.actor:money() >= self.iRepairCost then
+			db.actor:give_money(-self.iRepairCost)
+			self:ReleaseAddons(self.oItem, true)
+			
+			if self.iSlot == 1 then
+				PlaySound([[inv_sounds\tiski_pistol_3]])
+			else
+				PlaySound([[inv_sounds\tiski_avto_3]])
+			end
+			
+			local sText = "Оружие отремонтировано."
+			local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+			level.start_stop_menu(oMessage, true)
+		else
+			local sText = "Недостаточно денег."
+			local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+			level.start_stop_menu(oMessage, true)			
+		end
+		
+		self.bRepaired = false
+		return false
+	end
+		
+	if self.sUpgrade and self.sUpgrade ~= "nil" then
+		if db.actor:money() >= self.iCost then
+			db.actor:give_money(-self.iCost)
+			self:ReleaseAddons(self.oItem)
+			
+			local sText = "Модификация установлена."
+			local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+			level.start_stop_menu(oMessage, true)
+			
+			if self.iSlot == 1 then
+				PlaySound([[inv_sounds\tiski_pistol_3]])
+			else
+				PlaySound([[inv_sounds\tiski_avto_3]])
+			end
+			
+			if self.sUpgrade == "a" then
+				local oTextureA = CUIStatic()
+				oTextureA:SetAutoDelete(true)
+				self:AttachChild(oTextureA)
+				oTextureA:SetStretchTexture(true)	
+				oTextureA:SetWndRect(34, 183, 90, 44)
+				oTextureA:InitTexture("seva_aa_i")
+				
+			elseif self.sUpgrade == "ba" then
+				local oTextureBA = CUIStatic()
+				oTextureBA:SetAutoDelete(true)
+				self:AttachChild(oTextureBA)
+				oTextureBA:SetStretchTexture(true)	
+				oTextureBA:SetWndRect(145, 161, 90, 44)
+				oTextureBA:InitTexture("seva_aa_i")
+
+				local oTextureBAR = CUIStatic()
+				oTextureBAR:SetAutoDelete(true)
+				self:AttachChild(oTextureBAR)
+				oTextureBAR:SetStretchTexture(true)	
+				oTextureBAR:SetWndRect(145, 209, 90, 44)
+				oTextureBAR:InitTexture("base_r")
+				
+			elseif self.sUpgrade == "bb" then
+				local oTextureBB = CUIStatic()
+				oTextureBB:SetAutoDelete(true)
+				self:AttachChild(oTextureBB)
+				oTextureBB:SetStretchTexture(true)
+				if tWeaponGroups[sRealSection] == 3 then	
+					oTextureBB:SetWndRect(145,183,90,44)
+				else	
+					oTextureBB:SetWndRect(145, 209, 90, 44)
+
+					local oTextureBBR = CUIStatic()
+					oTextureBBR:SetAutoDelete(true)
+					self:AttachChild(oTextureBBR)
+					oTextureBBR:SetStretchTexture(true)	
+					oTextureBBR:SetWndRect(145, 161, 90, 44)
+					oTextureBBR:InitTexture("base_r")
+				end
+				oTextureBB:InitTexture("seva_aa_i")
+				
+			elseif self.sUpgrade == "ca" then
+				local oTextureCA = CUIStatic()
+				oTextureCA:SetAutoDelete(true)
+				self:AttachChild(oTextureCA)
+				oTextureCA:SetStretchTexture(true)
+				if tWeaponGroups[sRealSection] == 5 then	
+					oTextureCA:SetWndRect(257, 183, 90, 44)
+				else
+					oTextureCA:SetWndRect(257, 161, 90, 44)
+
+					local oTextureCAr = CUIStatic()
+					oTextureCAr:SetAutoDelete(true)
+					self:AttachChild(oTextureCAr)
+					oTextureCAr:SetStretchTexture(true)	
+					oTextureCAr:SetWndRect(257,209,90,44)
+					oTextureCAr:InitTexture("base_r")
+				end
+				oTextureCA:InitTexture("seva_aa_i")
+				
+			elseif self.sUpgrade == "cb" then
+				local oTextureCB = CUIStatic()
+				oTextureCB:SetAutoDelete(true)
+				self:AttachChild(oTextureCB)
+				oTextureCB:SetStretchTexture(true)
+				if tWeaponGroups[sRealSection] == 1 then	
+					oTextureCB:SetWndRect(257, 183, 90, 44)
+				else
+					oTextureCB:SetWndRect(257,209,90,44)
+
+					local oTextureCBR = CUIStatic()
+					oTextureCBR:SetAutoDelete(true)
+					self:AttachChild(oTextureCBR)
+					oTextureCBR:SetStretchTexture(true)	
+					oTextureCBR:SetWndRect(257, 161, 90, 44)
+					oTextureCBR:InitTexture("base_r")
+				end
+				oTextureCB:InitTexture("seva_aa_i")
+			end
+		else
+			local sText = "Недостаточно денег."
+			local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+			level.start_stop_menu(oMessage, true)
+		end						
+	end
+end
+
+function CWeaponUpgrade:OnMsgNo()
+	self.bRepaired = false
+end
+
+function CWeaponUpgrade:OnButtonA()
+	local sUpgrade = GetUpgrade(self.oItem:section() )	
+	if sUpgrade == "nil" then
+		self.sUpgrade = "a"
+		self.iCost = self.oItem:cost()*1.5
+		local sText = "%c[255,255,255,255]Динамический уплотнитель ствола\\nСтоимость: "..self.iCost.."\\n%c[255,160,160,160]Уплотнение полимерными материалами помогает повысить давление в стволе и тем самым увеличить скорость полёта пули, что значительно повышает наносимый урон.\\n%c[255,255,255,255]Установить данную модификацию?"		
+		if tWeaponGroups[sRealSection] == 3 then
+			sText = "%c[255,255,255,255]Установка регулятора усилия спуска\\nСтоимость: "..self.iCost.."\\n%c[255,160,160,160]Модификация позволяет сделать спуск курка более плавным, что особенно важно для снайпера.\\n%c[255,255,255,255]Установить данную модификацию?"
+		end
+		local tFunctions = { 
+			"lwc_upgrade_weapon.ScriptMessageYes()",
+			"lwc_upgrade_weapon.ScriptMessageNo()"
+		}
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "YesNo", "ui_message_upgrade", tFunctions, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		oWnd = self					 
+	else
+		local sText = "Модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+	end
+end
+
+function CWeaponUpgrade:OnButtonBA()
+	local sUpgrade = GetUpgrade(self.oItem:section() )	
+	if sUpgrade == "a" then
+		self.sUpgrade = "ba"
+		self.iCost = self.oItem:cost()*1.5 + 1000
+		local sText = "%c[255,255,255,255]Установка регулятора усилия спуска\\nСтоимость: "..self.iCost.."\\n%c[255,160,160,160]Модификация позволяет сделать спуск курка более плавным, что уменьшает отдачу и повышает точность оружия.\\n%c[255,255,255,255]Установить данную модификацию?"	
+		local tFunctions = { 
+			"lwc_upgrade_weapon.ScriptMessageYes()",
+			"lwc_upgrade_weapon.ScriptMessageNo()"
+		}
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "YesNo", "ui_message_upgrade", tFunctions, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		oWnd = self		
+	elseif sUpgrade == "ba" or string.find(self.oItem:section(),"_ba_") then
+		local sText = "Модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+	elseif sUpgrade == "bb" or string.find(self.oItem:section(),"_bb_") then
+		local sText = "Уже установлена другая модификация."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+	else
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)		
+	end
+end
+
+function CWeaponUpgrade:OnButtonBB()
+	local sUpgrade = GetUpgrade(self.oItem:section() )	
+	if sUpgrade == "a" then
+		self.sUpgrade = "bb"
+		self.iCost = self.oItem:cost()*1.5 + 1000
+		local sText = "%c[255,255,255,255]Защитное напыление для деталей\\nСтоимость: "..self.iCost.."\\n%c[255,160,160,160]Защитное напыление значительно понижает возможность осечки из-за сбоя в работе механизмов, повышает надежность.\\n%c[255,255,255,255]Установить данную модификацию?"	
+		local tFunctions = { 
+			"lwc_upgrade_weapon.ScriptMessageYes()",
+			"lwc_upgrade_weapon.ScriptMessageNo()"
+		}
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "YesNo", "ui_message_upgrade", tFunctions, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		oWnd = self		 
+	elseif sUpgrade == "bb" or string.find(self.oItem:section(),"_bb_") then
+		local sText = "Модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+	elseif sUpgrade == "ba" or string.find(self.oItem:section(),"_ba_") then
+		local sText = "Уже установлена другая модификация."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+	else
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)	
+	end
+end
+
+function CWeaponUpgrade:OnButtonCA()
+	local sUpgrade = GetUpgrade(self.oItem:section() )		
+	if sUpgrade == "ba" or sUpgrade == "bb" then
+		self.sUpgrade = "ca"
+		self.iCost = self.oItem:cost()*1.5 + 2000
+		local sText = "%c[255,255,255,255]Переделка под калибр\\nСтоимость: "..self.iCost.."\\n%c[255,160,160,160]Сложная комплексная модификация механики и автоматики оружия, позволяющая сменить калибр оружия под более распространенный.\\n%c[255,255,255,255]Установить данную модификацию?"	
+		local tFunctions = { 
+			"lwc_upgrade_weapon.ScriptMessageYes()",
+			"lwc_upgrade_weapon.ScriptMessageNo()"
+		}
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "YesNo", "ui_message_upgrade", tFunctions, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		oWnd = self		 
+	elseif sUpgrade == "ca" then
+		local sText = "Модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+	elseif sUpgrade == "cb" then
+		local sText = "Уже установлена другая модификация."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+	else
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)		
+	end
+end
+
+function CWeaponUpgrade:OnButtonCB()
+	local sUpgrade = GetUpgrade(self.oItem:section() )	
+	if sUpgrade == "ba" or sUpgrade == "bb" then
+		self.sUpgrade = "cb"
+		self.iCost = self.oItem:cost()*1.5 + 2000
+		
+		local sText = "%c[255,255,255,255]Увеличенная ёмкость магазина\\nСтоимость: "..self.iCost.."\\n%c[255,160,160,160]Увеличение ёмкости магазина без изменения габаритов оружия.\\n%c[255,255,255,255]Установить данную модификацию?"
+		local tFunctions = { 
+			"lwc_upgrade_weapon.ScriptMessageYes()",
+			"lwc_upgrade_weapon.ScriptMessageNo()"
+		}
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "YesNo", "ui_message_upgrade", tFunctions, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		oWnd = self		 
+	elseif sUpgrade == "cb" then
+		local sText = "Модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+	elseif sUpgrade == "ca" then
+		local sText = "Уже установлена другая модификация."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+	else
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)		
+	end
+end
+
+function CWeaponUpgrade:OnButtonRepair()
+--	Log(self.oItem:condition() )
+	if self.oItem:condition() > 0.9 then
+		local sText = "Оружие не нуждается в ремонте."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		
+		return false
+	elseif self.oItem:condition() < 0.2 then	
+		local sText = "Оружие не подлежит ремонту."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		
+		return false
+	end
+
+	self.bRepaired = true	
+	self.iRepairCost = math.floor((1 - self.oItem:condition() ) * self.oItem:cost() )
+
+	local sText = "Стоимость ремонта: "..self.iRepairCost.." рублей.\\nОтремонтировать оружие?"
+	local tFunctions = { 
+		"lwc_upgrade_weapon.ScriptMessageYes()",
+		"lwc_upgrade_weapon.ScriptMessageNo()"
+	}
+	local oMessage = lwc_ui_message.CMessageWindow("", sText, "YesNo", "ui_message_upgrade", tFunctions, {302, 376})
+	level.start_stop_menu(oMessage, true)
+	oWnd = self
+end
+
+-------------------------------------------------------------------------------------------------------
+
+-- флаги аддонов
+addons_flags = {
+	scope       = 1,
+	gl          = 2,
+	silencer    = 4,
+	grip        = 8,
+	magazine    = 16,
+	scope_mount = 32
+}
+
+function get_scope_flag(wpn) return bit_and(wpn:get_addon_flags(), addons_flags.scope) ~= 0 end
+
+function get_silencer_flag(wpn) return bit_and(wpn:get_addon_flags(), addons_flags.silencer) ~= 0 end
+
+function get_gl_flag(wpn) return bit_and(wpn:get_addon_flags(), addons_flags.gl) ~= 0 end
+
+-------------------------------------------------------------------------------------------------------
+
+function CWeaponUpgrade:ReleaseAddons(oItem, bMode)
+	local oServerObj = alife():object(oItem:id() )
+	if oServerObj then
+		local iAddonFlags, iAmmoType = GetAddons(oServerObj)
+		
+		local iScopeStatus = ReadLine(system_ini(), "Number", oItem:section(), "scope_status")
+		local iSilencerStatus = ReadLine(system_ini(), "Number", oItem:section(), "silencer_status")
+		local iGrenadeStatus = ReadLine(system_ini(), "Number", oItem:section(), "grenade_launcher_status")
+		
+		
+		if iScopeStatus == 2 then
+			local addon_scope_status = get_scope_flag(oItem)
+			local sScopeName = ReadLine(system_ini(), "String", oItem:section(), "scope_name")
+			if sScopeName and addon_scope_status then
+				AddObjInv(sScopeName)
+			end
+		end
+		
+		if iSilencerStatus == 2 then
+			local addon_sil_status = get_silencer_flag(oItem)
+			local sSilencerName = ReadLine(system_ini(), "String", oItem:section(), "silencer_name")
+			if sSilencerName and addon_sil_status then
+				AddObjInv(sSilencerName)
+			end
+		end
+		
+		if iGrenadeStatus == 2 then
+			local addon_gl_status = get_gl_flag(oItem)
+			local sGrenadeName = ReadLine(system_ini(), "String", oItem:section(), "grenade_launcher_name")
+			if sGrenadeName and addon_gl_status then
+				AddObjInv(sGrenadeName)
+			end
+		end
+		
+		local iAmmoCount = oItem:get_ammo_in_magazine()
+		local sAmmoSection = GetAmmoSection(oItem:section(), iAmmoType)
+		if sAmmoSection and iAmmoCount >= 1 then
+			AddAmmoInv(sAmmoSection, iAmmoCount)
+		end
+
+		local iCond = oItem:condition()		
+		DelObj(oServerObj)
+		
+		local tObj = {}
+		if bMode then
+			tObj = AddObjInv(oItem:section() )
+			iCond = 0.98
+		else
+			local sRealSection = GetRealSect(oItem:section() )
+			if self.sUpgrade == "ca" or self.sUpgrade == "cb" then 		
+				tObj = AddObjInv(oItem:section().."_"..self.sUpgrade)
+			else
+				tObj = AddObjInv(sRealSection.."_"..self.sUpgrade)
+			end
+		end
+		level.client_spawn_manager():add(tObj[1].id, -1, WeaponSpawn, iCond)
+		oWnd = self
+	end
+end
+
+function CWeaponUpgrade:Quit()
+	db.actor:restore_weapon()
+	self:GetHolder():start_stop_menu(self, true)
+end
+
+function WeaponSpawn(iCond, iObjId, oItem)
+	oItem:set_ammo_elapsed(0)
+	oItem:set_condition(iCond)
+	oWnd.oItem = oItem
+end
+
+function GetUpgrade(sItemSection)
+	return ReadLine(system_ini(), "String", sItemSection, "upg", "nil")
+end
+
+function GetLastUpgrade(sItemSection)
+	return ReadLine(system_ini(), "String", sItemSection, "upg_last", "nil")	
+end 
+
+function GetRealSect(sItemSection)
+	local sUpgrade = GetUpgrade(sItemSection)
+	if sUpgrade == "a" then
+		return string.sub(sItemSection, 1, string.len(sItemSection) - 2)	
+	elseif sUpgrade == "ba" or sUpgrade == "bb" or sUpgrade == "m" then
+		return string.sub(sItemSection, 1, string.len(sItemSection) - 3)
+	elseif sUpgrade == "ca" or sUpgrade == "cb" then
+		return string.sub(sItemSection, 1, string.len(sItemSection) - 6)
+	else
+		return sItemSection 
+	end
+end
+
+function GetPosition(sItem)
+	local iWidth = system_ini():r_float(sItem, "inv_grid_width") * 50
+	local iHeight = system_ini():r_float(sItem, "inv_grid_height") * 50
+	local iX = system_ini():r_float(sItem, "inv_grid_x") * 50
+	local iY = system_ini():r_float(sItem, "inv_grid_y") * 50
+	
+	return iX, iY, iWidth, iHeight
+end

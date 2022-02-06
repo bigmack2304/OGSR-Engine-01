@@ -1,0 +1,60 @@
+-- сбор денег с трупов
+
+function attach(sm)
+	sm:subscribe({signal = "use_deadnpc",			fun = this.lootmoney})
+end
+
+function lootmoney(npc)
+
+local addactor = db.actor
+
+     if this.load_variable("addon_opt_lonmon",1) == 0 and addactor ~= nil then
+	return
+     end
+
+	if npc ~= nil and not string.find(npc:section(),"arena") and npc:character_community()~="arena_enemy" then
+		local money = npc:money()
+		if money ~= nil and money ~=0 then
+			local deadmoney = money
+                        local npc_rank
+			npc_rank = ranks.get_obj_rank_name(npc)
+			if npc_rank ~= nil then
+				if npc_rank == "novice" and deadmoney >= 500 then 
+					deadmoney=math.random(1,500)    
+				elseif npc_rank == "experienced" and deadmoney >=1000 then 
+					deadmoney=math.random(1,1000)  
+				elseif npc_rank == "veteran" and deadmoney >=1600 then 
+					deadmoney=math.random(1,1600) 
+				elseif npc_rank == "master" and deadmoney >=2800 then 
+					deadmoney=math.random(1,2800)  
+                        	end
+			end
+
+			if this.load_variable("addon_opt_lonmoninf",1) == 1 and addactor ~= nil then
+				local news_texti = "%c[255,255,56,56]Мёртвый сталкер: %c[default]"..npc:character_name().."\\n %c[255,255,56,56]Обнаружено денег: %c[default]"..game.translate_string(tostring(deadmoney).." руб.")
+				amk_utils.send_tip(" "..news_texti.." ", "Новое сообщение: ", 2, 5, "addon_money", "news")
+			end
+
+			db.actor:give_money(deadmoney)
+			game_stats.money_quest_update(deadmoney) 
+			npc:give_money(-money)
+			game_stats.money_quest_update(-money)
+		end
+	end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

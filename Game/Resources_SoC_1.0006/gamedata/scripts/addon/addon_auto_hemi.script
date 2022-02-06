@@ -1,0 +1,72 @@
+--[[
+	—хема автонастройки освещени€
+
+	≈сть подземные локации на которых освещение отображаетс€ не
+	коректно (когда в закрытом помещении светло без источников света)
+	данный скрипт устанавливает параметры освещени€ на таких локаци€х
+	таким образом чтобы картинка выгл€дила правдоподобно.	
+
+--]]
+
+function attach(sm)
+	sm:subscribe({signal = "on_first_update",	fun = this.set_param})
+end
+
+local lao = 0.07	-- минемальное значение r2_sun_lumscale_amb
+local lho = 0.07	-- минемальное значение r2_sun_lumscale_hemi
+local las = 1.0		-- стандартное значение r2_sun_lumscale_amb  (soc1 - 0.4)	
+local lhs = 1.0		-- стандартное значение r2_sun_lumscale_hemi (soc1 - 0.9)
+local s = 0
+
+-- уровни с некорректным погодным освещением
+local under_level = {
+	["l03u_agr_underground"] 	= true,
+--	["l12u_sarcofag"] 		= true,
+	["l04u_labx18"] 		= true,
+	["l08u_brainlab"] 		= true,
+	["l10u_bunker"] 		= true,
+	["l15_collector22"] 		= true,
+	["l12u_control_monolith"] 	= true
+}
+
+function check_ulevel()
+  if under_level[level.name()] then
+    	return true
+  else
+	return false
+  end
+end
+
+function set_param()
+local adctor = db.actor
+if s==1 then return end
+    if this.load_variable("addon_opt_ahemi",1) == 1 and adctor ~= nil then
+	if check_ulevel() then			-- если мы в подземной локации
+	   cmd("r2_sun_lumscale_amb "..lao.."")
+	   cmd("r2_sun_lumscale_hemi "..lho.."")
+	   --log3("- addon_auto_hemi.script : in under level, amb="..lao.." hemi="..lho.."")
+	   s = 1
+	else					-- если мы не в подземной локации
+	   cmd("r2_sun_lumscale_amb "..las.."")
+	   cmd("r2_sun_lumscale_hemi "..lhs.."")
+	   --log3("- addon_auto_hemi.script : no under level, amb="..las.." hemi="..lhs.."")
+	   s = 1
+	end 
+    end
+end
+
+----------------------------------------------------------------
+-- функции дл€ сохранени€ настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

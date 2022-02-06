@@ -1,0 +1,31 @@
+[smart_terrains]
+none = true
+
+[logic]
+active = walker@wath_esc
+
+[walker@wath_esc]
+path_walk = bandit_patrul1_2_walk
+path_look = bandit_patrul1_2_lock
+def_state_moving1 = patrol
+def_state_moving2 = sprint
+def_state_moving3 = patrol
+on_timer = 60000 | remark1
+
+[remark1] 
+no_move = true
+;snd = wait
+;on_signal = sound_end| walker@wath_darkv
+on_timer = 20000 | walker@wath_darkv
+
+[walker@wath_darkv]
+path_walk = bandit_patrul1_1_walk
+path_look = bandit_patrul1_1_lock
+def_state_moving1 = patrol
+def_state_moving2 = sprint
+def_state_moving3 = patrol
+on_timer = 60000 | remark2
+
+[remark2] 
+no_move = true
+on_timer = 20000 | walker@wath_esc

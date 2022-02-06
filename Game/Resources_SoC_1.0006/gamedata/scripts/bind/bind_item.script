@@ -1,0 +1,68 @@
+--[[
+	Биндер предметов.
+	Автор: Real Wolf
+--]]
+function Init(oItem)
+	local oNewBinder = CItemBinder(oItem)
+	oItem:bind_object(oNewBinder)
+end
+
+class "CItemBinder" (object_binder)
+function CItemBinder:__init(obj) super(obj)
+	self.iCondition = 1
+	self.bLoaded = false
+end 
+
+function CItemBinder:reload(section)
+	object_binder.reload(self, section)
+end
+
+function CItemBinder:reinit()
+	object_binder.reinit(self)
+end
+
+function CItemBinder:net_save_relevant()
+	return true
+end
+
+function CItemBinder:save(packet)
+	object_binder.save(self, packet)
+	
+	if self.object:is_inventory_item() then
+		local iCond = math.floor(self.object:condition() * 100)
+		packet:w_u8(iCond)
+	end
+end
+
+function CItemBinder:load(reader)
+	object_binder.load(self, reader)
+	
+	if self.object:is_inventory_item() then
+		local iCond = reader:r_u8()
+		self.iCondition = iCond / 100
+	end
+end
+
+function CItemBinder:net_spawn(data)
+	if not object_binder.net_spawn(self, data) then
+		return false
+	end
+	
+	return true
+end
+
+function CItemBinder:net_destroy()
+	object_binder.net_destroy(self)
+end
+
+function CItemBinder:update(delta)
+	object_binder.update(self, delta)
+	
+	if not self.bLoaded then
+		if self.object:is_inventory_item() and self.object:condition() == 1 then
+			self.object:set_condition(self.iCondition)
+		end
+		
+		self.bLoaded = true
+	end
+end

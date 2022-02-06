@@ -1,0 +1,55 @@
+-- звук при поднятии оружия аля 14хх (hi_flyer)
+
+function on_wpntk(e)
+local wnd_talk		= level.get_talk_wnd()       -- окно диалога
+local wnd_trade 	= level.get_trade_wnd()      -- окно торговли
+local wnd_body	 	= level.get_car_body_wnd()   -- окно обыска
+local addon_actor 	= db.actor
+
+if this.load_variable("addon_opt_swpn",1) == 1 and addon_actor ~= nil then
+	if wnd_trade and wnd_trade:IsShown() then
+		return
+	end
+	if wnd_talk and wnd_talk:IsShown() then
+		return
+	end
+	if wnd_body and wnd_body:IsShown() then
+		return
+	end
+	if e.obj:is_weapon() then 
+	    local rs = math.random(1,2)
+		if rs == 1 then
+		  play_sound([[interface\take\pdnyl]])
+		elseif rs == 2 then
+          play_sound([[interface\take\pdnyl_2]]) 
+        end
+	end
+end
+end
+
+-- функция для воспроизведения звука
+function play_sound(sound,obj)
+	if obj == nil then obj = db.actor end
+	snd = xr_sound.get_safe_sound_object(sound)
+	snd:play_no_feedback(obj,sound_object.s2d,0,vector(),1.0)
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("actor_item_take"):register(on_wpntk)
+end

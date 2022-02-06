@@ -1,0 +1,120 @@
+-- -----------------------------
+--  DreamMod v0.2 by Ab@dDon ---
+-- ----------------------------
+
+function sleep(scale)
+	local sleep_ltx = ini_file ("scripts\\actorsleep.ltx")
+	schemes["ar_sleep"] = "ar_sleep"
+	ar_sleep.set_scheme(db.actor, sleep_ltx, "ar_sleep", logic)
+	db.actor:stop_talk()
+	--db.actor:hide_weapon()
+	--level.hide_indicators()
+	level.disable_input()
+	--sleep_manager.hp_corrector(scale)
+	sleep_manager.starter(scale)
+end
+
+function starter(scale)
+
+-- local adactor 		= db.actor
+--      if this.load_variable("addon_opt_torch_battery",1) == 1 and adactor ~= nil then
+-- 	    addon_torch.torch_off()
+--      end
+
+	PlaySound([[inv_sounds\sleep_bag_down]])
+
+	local factor = scale*230
+	--local factor = scale*2650
+	
+	game.start_tutorial("time_scaling")
+	level.add_pp_effector("teleport.ppe", 2006, false)
+	level.set_time_factor(factor)
+	sleep_manager.hp_corrector(scale)
+	--lwc_surge.bSleep = true
+end
+
+function rndson()
+    local reward_son = math.random(1,3)
+    if reward_son == 1 then
+        game.start_tutorial("Movie-003_Rats_OutPut-010")
+    end
+    if reward_son == 2 then
+        game.start_tutorial("esc_sky_01")
+    end
+    if reward_son == 3 then
+        game.start_tutorial("aes_sky_red")
+    end
+end
+
+function dreamer()
+	level.set_time_factor(TimeFactor() )
+
+	if sleep_manager.is_sleep_active() then
+		local dream = dream.sleep_video_name_callback()
+		if dream ~= "" then 
+			--game.start_tutorial(dream)
+			rndson()
+		else 
+			game.start_tutorial("without_dream") 
+		end
+	else
+		if db.actor:alive() then
+			level.add_cam_effector("camera_effects\\prison_1.anm", 25, false, "")
+			level.add_pp_effector("yantar_underground_psi.ppe", 2007, false)
+			level.add_pp_effector("total_recall.ppe", 2008, false)
+			--db.actor:restore_weapon()
+			PlaySound([[inv_sounds\sleep_bag_up]])
+			level.add_cam_effector("camera_effects\\hit_back_left.anm", 26, false, "")
+		end
+		level.enable_input()
+		--level.show_indicators()
+		--lwc_surge.bSleep = false
+	end
+end
+
+function stopper()
+	if not is_sleep_active() then
+		return
+	end
+	
+	level.set_time_factor(TimeFactor() )
+	ar_sleep.disable_scheme()
+	if db.actor:alive() then
+		level.add_cam_effector("camera_effects\\prison_1.anm", 25, false, "")
+		level.add_pp_effector("yantar_underground_psi.ppe", 2007, false)
+		level.add_pp_effector("total_recall.ppe", 2008, false)
+		--db.actor:restore_weapon()
+		PlaySound([[inv_sounds\sleep_bag_up]])
+	    level.add_cam_effector("camera_effects\\hit_back_left.anm", 26, false, "")
+	end
+	level.enable_input()
+	--level.show_indicators()
+	--lwc_surge.bSleep = false
+end
+
+function hp_corrector(scale)
+	--db.actor.health = 0.04 * scale
+end
+
+function is_sleep_active()
+	if db.storage[db.actor:id()].active_scheme == "ar_sleep" then 
+		return true 
+	end
+	return false
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

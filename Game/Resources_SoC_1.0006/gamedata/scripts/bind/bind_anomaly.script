@@ -1,0 +1,41 @@
+--[[
+	простой биндер аномалий
+	v 0.1 просто закидывает заспавненную аномалию в массив db.addon_anoms
+		  Для дальнейшего отображения ее в экране детектора
+]]--
+
+function init(obj)
+   obj:bind_object(anomaly_binder(obj))
+end
+
+class "anomaly_binder" (object_binder)
+function anomaly_binder:__init(obj) super(obj)
+	self.first_update = false
+end
+
+function anomaly_binder:net_save_relevant()
+	return true
+end
+
+function anomaly_binder:net_spawn(server_object)
+	if not object_binder.net_spawn(self, server_object) then
+		return false
+	end
+	db.addon_anoms[self.object:id()] = self.object
+	return true
+end
+
+function anomaly_binder:reinit()
+	object_binder.reinit(self)
+	db.addon_anoms[self.object:id()] = self.object
+	self.st = db.addon_anoms[self.object:id()]
+end
+
+function anomaly_binder:net_destroy()
+	db.addon_anoms[self.object:id()] = nil
+	object_binder.net_destroy(self)
+end
+
+function anomaly_binder:update(delta)
+
+end

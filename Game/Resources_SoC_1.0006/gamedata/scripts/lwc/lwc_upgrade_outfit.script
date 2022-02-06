@@ -1,0 +1,762 @@
+--[[
+	Схема модификации костюма.
+	Автор: Real Wolf
+	
+	(! возможно можно без этого обойтись)
+	для добавления поддержки абгрейда костюма нужно
+	1. в lwc_upgrade.script добавить секцию брони в таблицу tNpc к соответствующему неписю
+	2. в config\ui\upg добавить фаил с названием комбеза пример (upg_секция комбеза), содержание файла в зависимости от уровня модификации
+	3. в этом файле в 8й строке уникальный параметр, это иконка комбеза, заменяем на свою
+   !4. также нем имеем спицыфику <texture_e>now_ac_e</texture_e> и подобные, в данном случае все now заменить на свой идентификатор, к примеру gowno
+   !5. в ui_upgrades.xml создать анологичный список данных где пропишем этот идентификатор gowno_ac_e и далее подобные
+	6. в config\ui\ui_upg_icons добавляем то имя из 3го пункта, и вбиваем координаты этого костюма из ui_icon_equipment. x y ширина высота
+	7. в outfit.ltx закинуть соответствующие секции с модификациями
+	8. в string_table_outfit.xml добавить описание модификаций(gowno_aa_desc...) учесть стоимость из скрипта (далее)
+	9. в этом скрипте в функциях CUpgradeOutfit:OnButton_aa,ab,ac,ba,bb,bc,ca,cb,cc. Добавить соответствующие спицыфики с секцией нового костюма, !описанием и ценой
+   !10. в message_box в конец добавить свои конфиги с описанием, с указанной ссылкой на русский текст из 8 пункта
+	
+	
+	--]]
+
+
+
+--[[
+	Костюмы, которые имеют 3 уровень модификации
+--]]
+local tOutfits = {	
+--	["stalker_outfit"]			= true
+}
+local oWnd = nil
+
+class "CUpgradeOutfit" (CUIScriptWnd)
+function CUpgradeOutfit:__init() super()
+	self.bThirdLevel = false
+	self.sNextUpgrade = "nil"
+	self.iCost = 0
+	self.iRepairCost = 0
+	self.bUpgrade = false
+	
+   	self:InitControls()
+  	self:InitCallBacks()
+end
+
+function CUpgradeOutfit:__finalize() 
+end
+
+function CUpgradeOutfit:InitControls()
+    self:Init(266, 138, 492, 491)			  
+    local oXml = CScriptXmlInit()
+	
+	local sFile = GetRealSection("File")
+	local sRealSection = GetRealSection("Section")	
+	
+    oXml:ParseFile(sFile)
+	
+	self.oMessageBox = CUIMessageBoxEx()
+	self:Register(self.oMessageBox, "msg_box")
+	
+    oXml:InitStatic("background", self)
+    oXml:InitStatic("icon", self)
+
+	local oSuit = db.actor:item_in_slot(6)
+	local sUpgrade = GetUpgrade(oSuit:section() )	
+
+	self:Register(oXml:Init3tButton("aa", self), "aa")
+	if sUpgrade == "aa" or sUpgrade == "ab" or sUpgrade == "ac" then
+       	oXml:InitStatic("aa_i", self)
+	end
+
+	self:Register(oXml:Init3tButton("ab", self), "ab")
+	if sUpgrade == "ab" or sUpgrade == "ac" then
+       	oXml:InitStatic("ab_i", self)
+	end
+		
+	self:Register(oXml:Init3tButton("ac", self), "ac")
+	if sUpgrade == "ac" then
+       	oXml:InitStatic("ac_i", self)
+	end
+
+	self:Register(oXml:Init3tButton("ba", self), "ba")
+	if sUpgrade == "ba" or sUpgrade == "bb" or sUpgrade == "bc" then
+       	oXml:InitStatic("ba_i", self)  
+	end
+
+	self:Register(oXml:Init3tButton("bb", self), "bb")
+	if sUpgrade == "bb" or sUpgrade == "bc" then
+       	oXml:InitStatic("bb_i", self)
+	end
+
+	self:Register(oXml:Init3tButton("bc", self), "bc")
+	if sUpgrade == "bc" then
+		oXml:InitStatic("bc_i", self)
+	end
+
+	self:Register(oXml:Init3tButton("btn_quit", self), "btn_quit")
+	self:Register(oXml:Init3tButton("btn_repair", self), "btn_repair")
+
+	if tOutfits[sRealSection] then
+		self.bThirdLevel = true
+		self:Register(oXml:Init3tButton("ca", self), "ca")
+		if sUpgrade == "ca" or sUpgrade == "cb" or sUpgrade == "cc" then
+       		oXml:InitStatic("ca_i", self)
+        	oXml:InitStatic("ca_r5", self)
+       		oXml:InitStatic("ca_r6", self)
+		end
+
+		self:Register(oXml:Init3tButton("cb", self), "cb")
+		if sUpgrade == "cb" or sUpgrade == "cc" then
+       		oXml:InitStatic("cb_i", self)
+		end
+
+		self:Register(oXml:Init3tButton("cc", self), "cc")
+		if sUpgrade == "cc" then
+			oXml:InitStatic("cc_i", self)
+		end
+	end
+
+	if sUpgrade == "aa" or sUpgrade == "ab" or sUpgrade == "ac" then
+       	oXml:InitStatic("aa_r1", self)
+		if self.bThirdLevel then
+       		oXml:InitStatic("aa_r2", self)
+		end
+	end
+
+	if sUpgrade == "ba" or sUpgrade == "bb" or sUpgrade == "bc" then
+       	oXml:InitStatic("ba_r3", self)
+		if self.bThirdLevel then 
+       		oXml:InitStatic("ba_r4", self)
+		end  
+	end
+end
+
+function CUpgradeOutfit:InitCallBacks()
+	self:AddCallback("aa", ui_events.BUTTON_CLICKED, self.OnButton_aa, self)
+	self:AddCallback("ab", ui_events.BUTTON_CLICKED, self.OnButton_ab, self)
+	self:AddCallback("ac", ui_events.BUTTON_CLICKED, self.OnButton_ac, self)
+	self:AddCallback("ba", ui_events.BUTTON_CLICKED, self.OnButton_ba, self)
+	self:AddCallback("bb", ui_events.BUTTON_CLICKED, self.OnButton_bb, self)
+	self:AddCallback("bc", ui_events.BUTTON_CLICKED, self.OnButton_bc, self)
+
+	self:AddCallback("btn_quit", ui_events.BUTTON_CLICKED, self.Quit, self)
+	self:AddCallback("btn_repair", ui_events.BUTTON_CLICKED, self.OnButtonRepair, self)
+	self:AddCallback("msg_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.OnMsgYes, self)
+	self:AddCallback("msg_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.OnMsgNo, self)
+
+	if self.bThirdLevel then
+		self:AddCallback("ca", ui_events.BUTTON_CLICKED, self.OnButton_ca, self)
+		self:AddCallback("cb", ui_events.BUTTON_CLICKED, self.OnButton_cb, self)
+		self:AddCallback("cc", ui_events.BUTTON_CLICKED, self.OnButton_cc, self)
+	end
+end
+
+function CUpgradeOutfit:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self,dik,keyboard_action)
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		if dik == DIK_keys.DIK_ESCAPE then
+			self:Quit()
+		end
+	end
+	return true
+end
+
+function ScriptMessageYes()
+	oWnd:OnMsgYes()
+end
+
+function ScriptMessageNo()
+	oWnd:OnMsgNo()
+end
+
+function CUpgradeOutfit:OnMsgYes()
+	local oSuit = db.actor:item_in_slot(6)
+	local sRealSection = GetRealSection("Section")
+	
+	if self.bUpgrade then
+		if db.actor:money() >= self.iRepairCost then
+			oSuit:set_condition(0.98)
+			db.actor:give_money(-self.iRepairCost)
+			PlaySound("inv_sounds\\tiski_bronik_3")
+			
+			local sText = "Костюм отремонтирован."
+			local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+			level.start_stop_menu(oMessage, true)
+		else
+			local sText = "Недостаточно денег для ремонта костюма."
+			local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+			level.start_stop_menu(oMessage, true)
+		end	
+		
+		self.bUpgrade = false
+		return true
+	end
+	
+	if self.sNextUpgrade and self.sNextUpgrade ~= "nil" then
+		if db.actor:money() >= self.iCost then
+			db.actor:give_money(-self.iCost)
+			DelObj(oSuit)
+			local tObj = AddObjInv(sRealSection.."_"..self.sNextUpgrade)
+			level.client_spawn_manager():add(tObj[1].id, -1, SuitSpawn, oSuit:condition() )
+			
+			local sText = "Модификация на костюм установлена."
+			local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+			level.start_stop_menu(oMessage, true)
+			
+			if self.sNextUpgrade == "aa" then
+				local oUpgradeAA = CUIStatic()
+				oUpgradeAA:SetAutoDelete(true)
+				self:AttachChild(oUpgradeAA)
+				oUpgradeAA:SetStretchTexture(true)	
+				oUpgradeAA:SetWndRect(172,56,90,44)
+				oUpgradeAA:InitTexture("seva_aa_i")
+
+				local oUpgradeR1 = CUIStatic()
+				oUpgradeR1:SetAutoDelete(true)
+				self:AttachChild(oUpgradeR1)
+				oUpgradeR1:SetStretchTexture(true)	
+				oUpgradeR1:SetWndRect(172,108,289,44)
+				oUpgradeR1:InitTexture("upgrade_red_i")
+				
+				if self.bThirdLevel then
+					local oUpgradeR2 = CUIStatic()
+					oUpgradeR2:SetAutoDelete(true)
+					self:AttachChild(oUpgradeR2)
+					oUpgradeR2:SetStretchTexture(true)	
+					oUpgradeR2:SetWndRect(172,161,289,44)
+					oUpgradeR2:InitTexture("upgrade_red_i")
+				end
+				
+			elseif self.sNextUpgrade == "ab" then
+				local oUpgradeAB = CUIStatic()
+				oUpgradeAB:SetAutoDelete(true)
+				self:AttachChild(oUpgradeAB)
+				oUpgradeAB:SetStretchTexture(true)	
+				oUpgradeAB:SetWndRect(272,56,90,44)
+				oUpgradeAB:InitTexture("seva_aa_i")
+				
+			elseif self.sNextUpgrade == "ac" then
+				local oUpgradeAC = CUIStatic()
+				oUpgradeAC:SetAutoDelete(true)
+				self:AttachChild(oUpgradeAC)
+				oUpgradeAC:SetStretchTexture(true)	
+				oUpgradeAC:SetWndRect(372,56,90,44)
+				oUpgradeAC:InitTexture("seva_aa_i")
+				
+			elseif self.sNextUpgrade == "ba" then
+				local oUpgradeBA = CUIStatic()
+				oUpgradeBA:SetAutoDelete(true)
+				self:AttachChild(oUpgradeBA)
+				oUpgradeBA:SetStretchTexture(true)	
+				oUpgradeBA:SetWndRect(172,108,90,44)
+				oUpgradeBA:InitTexture("seva_aa_i")
+
+				local oUpgradeR1 = CUIStatic()
+				oUpgradeR1:SetAutoDelete(true)
+				self:AttachChild(oUpgradeR1)
+				oUpgradeR1:SetStretchTexture(true)	
+				oUpgradeR1:SetWndRect(172,56,289,44)
+				oUpgradeR1:InitTexture("upgrade_red_i")
+				
+				if self.bThirdLevel == true then
+					local oUpgradeR2 = CUIStatic()
+					oUpgradeR2:SetAutoDelete(true)
+					self:AttachChild(oUpgradeR2)
+					oUpgradeR2:SetStretchTexture(true)	
+					oUpgradeR2:SetWndRect(172,161,289,44)
+					oUpgradeR2:InitTexture("upgrade_red_i")
+				end
+				
+			elseif self.sNextUpgrade == "bb" then
+				local oUpgradeBB = CUIStatic()
+				oUpgradeBB:SetAutoDelete(true)
+				self:AttachChild(oUpgradeBB)
+				oUpgradeBB:SetStretchTexture(true)	
+				oUpgradeBB:SetWndRect(272,108,90,44)
+				oUpgradeBB:InitTexture("seva_aa_i")
+				
+			elseif self.sNextUpgrade == "bc" then
+				local oUpgradeBC = CUIStatic()
+				oUpgradeBC:SetAutoDelete(true)
+				self:AttachChild(oUpgradeBC)
+				oUpgradeBC:SetStretchTexture(true)	
+				oUpgradeBC:SetWndRect(372,108,90,44)
+				oUpgradeBC:InitTexture("seva_aa_i")
+				
+			elseif self.sNextUpgrade == "ca" then
+				local oUpgradeCA = CUIStatic()
+				oUpgradeCA:SetAutoDelete(true)
+				self:AttachChild(oUpgradeCA)
+				oUpgradeCA:SetStretchTexture(true)	
+				oUpgradeCA:SetWndRect(172,161,90,44)
+				oUpgradeCA:InitTexture("seva_aa_i")
+
+				local oUpgradeR1 = CUIStatic()
+				oUpgradeR1:SetAutoDelete(true)
+				self:AttachChild(oUpgradeR1)
+				oUpgradeR1:SetStretchTexture(true)	
+				oUpgradeR1:SetWndRect(172,56,289,44)
+				oUpgradeR1:InitTexture("upgrade_red_i")
+
+				local oUpgradeR2 = CUIStatic()
+				oUpgradeR2:SetAutoDelete(true)
+				self:AttachChild(oUpgradeR2)
+				oUpgradeR2:SetStretchTexture(true)	
+				oUpgradeR2:SetWndRect(172,108,289,44)
+				oUpgradeR2:InitTexture("upgrade_red_i")
+				
+			elseif self.sNextUpgrade == "cb" then
+				local oUpgradeCB = CUIStatic()
+				oUpgradeCB:SetAutoDelete(true)
+				self:AttachChild(oUpgradeCB)
+				oUpgradeCB:SetStretchTexture(true)	
+				oUpgradeCB:SetWndRect(272,161,90,44)
+				oUpgradeCB:InitTexture("seva_aa_i")
+				
+			elseif self.sNextUpgrade == "cc" then
+				local oUpgradeCC = CUIStatic()
+				oUpgradeCC:SetAutoDelete(true)
+				self:AttachChild(oUpgradeCC)
+				oUpgradeCC:SetStretchTexture(true)	
+				oUpgradeCC:SetWndRect(372,161,90,44)
+				oUpgradeCC:InitTexture("seva_aa_i")
+			end
+			
+			if self.sNextUpgrade == "aa" or self.sNextUpgrade == "ba" or self.sNextUpgrade == "ca" then
+				PlaySound("inv_sounds\\tiski_bronik_3_01")
+				
+			elseif self.sNextUpgrade == "ab" or self.sNextUpgrade == "bb" or self.sNextUpgrade == "cb" then
+				PlaySound("inv_sounds\\tiski_bronik_3_01")
+				
+			elseif self.sNextUpgrade == "ac" or self.sNextUpgrade == "bc" or self.sNextUpgrade == "cc" then
+				PlaySound("inv_sounds\\tiski_bronik_3_01")
+			end
+		else
+			local sText = "Модификация на костюм не установлена.\\nНе хватает денег."
+			local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+			level.start_stop_menu(oMessage, true)
+		end						
+	end
+end
+
+function CUpgradeOutfit:OnMsgNo()
+	self.bUpgrade = false
+end
+
+function CUpgradeOutfit:OnButton_aa()
+	local oSuit = db.actor:item_in_slot(6)
+	local sUpgrade = GetUpgrade(oSuit:section() )
+	if sUpgrade == "nil" then
+		self.sNextUpgrade = "aa"
+		if string.find(oSuit:section(), "scientific_outfit") or string.find(oSuit:section(), "proseva") then
+			self:InitMessage("message_addon_sci_aa")
+			self.iCost = 28000
+		elseif string.find(oSuit:section(), "stalker_outfit") or string.find(oSuit:section(), "dolg_outfit") or string.find(oSuit:section(), "killer_outfit")
+		or string.find(oSuit:section(), "svoboda_light_outfit") or string.find(oSuit:section(), "svoboda_heavy_outfit") then
+			self:InitMessage("message_stalker_aa")
+			self.iCost = 20000
+		elseif string.find(oSuit:section(), "novice_outfit") then
+			self:InitMessage("message_now_aa")
+			self.iCost = 3000
+		elseif string.find(oSuit:section(), "bandit_outfit") then
+			self:InitMessage("message_now_aa")
+			self.iCost = 3000
+		elseif string.find(oSuit:section(), "exo_outfit") then
+			self:InitMessage("message_addon_exo_aa")
+			self.iCost = 18000
+		elseif string.find(oSuit:section(), "military") then
+			self:InitMessage("message_mil_aa")
+			self.iCost = 35000
+		elseif string.find(oSuit:section(), "specops_outfit") or string.find(oSuit:section(), "specops_free") then
+			self:InitMessage("message_spec_aa")
+			self.iCost = 35000
+		elseif string.find(oSuit:section(), "leather_raincoat") then
+			self:InitMessage("message_plash_aa")
+			self.iCost = 30000
+		end			 
+	elseif sUpgrade == "aa" or sUpgrade == "ab" or sUpgrade == "ac" then		
+		local sText = "Данная модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		
+	elseif sUpgrade ~= "aa" and upg ~= "ab" and upg ~= "ac" then
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)	
+	end
+end
+
+function CUpgradeOutfit:OnButton_ab()
+	local oSuit = db.actor:item_in_slot(6)
+	local sUpgrade = GetUpgrade(oSuit:section() )	
+	if sUpgrade == "aa" then
+		self.sNextUpgrade = "ab"
+		if string.find(oSuit:section(), "scientific_outfit") or string.find(oSuit:section(), "proseva") then
+			self:InitMessage("message_addon_sci_ab")
+			self.iCost = 28000
+		elseif string.find(oSuit:section(), "stalker_outfit") or string.find(oSuit:section(), "dolg_outfit") or string.find(oSuit:section(), "killer_outfit")
+		or string.find(oSuit:section(), "svoboda_light_outfit") or string.find(oSuit:section(), "svoboda_heavy_outfit") then
+			self:InitMessage("message_stalker_ab")
+			self.iCost = 35000
+		elseif string.find(oSuit:section(), "novice_outfit") then
+			self:InitMessage("message_now_ab")
+			self.iCost = 5000
+		elseif string.find(oSuit:section(), "bandit_outfit") then
+			self:InitMessage("message_now_ab")
+			self.iCost = 5000
+		elseif string.find(oSuit:section(), "exo_outfit") then
+			self:InitMessage("message_addon_exo_ab")
+			self.iCost = 25000
+		elseif string.find(oSuit:section(), "military") then
+			self:InitMessage("message_mil_ab")
+			self.iCost = 70000
+		elseif string.find(oSuit:section(), "specops_outfit") or string.find(oSuit:section(), "specops_free") then
+			self:InitMessage("message_spec_ab")
+			self.iCost = 70000
+		elseif string.find(oSuit:section(), "leather_raincoat") then
+			self:InitMessage("message_plash_ab")
+			self.iCost = 50000
+		end
+	elseif sUpgrade == "ab" or sUpgrade == "ac" then
+		local sText = "Данная модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+	elseif sUpgrade ~= "ab" or upg ~= "ac" then
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)	
+	end
+end
+
+function CUpgradeOutfit:OnButton_ac()
+	local oSuit = db.actor:item_in_slot(6)
+	local sUpgrade = GetUpgrade(oSuit:section() )	
+	if sUpgrade == "ab" then
+		self.sNextUpgrade = "ac"
+		if string.find(oSuit:section(), "scientific_outfit") or string.find(oSuit:section(), "proseva") then
+			self:InitMessage("message_addon_sci_ac")
+			self.iCost = 45000
+		elseif string.find(oSuit:section(), "stalker_outfit") or string.find(oSuit:section(), "dolg_outfit") or string.find(oSuit:section(), "killer_outfit")
+		or string.find(oSuit:section(), "svoboda_light_outfit") or string.find(oSuit:section(), "svoboda_heavy_outfit") then
+			self:InitMessage("message_stalker_ac")
+			self.iCost = 50000
+		elseif string.find(oSuit:section(), "novice_outfit") then
+			self:InitMessage("message_now_ac")
+			self.iCost = 7500
+		elseif string.find(oSuit:section(), "bandit_outfit") then
+			self:InitMessage("message_now_ac")
+			self.iCost = 7500
+		elseif string.find(oSuit:section(), "exo_outfit") then
+			self:InitMessage("message_addon_exo_ac")
+			self.iCost = 38000
+		elseif string.find(oSuit:section(), "military") then
+			self:InitMessage("message_mil_ac")
+			self.iCost = 125000
+		elseif string.find(oSuit:section(), "specops_outfit") or string.find(oSuit:section(), "specops_free") then
+			self:InitMessage("message_spec_ac")
+			self.iCost = 125000
+		elseif string.find(oSuit:section(), "leather_raincoat") then
+			self:InitMessage("message_plash_ac")
+			self.iCost = 75000
+		end
+	elseif sUpgrade == "ac" then
+		local sText = "Данная модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+	elseif sUpgrade ~= "ac" then
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)	
+	end
+end
+
+function CUpgradeOutfit:OnButton_ba()
+	local oSuit = db.actor:item_in_slot(6)
+	local sUpgrade = GetUpgrade(oSuit:section() )	
+	if sUpgrade == "nil" then
+		self.sNextUpgrade = "ba"
+		if string.find(oSuit:section(), "scientific_outfit") or string.find(oSuit:section(), "proseva") then
+			self:InitMessage("message_addon_sci_ba")
+			self.iCost = 30000
+		elseif string.find(oSuit:section(), "stalker_outfit") or string.find(oSuit:section(), "dolg_outfit") or string.find(oSuit:section(), "killer_outfit")
+		or string.find(oSuit:section(), "svoboda_light_outfit") or string.find(oSuit:section(), "svoboda_heavy_outfit") then
+			self:InitMessage("message_stalker_ba")
+			self.iCost = 25000
+		elseif string.find(oSuit:section(), "novice_outfit") then
+			self:InitMessage("message_now_ba")
+			self.iCost = 3500
+		elseif string.find(oSuit:section(), "bandit_outfit") then
+			self:InitMessage("message_now_ba")
+			self.iCost = 3500
+		elseif string.find(oSuit:section(), "exo_outfit") then
+			self:InitMessage("message_addon_exo_ba")
+			self.iCost = 15000
+		elseif string.find(oSuit:section(), "military") then
+			self:InitMessage("message_mil_ba")
+			self.iCost = 40000
+		elseif string.find(oSuit:section(), "specops_outfit") or string.find(oSuit:section(), "specops_free") then
+			self:InitMessage("message_spec_ba")
+			self.iCost = 40000
+		elseif string.find(oSuit:section(), "leather_raincoat") then
+			self:InitMessage("message_plash_ba")
+			self.iCost = 35000
+		end
+	elseif sUpgrade == "ba" or sUpgrade == "bb" or sUpgrade == "bc" then
+		local sText = "Данная модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		
+	elseif sUpgrade ~= "ba" and upg ~= "bb" and upg ~= "bc" then
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)	
+	end
+end
+
+function CUpgradeOutfit:OnButton_bb()
+	local oSuit = db.actor:item_in_slot(6)
+	local sUpgrade = GetUpgrade(oSuit:section() )	
+	if sUpgrade == "ba" then
+		self.sNextUpgrade = "bb"
+		if string.find(oSuit:section(), "scientific_outfit") or string.find(oSuit:section(), "proseva") then
+			self:InitMessage("message_addon_sci_bb")
+			self.iCost = 25000
+		elseif string.find(oSuit:section(), "stalker_outfit") or string.find(oSuit:section(), "dolg_outfit") or string.find(oSuit:section(), "killer_outfit")
+		or string.find(oSuit:section(), "svoboda_light_outfit") or string.find(oSuit:section(), "svoboda_heavy_outfit") then
+			self:InitMessage("message_stalker_bb")
+			self.iCost = 50000
+		elseif string.find(oSuit:section(), "novice_outfit") then
+			self:InitMessage("message_now_bb")
+			self.iCost = 6000
+		elseif string.find(oSuit:section(), "bandit_outfit") then
+			self:InitMessage("message_now_bb")
+			self.iCost = 6000
+		elseif string.find(oSuit:section(), "exo_outfit") then
+			self:InitMessage("message_addon_exo_bb")
+			self.iCost = 20000
+		elseif string.find(oSuit:section(), "military") then
+			self:InitMessage("message_mil_bb")
+			self.iCost = 80000
+		elseif string.find(oSuit:section(), "specops_outfit") or string.find(oSuit:section(), "specops_free") then
+			self:InitMessage("message_spec_bb")
+			self.iCost = 80000
+		elseif string.find(oSuit:section(), "leather_raincoat") then
+			self:InitMessage("message_plash_bb")
+			self.iCost = 60000
+		end
+	elseif sUpgrade == "bb" or sUpgrade == "bc" then
+		local sText = "Данная модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		
+	elseif sUpgrade ~= "bb" and upg ~= "bb" then
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)	
+	end
+end
+
+function CUpgradeOutfit:OnButton_bc()
+	local oSuit = db.actor:item_in_slot(6)
+	local sUpgrade = GetUpgrade(oSuit:section() )	
+	if sUpgrade == "bb" then
+		self.sNextUpgrade = "bc"
+		if string.find(oSuit:section(), "scientific_outfit") or string.find(oSuit:section(), "proseva") then
+			self:InitMessage("message_addon_sci_bc")
+			self.iCost = 44000
+		elseif string.find(oSuit:section(), "stalker_outfit") or string.find(oSuit:section(), "dolg_outfit") or string.find(oSuit:section(), "killer_outfit")
+		or string.find(oSuit:section(), "svoboda_light_outfit") or string.find(oSuit:section(), "svoboda_heavy_outfit") then
+			self:InitMessage("message_stalker_bc")
+			self.iCost = 75000
+		elseif string.find(oSuit:section(), "novice_outfit") then
+			self:InitMessage("message_now_bc")
+			self.iCost = 8000
+		elseif string.find(oSuit:section(), "bandit_outfit") then
+			self:InitMessage("message_now_bc")
+			self.iCost = 8000
+		elseif string.find(oSuit:section(), "exo_outfit") then
+			self:InitMessage("message_addon_exo_bc")
+			self.iCost = 40000
+		elseif string.find(oSuit:section(), "military") then
+			self:InitMessage("message_mil_bc")
+			self.iCost = 120000
+		elseif string.find(oSuit:section(), "specops_outfit") or string.find(oSuit:section(), "specops_free") then
+			self:InitMessage("message_spec_bc")
+			self.iCost = 120000
+		elseif string.find(oSuit:section(), "leather_raincoat") then
+			self:InitMessage("message_plash_bc")
+			self.iCost = 80000
+		end
+	elseif sUpgrade == "bc" then
+		local sText = "Данная модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		
+	elseif sUpgrade ~= "bc" then
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)	
+	end
+end
+
+function CUpgradeOutfit:OnButton_ca()
+	local oSuit = db.actor:item_in_slot(6)
+	local sUpgrade = GetUpgrade(oSuit:section() )	
+	if sUpgrade == "nil" then
+		self.sNextUpgrade = "ca"
+		if string.find(oSuit:section(), "scientifc") or string.find(oSuit:section(), "proseva") then
+			self:InitMessage("message_seva_ca")
+			self.iCost = 50000
+		elseif string.find(oSuit:section(), "mercenar_exo") then
+			self:InitMessage("message_merc_ca")
+			self.iCost = 100000
+		elseif string.find(oSuit:section(), "militar") then
+			self:InitMessage("message_mil_ca")
+			self.iCost = 50000
+		elseif string.find(oSuit:section(), "specop_outfit") or string.find(oSuit:section(), "specops_free") then
+			self:InitMessage("message_spec_ca")
+			self.iCost = 50000			
+		end
+	elseif sUpgrade == "ca" or sUpgrade == "cb" or sUpgrade == "cc" then
+		local sText = "Данная модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		
+	elseif sUpgrade ~= "ca" and upg ~= "cb" and upg ~= "cc" then
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)	
+	end
+end
+
+function CUpgradeOutfit:OnButton_cb()
+	local oSuit = db.actor:item_in_slot(6)
+	local sUpgrade = GetUpgrade(oSuit:section() )	
+	if sUpgrade == "ca" then
+		self.sNextUpgrade = "cb"
+		if string.find(oSuit:section(), "scientific") or string.find(oSuit:section(), "proseva") then
+			self:InitMessage("message_seva_cb")
+			self.iCost = 100000
+		elseif string.find(oSuit:section(), "mercenary_exo") then
+			self:InitMessage("message_merc_cb")
+			self.iCost = 135000
+		elseif string.find(oSuit:section(), "military") then
+			self:InitMessage("message_mil_cb")
+			self.iCost = 100000
+		elseif string.find(oSuit:section(), "specops_outfit") or string.find(oSuit:section(), "specops_free") then
+			self:InitMessage("message_spec_cb")
+			self.iCost = 100000				
+		end
+	elseif sUpgrade == "cb" or sUpgrade == "cc" then
+		local sText = "Данная модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		
+	elseif sUpgrade ~= "cb" and upg ~= "cc"  then
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)	
+	end
+end
+
+function CUpgradeOutfit:OnButton_cc()
+	local oSuit = db.actor:item_in_slot(6)
+	local sUpgrade = GetUpgrade(oSuit:section() )	
+	if sUpgrade == "cb" then
+		self.sNextUpgrade = "cc"
+		if string.find(oSuit:section(), "scientific") or string.find(oSuit:section(), "proseva") then
+			self:InitMessage("message_seva_cc")
+			self.iCost = 150000
+		elseif string.find(oSuit:section(), "mercenary_exo") then
+			self:InitMessage("message_merc_cc")
+			self.iCost = 170000
+		elseif string.find(oSuit:section(), "military") then
+			self:InitMessage("message_mil_cc")
+			self.iCost = 150000
+		elseif string.find(oSuit:section(), "specops_outfit") or string.find(oSuit:section(), "specops_free") then
+			self:InitMessage("message_spec_cc")
+			self.iCost = 150000
+		end
+	elseif sUpgrade == "cc" then
+		local sText = "Данная модификация уже установлена."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)
+		
+	elseif sUpgrade ~= "cc" then
+		local sText = "Невозможно установить данную модификацию."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)		
+	end
+end
+
+function CUpgradeOutfit:OnButtonRepair()
+	local oSuit = db.actor:item_in_slot(6)
+	if oSuit:condition() > 0.97 then
+		local sText = "Ваш костюм не нуждается в ремонте."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)			
+		return
+		
+	elseif oSuit:condition() < 0.2 then
+		local sText = "Ваш костюм не подлежит ремонту."
+		local oMessage = lwc_ui_message.CMessageWindow("", sText, "OK", "ui_message_upgrade", nil, {302, 376})
+		level.start_stop_menu(oMessage, true)	
+		return
+	end
+	
+	self.iRepairCost = math.floor((1 - oSuit:condition() ) * oSuit:cost() )
+
+	local sText = "Стоимость ремонта: "..self.iRepairCost.." рублей.\\nОтремонтировать костюм?"
+	local tFunctions = { 
+		"lwc_upgrade_outfit.ScriptMessageYes()",
+		"lwc_upgrade_outfit.ScriptMessageNo()"
+	}
+	local oMessage = lwc_ui_message.CMessageWindow("", sText, "YesNo", "ui_message_upgrade", tFunctions, {302, 376})
+	level.start_stop_menu(oMessage, true)
+	oWnd = self
+	
+	self.bUpgrade = true	
+end
+
+function CUpgradeOutfit:InitMessage(sText)
+	self.oMessageBox:Init(sText)
+	self:GetHolder():start_stop_menu(self.oMessageBox, true)
+end
+
+function CUpgradeOutfit:Quit()
+	self:GetHolder():start_stop_menu(self, true)
+end
+
+function Detach(oWnd, oChildO, oChildS)
+	oWnd:DetachChild(oChildO)
+	oWnd:DetachChild(oChildS)
+end
+
+function SuitSpawn(iCond, iObjId, oItem)
+	oItem:set_condition(iCond)
+end
+
+function GetUpgrade(sSection)
+	return ReadLine(system_ini(), "String", sSection, "upg", "nil")
+end
+
+function GetRealSection(sMode, oSuit)
+	if not oSuit then
+		oSuit = db.actor:item_in_slot(6)
+	end
+	
+	local sUpgrade = GetUpgrade(oSuit:section() )
+	if sMode == "File" then
+		if sUpgrade == "nil" then
+			return "upg\\upg_"..oSuit:section()
+		else
+			local sRealSect = string.sub(oSuit:section(), 1, string.len(oSuit:section() ) - 3)
+			return "upg\\upg_"..sRealSect
+		end
+		
+	elseif sMode == "Section" then
+		if sUpgrade == "nil" then
+			return oSuit:section()
+		else
+			return string.sub(oSuit:section(), 1, string.len(oSuit:section() ) - 3)
+		end
+	end
+end

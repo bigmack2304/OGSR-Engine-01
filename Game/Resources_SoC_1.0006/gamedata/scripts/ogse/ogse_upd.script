@@ -1,0 +1,3 @@
+function CheckNight(oStalkerBinder)
+	ogse_night.CheckNight(oStalkerBinder.object)
+end

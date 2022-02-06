@@ -1,0 +1,10 @@
+<ui_texture>
+    <file_name>ui\ui_icon_equipment</file_name>
+
+    <texture id="npc_icon_without_outfit"		x="0" y="0" width="0" height="0" />
+    <texture id="npc_icon_now_outfit" 			x="1" y="903" width="94" height="96" />
+    <texture id="npc_icon_band_outfit" 			x="603" y="5" width="93" height="99" /> 
+    <texture id="npc_icon_add_exo_outfit" 		x="697" y="665" width="104" height="123" /> 
+    <texture id="npc_icon_add_sci_outfit"  		x="802" y="649" width="97" height="151" /> 
+
+</ui_texture>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+
+<message>	
+	<background x="0" y="0" width="427" height="165">
+		<texture>ui_upg_message</texture>
+	</background>
+
+	<caption x="25" y="5" width="400" height="100" stretch="1">
+		<text font="graffiti19" complex_mode="1" align="l" r="216" g="186" b="140"/>
+	</caption>	
+	
+	<text x="14" y="16" width="400" height="100" stretch="1">
+		<text r="160" g="160" b="160" font="letterica18" complex_mode="1" align="l" />
+	</text>
+
+	<btn_ok x="170" y="136" width="89" height="21">
+		<texture_e>ui_upg_btn_mess_e</texture_e>
+		<texture_t>ui_upg_btn_mess_t</texture_t>
+		<texture_h>ui_upg_btn_mess_h</texture_h>
+		<text>ui_st_btn_ok</text>
+	</btn_ok>
+	
+	<btn_yes x="84" y="136" width="89" height="21">
+		<texture_e>ui_upg_btn_mess_e</texture_e>
+		<texture_t>ui_upg_btn_mess_t</texture_t>
+		<texture_h>ui_upg_btn_mess_h</texture_h>
+		<text>ui_st_btn_yes</text>
+	</btn_yes>
+	
+	<btn_no x="235" y="136" width="89" height="21">
+		<texture_e>ui_upg_btn_mess_e</texture_e>
+		<texture_t>ui_upg_btn_mess_t</texture_t>
+		<texture_h>ui_upg_btn_mess_h</texture_h>
+		<text>ui_st_btn_no</text>
+	</btn_no>	
+</message>
