@@ -443,25 +443,29 @@ function actor_binder:on_cell_item_mouse( obj, x, y, action )
 end
 ----------------------------------------------
 function actor_binder:on_user_command(cmd)
-local cmd_lengh = string.len(cmd)										-- получить длинну полученной команды
-local com_space = string.find(cmd, " ")									-- поиск пробела в этой команде, получить его индекс
+local cmd_lengh = string.len(cmd)			-- получить длинну полученной команды
+local com_space = string.find(cmd, " ")		-- поиск пробела в этой команде, получить его индекс
+local command, com_value					-- переменные для хранения команды и ее значения
 
 --log3("~ on_user_command: ["..cmd.."] lengh: ["..cmd_lengh.."]")
-
-  if (com_space ~= nil) then 												-- если пробел нашелся
-	local command = string.sub(cmd, 1, (com_space - 1))					-- выдергиваем название введенной команды
-	local com_value_end = string.find(cmd, " ", (com_space + 1))		-- получаем окончание значения. (для этого ищим пробел, начиная с позиции первого найденного пробела)
-	if (com_value_end == nil) then com_value_end = cmd_lengh end		-- если 2й пробел не нашелся, значит окончанием значения будет конец строки полученной команды
-	local com_value = string.sub(cmd, (com_space + 1), com_value_end)	-- выдергиваем содержание значения, введенной команды
-	command = string.gsub(command, " ", "")								-- удалить пробелы оставшиеся в названии введенной команды
-	com_value = string.gsub(com_value, " ", "")							-- удалить пробелы оставшиеся в значении введенной команды
-	--log3("~ on_user_command: command: ["..command.."], type: "..type(command))
-	--log3("~ on_user_command: value: ["..com_value.."], type: "..type(com_value))
-	------------------------------------------------
-	-- изначально command и com_value в формате string это нужно учитывать
-	self.am:call("on_console_command", command, com_value)
+  if (cmd_lengh >= 1) then												-- если в команде есть хоть 1 символ
+    if (com_space ~= nil) then 											-- если пробел нашелся
+	  command = string.sub(cmd, 1, (com_space - 1))						-- выдергиваем название введенной команды
+	  local com_value_end = string.find(cmd, " ", (com_space + 1))		-- получаем окончание значения. (для этого ищим пробел, начиная с позиции первого найденного пробела)
+	  if (com_value_end == nil) then com_value_end = cmd_lengh end		-- если 2й пробел не нашелся, значит окончанием значения будет конец строки полученной команды
+	  com_value = string.sub(cmd, (com_space + 1), com_value_end)		-- выдергиваем содержание значения, введенной команды
+      command = string.gsub(command, " ", "")							-- удалить пробелы оставшиеся в названии введенной команды
+	  com_value = string.gsub(com_value, " ", "")						-- удалить пробелы оставшиеся в значении введенной команды
+	  --log3("~ on_user_command: command: ["..command.."], type: "..type(command))
+	  --log3("~ on_user_command: value: ["..com_value.."], type: "..type(com_value))
+    else																-- если пробел НЕ нашелся
+	  command = cmd														-- значит введенное это просто команда без значения
+      com_value = "null"												-- значения нет, это затычка
+    end
+  ------------------------------------------------
+  -- изначально command и com_value в формате string это нужно учитывать
+  self.am:call("on_console_command", command, com_value)
   end
-
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:on_key_free(key, bind)

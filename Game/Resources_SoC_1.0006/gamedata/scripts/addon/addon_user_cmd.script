@@ -1,0 +1,17 @@
+--
+
+function attach(sm)
+	sm:subscribe({signal = "on_console_command",	fun = this.on_console_comand})
+end
+
+function on_console_comand(comand, value) 
+  if (comand == "info") then
+	get_info()
+  end
+end
+
+function get_info()
+	log3("user_command info 	- получить список всех скриптовых команд")
+	log3("user_command addon_minimap 1/0 or true/false or on/off 	- вкл/выкл миникарта")
+	log3("user_command addon_script_reload name 	- запуск/перезапуск скрипта из папки scripts")
+end

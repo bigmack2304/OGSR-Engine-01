@@ -30,5 +30,6 @@ addons = {
   "addon_detectors",
   "addon_minimap_control",
   "addon_script_reloader",
+  "addon_user_cmd",
   "asu"
 }
