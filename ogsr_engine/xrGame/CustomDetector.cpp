@@ -10,6 +10,12 @@
 #include "player_hud.h"
 #include "Weapon.h"
 
+#include "uigamesp.h"
+#include "ui/UIInventoryWnd.h"
+#include "ui/UIPdaWnd.h"
+#include "ui/UITalkWnd.h"
+#include "ui/UICarBodyWnd.h"
+
 ITEM_INFO::~ITEM_INFO()
 {
     if (pParticle)
@@ -75,13 +81,13 @@ bool CCustomDetector::CheckCompatibility(CHudItem* itm)
 
 void CCustomDetector::HideDetector(bool bFastMode)
 {
-    if (GetState() == eIdle)
+    if (GetState() != eHidden || GetState() != eHiding)
         ToggleDetector(bFastMode);
 }
 
 void CCustomDetector::ShowDetector(bool bFastMode)
 {
-    if (GetState() == eHidden)
+    if (GetState() == eHidden || GetState() == eHiding)
         ToggleDetector(bFastMode);
 }
 
@@ -90,29 +96,24 @@ void CCustomDetector::ToggleDetector(bool bFastMode)
     m_bNeedActivation = false;
     m_bFastAnimMode = bFastMode;
 
-    if (GetState() == eHidden)
-    {
+    if (GetState() == eHidden || GetState() == eHiding) {
         CActor* pActor = smart_cast<CActor*>(H_Parent());
         PIItem iitem = pActor->inventory().ActiveItem();
         CHudItem* itm = (iitem) ? iitem->cast_hud_item() : nullptr;
         u16 slot_to_activate = NO_ACTIVE_SLOT;
-
-        if (CheckCompatibilityInt(itm, &slot_to_activate))
-        {
-            if (slot_to_activate != NO_ACTIVE_SLOT)
-            {
+        if (CheckCompatibilityInt(itm, &slot_to_activate)) {
+            if (slot_to_activate != NO_ACTIVE_SLOT) {
                 pActor->inventory().Activate(slot_to_activate);
-                m_bNeedActivation = true;
-            }
-            else
-            {
-                SwitchState(eShowing);
+                m_bNeedActivation = true;                           // если включаем детектор с неподходящего слота
+            } else {
+                if (get_ui_wnd()) { return; }                       
+                SwitchState(eShowing);                              // если с подходящего
                 TurnDetectorInternal(true);
             }
         }
-    }
-    else if (GetState() == eIdle)
+    } else if (GetState() != eHidden || GetState() != eHiding) {
         SwitchState(eHiding);
+    }
 }
 
 void CCustomDetector::OnStateSwitch(u32 S, u32 oldState)
@@ -232,45 +233,62 @@ void CCustomDetector::UpfateWork()
     m_ui->update();
 }
 
-void CCustomDetector::UpdateVisibility()
-{
+void CCustomDetector::UpdateVisibility() {
     // check visibility
     attachable_hud_item* i0 = g_player_hud->attached_item(0);
-    if (i0 && HudItemData())
-    {
+    if (GetState() == eIdle || GetState() == eShowing) {
+
         bool bClimb = ((Actor()->MovingState() & mcClimb) != 0);
-        if (bClimb)
-        {
+        if (bClimb) {
             HideDetector(true);
             m_bNeedActivation = true;
+            return;
         }
-        else
-        {
+
+        if (get_ui_wnd()) {
+            HideDetector(true);
+            m_bNeedActivation = true;
+            return;
+        }
+        
+        if (i0 && HudItemData()) {
             auto wpn = smart_cast<CWeapon*>(i0->m_parent_hud_item);
-            if (wpn)
-            {
-                u32 state = wpn->GetState();
-                if (wpn->IsZoomed() || state == CWeapon::eReload || state == CWeapon::eSwitch)
-                {
+            if (wpn) {
+                u32 state = wpn->GetState();       
+                if (wpn->IsZoomed() || state == CWeapon::eReload || state == CWeapon::eSwitch) {
                     HideDetector(true);
                     m_bNeedActivation = true;
                 }
             }
         }
-    }
-    else if (m_bNeedActivation)
-    {
-        attachable_hud_item* i0 = g_player_hud->attached_item(0);
+       
+    } else if (m_bNeedActivation) {
         bool bClimb = ((Actor()->MovingState() & mcClimb) != 0);
-        if (!bClimb)
-        {
-            CHudItem* huditem = (i0) ? i0->m_parent_hud_item : nullptr;
-            bool bChecked = !huditem || CheckCompatibilityInt(huditem, 0);
+        CHudItem* huditem = (i0) ? i0->m_parent_hud_item : nullptr;
+        bool bChecked = !huditem || CheckCompatibilityInt(huditem, 0);
 
-            if (bChecked)
-                ShowDetector(true);
-        }
+        if (bClimb) { return; }
+        if (get_ui_wnd()) { return; }
+        if (!bChecked) { return; }
+
+        ShowDetector(true);
     }
+}
+
+bool CCustomDetector::get_ui_wnd() {
+
+    if (!Core.Features.test(xrCore::Feature::hide_detector_on_window)) {
+        return false;
+    }
+
+    auto* addon_pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+    if (addon_pGameSP && (addon_pGameSP->MainInputReceiver() == addon_pGameSP->InventoryMenu
+        || addon_pGameSP->MainInputReceiver() == addon_pGameSP->TalkMenu
+        || addon_pGameSP->MainInputReceiver() == addon_pGameSP->UICarBodyMenu
+        || addon_pGameSP->MainInputReceiver() == addon_pGameSP->PdaMenu)) {
+        return true;
+    }
+    return false;
 }
 
 void CCustomDetector::UpdateCL()
@@ -297,8 +315,8 @@ void CCustomDetector::OnH_B_Independent(bool just_before_destroy)
     if (GetState() != eHidden)
     {
         // Detaching hud item and animation stop in OnH_A_Independent
-        TurnDetectorInternal(false);
         SwitchState(eHidden);
+        TurnDetectorInternal(false);
     }
 }
 

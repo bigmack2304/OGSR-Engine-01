@@ -120,6 +120,7 @@ void InitConsole	()
 	CORE_FEATURE_SET( no_progress_bar_animation,  "features" );
 	CORE_FEATURE_SET( disable_dialog_break,       "features" );
 	CORE_FEATURE_SET( addon_cam1_death,			  "features" );
+	CORE_FEATURE_SET(hide_detector_on_window,	  "features" );
 }
 
 void InitInput()

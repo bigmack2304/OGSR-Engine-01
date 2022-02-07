@@ -214,7 +214,8 @@ public:
 			disable_dialog_break = 1ull << 41,
 			actor_thirst = 1ull << 42,
 			no_progress_bar_animation = 1ull << 43,
-			addon_cam1_death = 1ull << 44;
+			addon_cam1_death = 1ull << 44,
+			hide_detector_on_window = 1ull << 45;
 	};
 
 	void		_initialize	(LPCSTR ApplicationName, LogCallback cb=0, BOOL init_fs=TRUE, LPCSTR fs_fname=0);

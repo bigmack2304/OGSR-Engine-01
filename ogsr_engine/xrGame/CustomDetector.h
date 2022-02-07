@@ -169,6 +169,9 @@ public:
     virtual bool CheckCompatibility(CHudItem* itm) override;
 
     virtual u32 ef_detector_type() const  override { return 1; }
+
+    bool get_ui_wnd();
+	
 protected:
     bool CheckCompatibilityInt(CHudItem* itm, u16* slot_to_activate);
     void TurnDetectorInternal(bool b);
