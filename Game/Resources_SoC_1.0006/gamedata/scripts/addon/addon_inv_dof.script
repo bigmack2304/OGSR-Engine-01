@@ -1,0 +1,61 @@
+-- размытие изображения на заднем плане при открытии инвенторя
+
+local q = 0
+
+function update()
+local wnd_inventory 	= level.get_inventory_wnd()	 -- окно инвинтаря
+local wnd_pda 			= level.get_pda_wnd()		 -- окно пда
+local wnd_body	 		= level.get_car_body_wnd()   -- окно обыска     
+local adactor 			= db.actor
+
+	if this.load_variable("addon_opt_invdof",1) == 0 and adactor ~= nil then
+		return
+	end
+
+	if (wnd_inventory and wnd_inventory:IsShown()) or 
+	(wnd_pda and wnd_pda:IsShown()) or 
+	(wnd_body and wnd_body:IsShown()) then
+		invop()
+	else
+		invclos()
+	end
+end
+
+function invop()
+	if q==0 then
+--		cmd("r2_dof_control on")
+		level.add_pp_effector("new_ppe\\blur.ppe", 5001, true)			-- включаем эффект
+		q = 1
+	--	log3("# inv_dof : dof = 1")
+	end
+end
+
+function invclos()
+	if q==1 then
+--		cmd("r2_dof_control off")
+		level.set_pp_effector_factor(5001, 0.1)
+		level.remove_pp_effector(5001)	
+		q = 0
+	--	log3("# inv_dof : dof = 0")
+	end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("actor_update"):register(update)
+end

@@ -1,0 +1,96 @@
+-- звук удара капель об комбез при дожде (как в sfz project)
+
+function attach(sm)
+	sm:subscribe({signal = "on_update",	fun = this.update})
+end
+
+local rain_sound_helmet = xr_sound.get_safe_sound_object([[inv_sounds\rain\rain_drops_helmet_1]])	-- звук ударяющихся капель об ткань
+local rain_snd_vol_min 	= 0.0	-- минимальная громкость звука
+local rain_snd_vol_max 	= 0.64	-- максимальная громкость звука
+local iNextUpdate 		= 0		-- таймер абдейта
+local float_time 		= 5 	-- интервал апдейта
+local float_tm			= 10	-- множитель значения (float_time), если 1000 то (float_time - сек), если 100 то (float_time) - м.сек
+local mode 				= false -- управление громкостью звука
+local snd_volume 		= 0.0	-- текущая громкость звука
+
+function update()
+local rain = level.rain_factor()									-- получаем текущую силу дождя
+snd_vol()															-- абдейтим функцию управления звуком
+
+  if rain >= 0.2 then												-- если сила дождя больше чем 0.2 или равна ему
+  
+    if this.load_variable("addon_opt_rukhud",1) == 0 and adactor ~= nil then	-- если эта фича в меню выключена то выключаем и звук
+      mode = false	
+	  snd_volume = 0.0
+	  return
+     end
+ 
+    local check_hide = db.actor:is_ActorHide()						-- возвращает true если гг под укрытием
+	if (not rain_sound_helmet or not rain_sound_helmet:playing() ) then		-- если звук не воспроизводится
+	  rain_sound_helmet:play_at_pos(db.actor, vector():set(0, 0, 0), 0, sound_object.s2d)	-- начинаем воспроизведение
+	  rain_sound_helmet.volume = 0									-- громкость пока 0
+	end
+	
+    if check_hide then												-- проверяем что актор под укрытием
+	  mode = false													-- понижаем громкость звука
+	  rain_sound_helmet.volume = snd_volume							-- понижаем громкость звука
+	  return
+    else									    					-- если не под укрытием
+	  local outfit = db.actor:item_in_slot(6)   					-- получаем обьект в 6 слоте (костюм)
+	  
+	  if outfit ~= nil then											-- если там что-то есть
+		mode = true													-- повышаем громкость звука
+		rain_sound_helmet.volume = snd_volume						-- повышаем громкость звука
+		return
+	  else															-- если костюм не надет (значит мы в свитере)
+		rain_sound_helmet:stop()									-- выключаем звук
+		snd_volume = 0.0
+		return
+	  end
+    end
+  else																-- если сила дождя меньше 0.2
+  
+    if (rain_sound_helmet or rain_sound_helmet:playing() ) then		-- если звук воспроизводится
+	  mode = false
+	  rain_sound_helmet.volume = snd_volume
+	end
+  end
+end
+
+function snd_vol()													-- при помощи этой функции мы будем плавно менять громкость звука
+if iNextUpdate <= time_global() then								-- таймер абдейта
+  if (rain_sound_helmet or rain_sound_helmet:playing() ) then		-- следующий код будем выполнять только если звук воспроизводится
+    if mode then													-- режим повышения громкости
+      if snd_volume < rain_snd_vol_max then							-- если текущий звук тише уставки
+	    snd_volume = snd_volume + 0.02								-- повышаем громкость
+	  end
+    end
+
+    if not mode then												-- режим понижения громкости
+      if snd_volume > rain_snd_vol_min then							-- если текущий звук громче уставки
+	    snd_volume = snd_volume - 0.4								-- понижаем громкость
+	  elseif snd_volume <= rain_snd_vol_min then					-- если текущий звук на нули либо ниже
+	    rain_sound_helmet:stop()									-- выключаем вообще
+	  end
+    end
+  
+    iNextUpdate = time_global() + float_time*float_tm				-- заводим таймер для следующего абдейта функции
+  end
+end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

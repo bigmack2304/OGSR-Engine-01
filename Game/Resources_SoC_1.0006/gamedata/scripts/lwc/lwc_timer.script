@@ -1,0 +1,80 @@
+--[[
+	Таймеры
+	Авторы: Основной код - Refresh, изменение - Real Wolf
+--]]
+
+local tTimers = {}
+local iCount = 0
+function Add(sName, sFunction, iSec, iMin, iHour)
+	local iMs = 0
+	if not iSec then
+		iSec = 0
+	elseif iSec < 1 then
+		iMs = iSec*1000
+		iSec = 0
+	end
+
+	if not iMin then
+		iMin = 0
+	end
+
+	if not iHour then
+		iHour = 0
+	end
+
+	tTimers[sName] = {}
+	
+	local oTime = game.CTime()
+	oTime:set(1, 1, 1, iHour, iMin, iSec, iMs)
+
+	tTimers[sName].oTime = oTime + game.get_game_time()
+	tTimers[sName].sFunction = sFunction
+end
+
+function Del(sName)
+	if tTimers[sName] then
+		tTimers[sName] = nil
+	end
+end
+
+function Has(sName)
+	if tTimers[sName] then
+		return true
+	end
+	return false
+end
+
+function Update()
+	pcall(SafeUpdate)
+end
+
+function SafeUpdate()
+	for sName, tParams in pairs(tTimers) do
+		if tParams.oTime <= game.get_game_time() then
+			local oFunction = loadstring(tParams.sFunction)
+			Del(sName)
+			oFunction()
+		end
+	end
+end
+
+function Save(packet)
+	packet:w_u8(table.size(tTimers) )
+	for sName, tParams in pairs(tTimers) do
+		packet:w_stringZ(sName)
+		packet:w_stringZ(tParams.sFunction)
+		utils.w_CTime(packet, tParams.oTime)
+	end
+end
+
+function Load(reader)
+	local iCount = reader:r_u8()
+	for i = 1, iCount do
+		local sName = reader:r_stringZ()
+		local sFunction = reader:r_stringZ()
+		
+		tTimers[sName] = {}
+		tTimers[sName].sFunction = sFunction
+		tTimers[sName].oTime = utils.r_CTime(reader)
+	end
+end

@@ -1,0 +1,303 @@
+--[[
+
+ “ак как решено было минимализировать худ придетс€ добавить
+ иконки состо€ни€ здорови€, выносливости и перегруза на равне с
+ иконкоми радиации, кровотичени€ идт. »дею вз€л из NLC
+ 
+ -18.07.21
+ исправил не удаление иконок после смерти
+
+--]]
+
+function attach(sm)
+	sm:subscribe({signal = "on_update",	fun = this.updat})
+	sm:subscribe({signal = "addon_remove_hud",	fun = this.icons_delete})
+	sm:subscribe({signal = "on_actor_death_sm",	fun = this.actor_dead})
+end
+
+local actor_die = false
+
+local iNextUpdate = 0		  -- таймер абдейта
+local float_time = 3 		  -- интервал апдейта
+local float_tm	= 100		  -- множитель значени€ (float_time), если 1000 то (float_time - сек), если 100 то (float_time) - м.сек
+local hud = get_hud()
+local h_color = GetARGB(255,255,255,255)
+local p_color = GetARGB(255,255,255,255)
+local w_color = GetARGB(255,255,255,255)
+local color_line7 = GetARGB(255,76,255,0)  -- зеленый
+local color_line6 = GetARGB(255,190,255,0) -- желто зеленый
+local color_line5 = GetARGB(255,255,255,0) -- желтый
+local color_line4 = GetARGB(255,255,190,0) -- желто оранжевый
+local color_line3 = GetARGB(255,255,136,0) -- оранжевый
+local color_line2 = GetARGB(255,255,93,0)  -- оранжево красный
+local color_line1 = GetARGB(255,255,20,0)  -- красный
+
+local icons = {
+  ["health"] = 1,
+  ["power"] = 2,
+  ["weight"] = 3
+}
+
+-- обновление иконок
+function updat()
+if not actor_die then
+  if iNextUpdate <= time_global() then
+    icons_start()
+    set_icon()
+--    log3("1 обновл€ем состо€ние")
+    iNextUpdate = time_global() + float_time*float_tm
+  end
+else
+local icon_health = hud:GetCustomStatic("addon_hi_health")
+local icon_power = hud:GetCustomStatic("addon_hi_power")
+local icon_weight = hud:GetCustomStatic("addon_hi_weight")
+
+  if icon_health then
+    icon_hide(icons.health)
+  end
+  if icon_power then
+    icon_hide(icons.power)
+  end
+  if icon_weight then
+    icon_hide(icons.weight)
+  end
+end
+end
+
+-- тут будем скрывать иконку
+function icon_hide(icn)
+local icon_name = icn
+  if icon_name == 1 then
+    hud:GetCustomStatic("addon_hi_health"):wnd():Show( false )
+--    log3("4 скрываем иконку здорови€")
+  elseif icon_name == 2 then
+    hud:GetCustomStatic("addon_hi_power"):wnd():Show( false )
+--    log3("4 скрываем иконку силы")
+  elseif icon_name == 3 then
+    hud:GetCustomStatic("addon_hi_weight"):wnd():Show( false )
+--    log3("4 скрываем иконку силы")
+  end
+end
+
+--тут будем определ€ть цвет иконки
+function icon_set_color(icn, col)
+local icon_health = hud:GetCustomStatic("addon_hi_health")
+local icon_power = hud:GetCustomStatic("addon_hi_power")
+local icon_weight = hud:GetCustomStatic("addon_hi_weight")
+
+local icon_status = icn
+local icon_col = col
+ 
+  if icon_health then
+    if icon_status == 1 then
+      icon_health = hud:GetCustomStatic("addon_hi_health"):wnd()
+
+	if icon_col == 7 then
+	    h_color = color_line7
+	  elseif icon_col == 6 then
+	    h_color = color_line6
+	  elseif icon_col == 5 then
+	    h_color = color_line5
+	  elseif icon_col == 4 then
+	   h_color = color_line4
+	  elseif icon_col == 3 then
+	    h_color = color_line3
+	  elseif icon_col == 2 then
+	    h_color = color_line2
+	  elseif icon_col == 1 then
+	    h_color = color_line1
+	end
+
+	icon_health:SetColor(h_color)
+--        log3("3 раскрашиваем иконку здорови€")
+    end
+  end
+
+  if icon_power then
+    if icon_status == 2 then
+      icon_power = hud:GetCustomStatic("addon_hi_power"):wnd()
+
+	if icon_col == 7 then
+	    p_color = color_line7
+	  elseif icon_col == 6 then
+	    p_color = color_line6
+	  elseif icon_col == 5 then
+	    p_color = color_line5
+	  elseif icon_col == 4 then
+	    p_color = color_line4
+	  elseif icon_col == 3 then
+	    p_color = color_line3
+	  elseif icon_col == 2 then
+	    p_color = color_line2
+	  elseif icon_col == 1 then
+	    p_color = color_line1
+	end
+
+	icon_power:SetColor(p_color)
+--        log3("3 раскрашиваем иконку силы")
+    end
+  end
+
+  if icon_weight then
+    if icon_status == 3 then
+      icon_weight = hud:GetCustomStatic("addon_hi_weight"):wnd()
+
+	if icon_col == 7 then
+	    w_color = color_line7
+	  elseif icon_col == 6 then
+	    w_color = color_line6
+	  elseif icon_col == 5 then
+	    w_color = color_line5
+	  elseif icon_col == 4 then
+	    w_color = color_line4
+	  elseif icon_col == 3 then
+	    w_color = color_line3
+	  elseif icon_col == 2 then
+	    w_color = color_line2
+	  elseif icon_col == 1 then
+	    w_color = color_line1
+	end
+
+	icon_weight:SetColor(w_color)
+--        log3("3 раскрашиваем иконку груза")
+    end
+  end
+
+end
+
+-- тут будем показывать иконку
+function set_icon()
+local icon_health = hud:GetCustomStatic("addon_hi_health")
+local icon_power = hud:GetCustomStatic("addon_hi_power")
+local icon_weight = hud:GetCustomStatic("addon_hi_weight")
+local actorxp = db.actor.health
+local actor_power = db.actor.power
+
+local inv_weight = db.actor:get_inventory_weight()	 -- видемо текущий вес z
+local max_weight = db.actor:get_max_weight()		 -- 25 в стоке x
+local max_walk_weight = db.actor:get_max_walk_weight()   -- 32 в стоке y
+
+local float_weight = 1
+
+  float_weight = ((inv_weight-max_weight)/((max_walk_weight-max_weight)/100))/100
+
+--  local float_weight2 = 1
+--  float_weight2 = 1/((max_walk_weight-max_weight)/((max_walk_weight-max_weight)-(max_walk_weight-inv_weight)))
+--  log3("# х = "..max_weight.." y = "..max_walk_weight.." z = "..inv_weight.." formula1 = "..float_weight2.." formula2 = "..float_weight.."")
+
+  if icon_health then
+    if actorxp < 0.95 then
+      hud:GetCustomStatic("addon_hi_health"):wnd():Show(true)
+--      log3("2 показываем иконку здорови€")
+
+	  if actorxp >= 0.85 then
+          icon_set_color( icons.health, 7 )
+	    elseif (actorxp < 0.85) and (actorxp >= 0.66) then
+          icon_set_color( icons.health, 6 )
+	    elseif (actorxp < 0.66) and (actorxp >= 0.53) then
+          icon_set_color( icons.health, 5 )
+	    elseif (actorxp < 0.53) and (actorxp >= 0.40) then
+          icon_set_color( icons.health, 4 )
+	    elseif (actorxp < 0.40) and (actorxp >= 0.27) then
+          icon_set_color( icons.health, 3 )
+	    elseif (actorxp < 0.27) and (actorxp >= 0.13) then
+          icon_set_color( icons.health, 2 )
+	    elseif (actorxp < 0.13) and (actorxp >= 0.01) then
+          icon_set_color( icons.health, 1 )
+        end
+    else
+      icon_hide(icons.health)
+    end
+  end
+
+  if icon_power then
+    if actor_power < 0.95 then
+      hud:GetCustomStatic("addon_hi_power"):wnd():Show(true)
+--      log3("2 показываем иконку силы")
+
+	  if actor_power >= 0.85 then
+          icon_set_color( icons.power, 7 )
+	    elseif (actor_power < 0.85) and (actor_power >= 0.66) then
+          icon_set_color( icons.power, 6 )
+	    elseif (actor_power < 0.66) and (actor_power >= 0.53) then
+          icon_set_color( icons.power, 5 )
+	    elseif (actor_power < 0.53) and (actor_power >= 0.40) then
+          icon_set_color( icons.power, 4 )
+	    elseif (actor_power < 0.40) and (actor_power >= 0.27) then
+          icon_set_color( icons.power, 3 )
+	    elseif (actor_power < 0.27) and (actor_power >= 0.13) then
+          icon_set_color( icons.power, 2 )
+	    elseif (actor_power < 0.13) and (actor_power >= 0.01) then
+          icon_set_color( icons.power, 1 )
+        end
+    else
+      icon_hide(icons.power)
+    end
+  end
+
+  if icon_weight then
+    if float_weight > 0.01 then
+      hud:GetCustomStatic("addon_hi_weight"):wnd():Show(true)
+--      log3("2 показываем иконку груза")
+
+	  if float_weight <= 0.27 then
+          icon_set_color( icons.weight, 7 )
+		elseif (float_weight > 0.27) and (float_weight <= 0.40) then
+          icon_set_color( icons.weight, 6 )
+	    elseif (float_weight > 0.40) and (float_weight <= 0.53) then
+          icon_set_color( icons.weight, 5 )
+	    elseif (float_weight > 0.53) and (float_weight <= 0.66) then
+          icon_set_color( icons.weight, 4 )
+	    elseif (float_weight > 0.66) and (float_weight <= 0.85) then
+          icon_set_color( icons.weight, 3 )
+	    elseif (float_weight > 0.85) and (float_weight <= 0.95) then
+          icon_set_color( icons.weight, 2 )
+	    elseif float_weight > 0.95 then
+          icon_set_color( icons.weight, 1 )
+        end
+    else
+      icon_hide(icons.weight)
+    end
+  end
+end
+
+-- вызовем при старте игры
+function icons_start()
+local icon_health = hud:GetCustomStatic("addon_hi_health")
+local icon_power = hud:GetCustomStatic("addon_hi_power")
+local icon_weight = hud:GetCustomStatic("addon_hi_weight")
+
+  if not icon_health then
+    hud:AddCustomStatic("addon_hi_health")
+  end
+  if not icon_power then
+    hud:AddCustomStatic("addon_hi_power")
+  end
+  if not icon_weight then
+    hud:AddCustomStatic("addon_hi_weight")
+  end
+end
+
+-- обновл€ем иконки
+function icons_delete()
+local icon_health = hud:GetCustomStatic("addon_hi_health")
+local icon_power = hud:GetCustomStatic("addon_hi_power")
+local icon_weight = hud:GetCustomStatic("addon_hi_weight")
+
+  if icon_health then
+    hud:RemoveCustomStatic("addon_hi_health")
+  end
+  if icon_power then
+    hud:RemoveCustomStatic("addon_hi_power")
+  end
+  if icon_weight then
+    hud:RemoveCustomStatic("addon_hi_weight")
+  end
+--      log3("icons remove")
+end
+
+-- вызываетс€ при смерти гг
+function actor_dead()
+actor_die = true
+log3("actor die")
+end

@@ -1,0 +1,6 @@
+<ui_texture>
+    <file_name>ui\sleep\ui_btn_slp</file_name>
+	<texture id="ui_btn_slp_h" x="0" y="0" width="22" height="157" />
+	<texture id="ui_btn_slp_t" x="22" y="0" width="22" height="157" />
+	<texture id="ui_btn_slp_e" x="44" y="0" width="22" height="157" />
+</ui_texture>

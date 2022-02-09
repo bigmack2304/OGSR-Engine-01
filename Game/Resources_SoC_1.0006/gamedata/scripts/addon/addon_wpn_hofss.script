@@ -1,0 +1,196 @@
+--[[
+		Контроль параметра zoom_offset в секции худа активного оружия
+		тк. используются 3д прицелы появилась необходимость контролировать смещение худа при прицеливании
+		если на стволе нету прицела, то при прицеливании в центре экрана должна быть мушка оружия
+		а если установить на него прицел то худовая модель должна смещатся таким образом чтобы в центре экрана было
+		перекрестие прицела.
+		Теперь для этого достаточно прописать необходимую секцию оружия в check_wpn, после чего из худовой секции
+		в конфигах будет считыватся параметр scope_zoom_offset.
+02 05 19
+		отключение автонастройки пораметра zoom_offset, так как теперь движок сам читает этот параметр,
+		однако сам скрипт пока оставлю так как он контролирует включение команды g_3d_scopes, что не хило
+		повышает производительность
+--]]
+
+local wpn_scopes = {
+	["wpn_ak74u"]           =true,
+	["wpn_ak74u_a"]         =true,
+	["wpn_ak74u_ba"]        =true,
+	["wpn_ak74u_bb"]        =true,
+	["wpn_ak74u_ba_cb"]     =true,
+	["wpn_ak74u_bb_cb"]     =true,
+	["wpn_ak74"]        	=true,
+	["wpn_ak74_a"]         	=true,
+	["wpn_ak74_ba"]        	=true,
+	["wpn_ak74_bb"]        	=true,
+	["wpn_ak74_ba_cb"]     	=true,
+	["wpn_ak74_bb_cb"]     	=true,
+	["wpn_abakan"]        	=true,
+	["wpn_abakan_a"]        =true,
+	["wpn_abakan_ba"]       =true,
+	["wpn_abakan_bb"]       =true,
+	["wpn_abakan_ba_cb"]    =true,
+	["wpn_abakan_bb_cb"]    =true,
+	["wpn_groza"]        	=true,
+	["wpn_groza_a"]        	=true,
+	["wpn_groza_ba"]        =true,
+	["wpn_groza_bb"]        =true,
+	["wpn_groza_ba_cb"]     =true,
+	["wpn_groza_bb_cb"]     =true,
+	["wpn_groza_ba_ca"]     =true,
+	["wpn_groza_bb_ca"]     =true,
+--	["wpn_fn2000"]        	=true,
+--	["wpn_fn2000_a"]        =true,
+--	["wpn_fn2000_ba"]       =true,
+--	["wpn_fn2000_bb"]       =true,
+--	["wpn_fn2000_ba_cb"]    =true,
+--	["wpn_fn2000_bb_cb"]    =true,
+--	["wpn_fn2000_ba_ca"]    =true,
+--	["wpn_fn2000_bb_ca"]    =true,
+	["wpn_val"]        		=true,
+	["wpn_val_a"]        	=true,
+	["wpn_val_ba"]        	=true,
+	["wpn_val_bb"]        	=true,
+	["wpn_val_ba_cb"]       =true,
+	["wpn_val_bb_cb"]       =true,
+	["wpn_val_ba_ca"]       =true,
+	["wpn_val_bb_ca"]       =true,
+	["wpn_svd"]        		=true,
+	["wpn_svd_a"]        	=true,
+	["wpn_svd_ba"]        	=true,
+	["wpn_svd_bb"]        	=true,
+	["wpn_svd_ba_cb"]       =true,
+	["wpn_svd_bb_cb"]       =true,
+	["wpn_lr300"]        	=true,
+	["wpn_lr300_a"]         =true,
+	["wpn_lr300_ba"]        =true,
+	["wpn_lr300_bb"]        =true,
+	["wpn_lr300_ba_cb"]     =true,
+	["wpn_lr300_bb_cb"]     =true,
+	["wpn_sig550"]        	=true,
+	["wpn_sig550_a"]        =true,
+	["wpn_sig550_ba"]       =true,
+	["wpn_sig550_bb"]       =true,
+	["wpn_sig550_ba_cb"]    =true,
+	["wpn_sig550_bb_cb"]    =true,
+	["wpn_vintorez"]        =true,
+	["wpn_vintorez_a"]      =true,
+	["wpn_vintorez_ba"]     =true,
+	["wpn_vintorez_bb"]     =true,
+	["wpn_vintorez_ba_cb"]  =true,
+	["wpn_vintorez_bb_cb"]  =true,
+	["wpn_gauss"]  			=true
+	}
+
+function check_wpn() -- худы на которые ставится прицел
+	local boltt = db.actor:active_item()
+	if boltt and wpn_scopes[boltt:section()] then 
+		return true
+	else
+		return false
+	end
+end
+
+function get_scope_status(wpn) return get_u32(wpn:section(), "scope_status") end
+
+function get_scope_flag(wpn) return bit_and(wpn:get_addon_flags(), addons_flags.scope) ~= 0 end
+
+function set_hud_offset( item, offset )
+  item:set_hud_offset( vector():set( unpack( offset ) ) )
+end
+
+function set_hud_rotate( item, rot )
+  item:set_hud_rotate( vector2():set( unpack( rot ) ) )
+end
+
+-- флаги аддонов
+addons_flags = {
+	scope       = 1,
+	gl          = 2,
+	silencer    = 4,
+	grip        = 8,
+	magazine    = 16,
+	scope_mount = 32
+}
+
+local muse = 0
+local f = 0
+
+-- так как в 688 обновлении реализовон движковый контроль, в этом методе надобность отпадает.
+local read_hoffset = 0 
+
+function update()
+
+local addon_actor = db.actor
+if this.load_variable("addon_opt_hoffs",1) == 1 and addon_actor ~= nil then
+
+	if check_wpn() then
+		local s_wpn = db.actor:active_item()
+		local scope_status = get_scope_flag(s_wpn)
+		local zoom_offset
+
+			if scope_status then
+					if read_hoffset==1 then
+					    zoom_offset = get_numbers(s_wpn:section().."_hud", "scope_zoom_offset")
+						set_hud_offset(s_wpn, zoom_offset)
+					end
+
+				--log3("# wpn_hud offset : modifed")
+					if f==0 or f==2 or f==3 then
+					  f = 1
+		 			  cmd("g_3d_scopes 1")
+					  --level.set_blender_mode_main(2)
+					--  log3("# wpn_hud offset : 3d on")
+					end
+			else
+					if read_hoffset==1 then
+						zoom_offset = get_numbers(s_wpn:section().."_hud", "zoom_offset")
+						set_hud_offset(s_wpn, zoom_offset)
+					end
+
+				--log3("# wpn_hud offset : standart")
+					if f==0 or f==1 or f==3 then
+					  f = 2
+		 			  cmd("g_3d_scopes 0")
+					  --level.set_blender_mode_main(0)
+					--  log3("# wpn_hud offset : 3d off")
+					end
+			end
+	else
+		if f==0 or f==1 or f==2 then
+		  f = 3
+		  cmd("g_3d_scopes 1")
+		  --level.set_blender_mode_main(2)
+		 -- log3("# wpn_hud offset : 3d on")
+		end
+	end
+end
+end
+
+function res()
+local wnd_inventory 	= level.get_inventory_wnd()
+	if wnd_inventory and wnd_inventory:IsShown() then
+		event("actor_inventory_open"):trigger()
+	end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("actor_update"):register(update)
+	event("actor_update"):register(res)
+end

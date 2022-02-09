@@ -1,0 +1,38 @@
+log3("testeradd.script: run")
+-- временный скрипт для тестирования отдельных функций
+
+-- абдейт
+function update()
+--log3("# testadd.script (update): update - true")
+end
+
+-- 1 раз после загрузки
+function sspawn()
+ 	log3("# testadd.script (sspawn): net spawn - true")
+end
+
+-- проверка при нажимании на клавиши
+local tm = true
+
+function pkey(e)
+	if e.key == 79 then		-- нажал 1 на нумпаде
+      local snd_obj = xr_sound.get_safe_sound_object([[material\$500]])
+      snd_obj:play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 1.5)	
+	  log3("# press key")
+	end
+	if e.key == 80 then		-- нажал 2 на нумпаде
+	  if tm then
+	    tm = false
+		log3("# press key - ppe on")
+	  else	
+		tm = true
+		log3("# press key - ppe off")
+	  end
+	end
+end
+
+function init()
+	event("actor_update"):register(update)
+	event("actor_net_spawn"):register(sspawn)
+	event("actor_on_key"):register(pkey)
+end

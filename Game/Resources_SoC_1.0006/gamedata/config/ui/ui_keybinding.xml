@@ -46,6 +46,7 @@
 		<command id="kb_use_bandage"				exe="use_bandage"/>
 		<command id="kb_use_medkit"					exe="use_medkit"/>
 		<command id="kb_drop"						exe="drop"/>		
+		<command id="kb_detector"					exe="wpn_8"/>	
 	</group>
 	<group name="kb_grp_common">
 		<command id="kb_cam_1"						exe="cam_1"/>

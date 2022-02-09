@@ -1,0 +1,66 @@
+--[[
+	доф при перезарядке
+	Доф у нас есть по умолчанию, он размывает картинку ближе к концу отрисовки (500м от камеры)
+	В момент перезарядки перенастраиваем доф так чтобы размывалось все дальше 1 метра
+	далее после перезарядки делаем настройки прежними
+	если вдруг доф зависнит в перезарядочном режиме то скинем его по таймеру
+--]]
+
+local dof_bol = false					-- флаг перезарядочного дофа
+local dof_dist	= 1.5					-- дистанция размытия при перезарядке
+local dof_rang	= 8						-- сила размытия при перезарядке
+local orig_dof_dist = 500				-- далее настройки по умолчанию (в процессе игры эти параметры сами корректируются)
+local orig_dof_rang = 5					--
+local iNextUpdate = 0		  			-- таймер
+local float_time = 13 		  			-- через сколько перенастроим доф (через это время доф перенастроится в нормальный режим в любом случае, если он в перезарядочном режиме, на случай зависа)
+local float_tm = 1000		  			-- множитель значения (float_time), если 1000 то (float_time - сек), если 100 то (float_time) - м.сек
+
+function dof_on()										-- начинаем перенастройку в режим перезарядки
+ local addon_actor = db.actor
+ orig_dof_dist = get_con_float( "r2_dof_far" )			-- узнаем и запоминаем текущие параметры		
+ orig_dof_rang = get_con_float( "r2_dof_kernel" )
+ 
+ if this.load_variable("addon_opt_reldof",1) == 1 and addon_actor ~= nil then
+   iNextUpdate = time_global() + float_time * float_tm	-- заводим таймер
+   cmd("r2_dof_far "..dof_dist.."")						-- перенастраиваем дальность
+   cmd("r2_dof_kernel "..dof_rang.."")					-- перенастраиваем силу
+   dof_bol = true										-- выставляем флаг перезарядочного дофа
+ end
+end
+
+function dof_off()										-- функция перенастройки дофа в нормальный режим
+  cmd("r2_dof_far "..orig_dof_dist.."")					-- перенастраиваем дистанцию размытия
+  cmd("r2_dof_kernel "..orig_dof_rang.."")				-- перенастраиваем силу размытия
+  dof_bol = false										-- снимаем флаг перезарядочного дофа
+end
+
+function update()										-- это на абдейте
+  if dof_bol then									 	-- если доф в перезарядачном режиме
+    if not db.actor:active_item() or (iNextUpdate <= time_global()) then  -- если нет активного предмета или если пришло время
+      dof_off()											-- выключаем доф
+	end
+  end
+end	
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("wpn_reload"):register(dof_on)
+	event("wpn_reload_end"):register(dof_off)
+	event("actor_update"):register(update)
+end
+

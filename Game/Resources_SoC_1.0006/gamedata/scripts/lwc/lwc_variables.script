@@ -1,0 +1,188 @@
+--[[
+	Хранилище для переменных. Объем ~ 7.5 КБ.
+	Автор: Real Wolf (по материалам Artos)
+--]]
+
+local tStor = {}
+local tAvailTypes = {
+	["number"] 	= 1,
+	["string"] 	= 2,
+	["table"]	= 3,
+	["boolean"] = 4
+}
+
+local tTypes = {
+	Dec = 1, 
+	Str = 2,
+	Bln = 3,
+	Tbl = 4,
+	Tbi = 6,
+	Hex = 7
+}
+
+function Set(sName, Val)
+	tStor[sName] = Val
+end
+
+function Get(sName, DefVal)
+	local Val = tStor[sName]
+	if Val == nil then
+		return DefVal
+	end
+	return Val
+end
+
+function Save(oPacket)
+	PackTbl(tStor, oPacket)
+end
+
+function Load(oPacket)
+	local iStorType = oPacket:r_u8()
+	tStor = UnpackTbl(oPacket, iStorType)
+end
+
+function PackTbl(tTbl, oPacket)
+	local tNeedSave, iCount = ConvertTbl(tTbl)
+	if IsList(tTbl) then
+		oPacket:w_u8(tTypes.Tbi)
+		PackNumber(iCount, oPacket)
+		for i = 1, #tTbl do
+			PackValue(tTbl[i], oPacket)
+		end
+	else
+		oPacket:w_u8(tTypes.Tbl)
+		PackNumber(iCount, oPacket)
+		for sName, Val in pairs(tNeedSave) do
+			oPacket:w_stringZ(sName)
+			PackValue(Val, oPacket)
+		end
+	end
+end
+
+function PackValue(Val, oPacket)
+	local iType = tAvailTypes[type(Val)]
+	if iType == 1 then
+		PackNumber(Val, oPacket)
+	elseif iType == 2 then
+		PackString(Val, oPacket)
+	elseif iType == 3 then
+		PackTbl(Val, oPacket)
+	elseif iType == 4 then
+		PackBool(Val, oPacket)
+	end
+end
+
+function PackNumber(iNum, oPacket)
+    if iNum == math.modf(iNum) then
+		local iAbs = math.abs(iNum)
+		local sS1 = tostring(iAbs)
+		local sS2 = string.format("%x", iAbs)
+		--[[
+			Проверяем, получим ли мы меньший размер числа и будет ли число восстановлено корректно.
+		--]]
+		if (#sS2 < #sS1) and (iAbs == tonumber(sS2, 16) ) then
+			oPacket:w_u8(tTypes.Hex)
+			if iNum >= 0 then
+				oPacket:w_stringZ(sS2)
+			else
+				oPacket:w_stringZ("-"..sS2)
+			end
+			return
+		end
+	end
+	oPacket:w_u8(tTypes.Dec)
+	oPacket:w_stringZ(tostring(iNum) )	
+end
+
+function PackBool(bVal, oPacket)
+	oPacket:w_u8(tTypes.Bln)
+	oPacket:w_bool(bVal)
+end
+
+function PackString(sStr, oPacket)
+	oPacket:w_u8(tTypes.Str)
+	oPacket:w_stringZ(sStr)
+end
+
+function UnpackTbl(oPacket, iTblType)
+	local iSizeType = oPacket:r_u8()
+	local iSize = UnpackNumber(oPacket, iSizeType)
+	local tTbl = {}
+	
+	for i = 1, iSize do
+		if iTblType == tTypes.Tbl then
+			local sName = oPacket:r_stringZ()
+			tTbl[sName] = UnpackValue(oPacket)
+		else
+			table.insert(tTbl, UnpackValue(oPacket) )
+		end
+	end
+	return tTbl
+end
+
+function UnpackValue(oPacket)
+	local iType = oPacket:r_u8()
+	if iType == tTypes.Dec or iType == tTypes.Hex then
+		return UnpackNumber(oPacket, iType)
+	elseif iType == tTypes.Str then
+		return UnpackString(oPacket)
+	elseif iType == tTypes.Tbl or iType == tTypes.Tbi then
+		return UnpackTbl(oPacket, iType)
+	elseif iType == tTypes.Bln then
+		return UnpackBool(oPacket)
+	end
+end
+
+function UnpackNumber(oPacket, iNumberType)
+	local sNum = oPacket:r_stringZ()
+	if iNumberType == tTypes.Dec then
+		return tonumber(sNum)
+	end
+	if sNum[1] == "-" then
+		return tonumber(sNum:sub(2, -1), 16) *(-1)
+	end
+	return tonumber(sNum, 16)
+end
+
+function UnpackString(oPacket)
+	return oPacket:r_stringZ()
+end
+
+function UnpackBool(oPacket)
+	return oPacket:r_bool()
+end
+
+function IsList(tTbl)
+    local iCntIdx = #tTbl 
+    if iCntIdx == 0 then
+		return false
+	end
+	
+	if next(tTbl) ~= 1 or next(tTbl, iCntIdx) then
+		return false
+	end
+	
+	for i = 2, iCntIdx - 1 do
+		if tTbl[i] == nil then
+			return false
+		end
+    end
+	
+    return true
+end
+
+--[[
+	Убираем из таблицы значения, которые невозможно сохранить, и получаем её размер.
+--]]
+function ConvertTbl(tTbl)
+	local tAvailVal = {}
+	local iCount = 0
+	for sName, Val in pairs(tTbl) do
+		local iType = tAvailTypes[type(Val)]
+		if iType then
+			iCount = iCount + 1
+			tAvailVal[sName] = Val
+		end
+	end
+	return tAvailVal, iCount
+end

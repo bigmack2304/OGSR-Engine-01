@@ -1,0 +1,87 @@
+
+--function attach(sm)
+--	sm:subscribe({signal = "physic_obj_use",	fun = this.on_use})
+--end
+
+
+
+local client_obj = level.object_by_id
+
+function set_obj_usable(id, newval)
+ local obj = client_obj(id) 
+ if obj then 
+    obj:set_nonscript_usable(newval)
+ end                                       
+end
+
+-----------------------------------------------------------------------------------------------------------------
+
+local trs_sound_flag = false
+
+--[[
+function on_use(victim, who)
+log3("вызвали сигнал")
+	if db.actor and who and who:id()==db.actor:id() then
+--                log3("3 - вызываем функцию")
+		addon_sak_params.on_use_obj(victim)
+	end
+end
+
+function on_use_obj(obj)
+  if IsInventoryBox(obj) then
+    local act=db.actor
+--    log3("4 - проигрываем звук окрытия")
+    local sound=sound_object("script_sound\\treasure_sounds\\treasure_1_open")
+    sound:play_at_pos(act, act:position(), 0)
+    trs_sound_flag=true
+  end
+end
+--]]
+
+function on_use_body()
+--log3("вызвали info")
+--log3("4 - проигрываем звук окрытия")
+local adactor 		= db.actor
+
+  if this.load_variable("addon_opt_sndbody",1) == 1 and adactor ~= nil then
+    if not trs_sound_flag then
+      local act=db.actor
+      local sound=sound_object("script_sound\\treasure_sounds\\treasure_1_open")
+      sound:play_at_pos(act, act:position(), 0)
+      trs_sound_flag=true
+	end
+  end
+end
+
+function on_close_treas()
+local adactor 		= db.actor
+
+if this.load_variable("addon_opt_sndbody",1) == 1 and adactor ~= nil then
+    if trs_sound_flag then
+--    log3("5 - проигрываем звук закрытия")
+      trs_sound_flag=false
+      local act=db.actor
+      local sound=sound_object("script_sound\\treasure_sounds\\treasure_1_close")
+      sound:play_at_pos(act, act:position(), 0)
+    end
+  end
+
+ogse_signals.get_mgr():call("monster_obj_close")
+
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

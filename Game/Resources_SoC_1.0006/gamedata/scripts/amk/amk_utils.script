@@ -1,0 +1,116 @@
+local anoms_classes = {
+	[clsid.zone_bfuzz_s] = true,
+	[clsid.zone_electra_s] = true,
+	[clsid.zone_galant_s] = true,
+	[clsid.zone_mbald_s] = true,
+	[clsid.zone_mincer_s] = true,
+	[clsid.zone_zharka_s] = true
+}
+
+function is_anomaly( cls_id )
+	if cls_id and anoms_classes[cls_id] then
+		return true
+	end
+	return false
+end
+
+-- Функции для опции отключения/включения в главном меню
+--записываем переменную
+function save_variable(variable_name, value)
+	if variable_name and db.actor then
+		if value==nil then
+			del_variable(variable_name)
+		else
+			local vn=compress_name(variable_name)
+			xr_logic.pstor_store(db.actor, vn, value)
+		end
+	end
+end
+
+--загружаем переменную
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+--удаляем переменную
+function del_variable(variable_name)
+	local vn=compress_name(variable_name)
+	if vn and db.actor then
+		if db.storage[npc_id].pstor[vn] then
+			db.storage[npc_id].pstor[vn] = nil
+		end
+	end
+end
+
+-- Преобразует имя переменной в короткое
+function compress_name(name)
+	return name
+end
+
+-- Звуки входящих сообщений
+pda_news = xr_sound.get_safe_sound_object([[device\pda\pda_news]])
+pda_tips = xr_sound.get_safe_sound_object([[device\pda\pda_tip]])
+pda_task = xr_sound.get_safe_sound_object([[device\pda\pda_objective]])
+
+-- Иконки входящих сообщений
+tips_icons = {
+	default  = { 82, 282},
+	trader   = { 332, 893},
+	dolg     = { 0, 658},
+	freedom  = { 0, 658},
+	ecolog   = { 498, 0},
+	arena    = { 332, 141},
+	stalker  = { 0, 658},
+	krot     = { 332, 47},
+	barman   = { 332, 235},
+	wolf	   = { 332, 940},
+	o_soznanie = { 498, 893},
+	monolith = { 0, 658},
+	saharov  = { 332, 470},
+	prizrak  = { 0, 658},
+	killer   = { 0, 658},
+	death    = { 498, 799},
+	gps   	 = { 498, 705},
+	inv_bag  = { 498, 423},
+	addon_money  = { 498, 376},
+	surge    = { 498, 846},
+	addon_son    = { 581, 47},
+	addon_nodata = { 581, 141},
+	addon_noface = { 581, 188},
+	all_canal    = { 498, 94}
+}
+
+-- Показ входящего сообщения
+function send_tip(news_text, header, timeout, showtime, sender, sound)
+	if news_text==nil then return end
+	if header==nil then header=game.translate_string("st_tip") end
+	if timeout == nil then timeout = 0 end
+	if showtime == nil then showtime = 5 end
+	
+	local player
+	if sound=="news" then
+		player=pda_news
+	elseif sound=="task" then
+		player=pda_task
+	elseif sound=="tips" then
+		player=pda_tips
+	else
+		player=pda_tips
+	end		
+	
+	--' Играем дефолтный звук
+	player:play(db.actor, timeout, sound_object.s2d)
+	
+	if sender == nil then
+		sender = "default"
+	end
+	local x = tips_icons[sender][1]
+	local y = tips_icons[sender][2]
+	
+	local news_text = "%c[255,160,160,160]"..header.."\\n".."%c[default]"..news_text
+	db.actor:give_game_news(news_text, "ui\\ui_iconsTotal", Frect():set(x,y,83,47), timeout*1000, showtime*1000)
+	return true
+end

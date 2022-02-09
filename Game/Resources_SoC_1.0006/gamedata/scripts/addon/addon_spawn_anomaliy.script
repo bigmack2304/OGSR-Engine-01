@@ -1,0 +1,177 @@
+-- спавн рабочих аномалий через скрипт
+
+function attach(sm)
+	sm:subscribe({signal = "on_first_update",			fun = this.spawn_anom_for_k02})
+end
+
+function get_story_id_not_replay() 
+local ST 
+ST = xr_logic.pstor_retrieve(db.actor, "ScriptAnomId", 0) 
+if type(ST) ~= "number" or ST == nil then 
+ST = 9000 
+xr_logic.pstor_store(db.actor, "ScriptAnomId", ST) 
+end 
+if type(ST) == "number" or ST ~= nil then 
+ST = ST + 1 
+xr_logic.pstor_store(db.actor, "ScriptAnomId", ST) 
+end 
+return tonumber(ST) 
+end 
+
+function create_anom(name_anom, posit_anom, lvid_anom, gvid_anom, radius_anom, power_anom) 
+local obj = alife():create(name_anom, posit_anom, lvid_anom, gvid_anom) 
+
+-----------------------write---------------------- 
+local packet = net_packet() 
+obj:STATE_Write(packet) 
+
+-----------------------load----------------------- 
+-- cse_alife_object 
+local game_vertex_id = packet:r_u16() 
+local distance = packet:r_float() 
+local direct_control = packet:r_u32() 
+local level_vertex_id = packet:r_u32() 
+local object_flags = packet:r_u32() 
+local custom_data = packet:r_stringZ() 
+local story_id = packet:r_u32() 
+local spawn_story_id = packet:r_u32() 
+
+-- cse_shape 
+local shape_count = packet:r_u8() 
+for i=1,shape_count do 
+local shape_type = packet:r_u8() 
+if shape_type == 0 then 
+-- sphere 
+local center = packet:r_vec3() 
+local radius = packet:r_float() 
+else 
+-- box 
+local box = packet:r_matrix() 
+end 
+end 
+
+-- cse_alife_space_restrictor 
+local restrictor_type = packet:r_u8() 
+
+-- cse_alife_custom_zone 
+local max_power = packet:r_float() 
+local owner_id = packet:r_u32() 
+local enabled_time = packet:r_u32() 
+local disabled_time = packet:r_u32() 
+local start_time_shift = packet:r_u32() 
+
+-- cse_alife_anomalous_zone 
+local offline_interactive_radius = packet:r_float() 
+local artefact_spawn_count = packet:r_u16() 
+local artefact_position_offset = packet:r_u32() 
+
+-- se_zone_anom 
+local last_spawn_time_present = packet:r_u8() 
+
+if (string.find (name_anom, 'zone_zharka_static') ~= nil 
+or string.find (name_anom, 'zone_witches_galantine') ~= nil 
+or string.find (name_anom, 'zone_mosquito_bald') ~= nil 
+or string.find (name_anom, 'zone_mincer') ~= nil 
+or string.find (name_anom, 'zone_gravi_zone') ~= nil 
+or string.find (name_anom, 'zone_buzz') ~= nil ) 
+and packet:r_elapsed() ~= 0 then 
+abort("left=%d", left) 
+end 
+
+---------------------------save-------------------- 
+-- cse_alife_object 
+packet:w_begin(game_vertex_id) 
+packet:w_float(distance) 
+packet:w_u32(direct_control) 
+packet:w_u32(level_vertex_id) 
+object_flags = bit_not(193) 
+packet:w_u32(object_flags) 
+packet:w_stringZ(custom_data) 
+packet:w_u32(get_story_id_not_replay()) 
+packet:w_u32(get_story_id_not_replay()) 
+
+-- cse_shape 
+packet:w_u8(1) -- количество фигур 
+packet:w_u8(0) -- тип фигуры: сфера 
+packet:w_vec3(vector():set(0, 0, 0)) 
+if radius_anom ~= nil then 
+packet:w_float(radius_anom) 
+else 
+packet:w_float(1.0) 
+end 
+
+-- cse_alife_space_restrictor 
+packet:w_u8(restrictor_type) 
+
+-- cse_alife_custom_zone 
+if power_anom ~= nil then 
+packet:w_float(power_anom) 
+else 
+packet:w_float(max_power) 
+end 
+packet:w_u32(owner_id) 
+packet:w_u32(enabled_time) 
+packet:w_u32(disabled_time) 
+packet:w_u32(start_time_shift) 
+
+-- cse_alife_anomalous_zone 
+packet:w_float(offline_interactive_radius) 
+packet:w_u16(artefact_spawn_count) 
+packet:w_u32(artefact_position_offset) 
+
+-- se_zone_anom 
+packet:w_u8(last_spawn_time_present) 
+
+------------------------read------------------------ 
+packet:r_seek(0) 
+obj:STATE_Read (packet, packet:w_tell()) 
+
+end 
+
+--------------------------------------пример------------------------------------------
+--тут записать функцию
+
+--function spawn_anom() 
+--local anomaly_radius = ReadLine(system_ini(), "Number", "zone_greedy01", "addon_shape_radius", 0)	-- так можно использовать радиус аномалии тот который будет зарание прописан в секции, настройка addon_shape_radius
+--this.create_anom('zone_greedy01', vector():set(10.5288, 0.3999, 247.1643),182992,359, 5, 0.7) -- последние 2 числа это радиус и power
+--local spawn_story_id = 31 
+--local story_id = 2220 -- этого небыло в орининале, можно без него
+--end 
+
+-- для спавна вызвать её
+--addon_spawn_anomaliy.spawn_anom34()
+
+-- спавн будет только на той локации на которой вы находитесь в момент вызова функции спавна
+-- вроде как
+-----------------------------------спавним аномалии----------------------------------- 
+
+function spawn_time_anom_0001() 
+local anomaly_radius = ReadLine(system_ini(), "Number", "zone_addon_time_anomaly", "addon_shape_radius", 0)
+this.create_anom('zone_addon_time_anomaly', vector():set(-154.3722, -9.1173, -107.2114),240759, 4346, anomaly_radius, 0.7)
+local spawn_story_id = 13001
+local story_id = 13001
+log3("# spawn_anom "..spawn_story_id.." ")
+end 
+
+
+
+-----------------------------------спавним аномалии----------------------------------- 
+
+function check_level_k02()
+  if level.name() == "k02_trucks_cemetery" then
+    return true
+  else
+	return false
+  end
+end
+
+function spawn_anom_for_k02()	-- эта функция спавнит аномалии на рассохе 1 раз, при 1ом входе на нее
+  if check_level_k02() then
+    if db.actor:dont_has_info("addon_gs_in_k02tc") then
+	  addon_spawn_anomaliy.spawn_time_anom_0001()
+	  db.actor:give_info_portion("addon_gs_in_k02tc")
+	end
+  end
+end
+
+

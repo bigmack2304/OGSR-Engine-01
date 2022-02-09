@@ -1,0 +1,103 @@
+-- нумерация быстрых сохранений, частично код взят из op2 dsh
+-- менять номер квиксейфа будем только по прошествию некоторого времяни
+
+function attach(sm)
+	sm:subscribe({signal = "on_spawn",		fun = this.actor_spawn})
+	sm:subscribe({signal = "on_key_down",	fun = this.on_key})
+	sm:subscribe({signal = "on_update",		fun = this.timer_end})
+end
+
+local cnt = 0							-- номер сейфа
+local next_save = 0						-- текущее наименование сейфа
+local max_saves = 15					-- максимальное количество нумеруемых быстрых сейвов
+local iNextUpdate = 0		  			-- таймер абдейта
+local float_time = 30 		  			-- интервал между нумерацией
+local float_tm = 1000		  			-- множитель значения (float_time), если 1000 то (float_time - сек), если 100 то (float_time) - м.сек
+local timer_save = true					-- разрешение на дальнейшую нумерацию квиксейфов
+
+function actor_spawn()			-- снимаем кнопки сейф\лоада из настроек
+cmd("unbind quick_save")
+cmd("unbind quick_load")
+--cmd("bind quick_save kF6")
+--cmd("bind quick_load kF7")
+end
+
+function on_key(key)					-- контроль кнопок сейф\лоада
+  if level.main_input_receiver() then		-- если открыто какое либо окно
+	return 										-- остановим алгаритм
+  end
+  if key == DIK_keys.DIK_F6 then						-- если нажата f6
+--	log3("# addon_saveload.script (on_key): on save")	
+	make_save()												-- вызываем функцию сохранения
+  end
+  if key == DIK_keys.DIK_F7 then						-- если нажата f7
+--	log3("# addon_saveload.script (on_key): on load")	
+	load_q_save()											-- вызываем функцию загрузки
+  end
+end
+
+function make_save()							-- функция сохранения
+local adactor 		= db.actor
+
+if this.load_variable("addon_opt_nqsave",1) == 1 and adactor ~= nil then
+  if ogse.var_exists("save_number") then			-- проверим наличие предыдущих номеров сохранок
+	cnt = ogse.load_var("save_number")					-- если есть загружаем предыдущий номер
+  else												-- если нет
+	cnt = 0												-- установим 0
+  end
+  if timer_save then									-- если дальнейшая нумерация разрешена
+    if cnt == max_saves then							-- ограничение максимального числа быстрых сейфов
+	  cnt = 1												-- если достигли максимума то скиним на 1
+    else												-- если не достигли миксимума
+      cnt = cnt + 1											-- добавляем к нумерации + 1
+	end
+	timer_save = false										-- запрещаем дальнейшую нумерацию
+	iNextUpdate = time_global() + float_time * float_tm		-- заводим таймер
+  end
+  ogse.save_var("save_number", cnt, "number")							-- сохраним текущий номер
+  next_save = string.format( "%s_quicksave_%u", user_name(), cnt )		-- генерируем название сохранения с номером
+else
+  next_save = string.format( "%s_quicksave", user_name() )				-- генерируем название сохранения без номера
+end
+ ogse.save_var("old_save", next_save, "string")							-- сохраняем его имя
+-- log3("# addon_saveload.script (make_save): save "..next_save.." ")	
+ cmd( "save", next_save )												-- сохраняемся
+end
+
+function load_q_save()						-- функция загрузки
+  if ogse.var_exists("old_save") then				-- проверим наличие в памяти предыдущего имени сохранки
+	next_save = ogse.load_var("old_save")			-- загружаем наименование предыдущего сохранения
+  else											-- если ничего не нашли
+	next_save = 0									-- то отметим наименование прошлой сохранки как 0
+  end
+  if next_save ~= 0 then						-- если наименование предыдущей сохранки не 0
+--    log3("# addon_saveload.script (load_q_save): load "..next_save.." ")	
+	cmd( "load", next_save )					-- загружаем предыдущую сохранку
+  end
+end
+			
+function timer_end()		-- функция таймера
+local adactor 		= db.actor
+  if this.load_variable("addon_opt_nqsave",1) == 1 and adactor ~= nil then
+    if iNextUpdate <= time_global() and not timer_save then			-- если пришло время и нумерация запрещена
+	  timer_save = true													-- разрешаем дальнейшую нумерацию
+--	  log3("# addon_saveload.script (timer_end): save numered - true ")	
+    end
+  end
+end			
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

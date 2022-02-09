@@ -1,0 +1,74 @@
+local t = {}
+
+function load_job(sj, gname, type, squad, groups)
+--'--------------------------------------------------------------------------	
+--' лощина
+--'--------------------------------------------------------------------------	
+	
+	--' лесопилка
+	if type == "darkscape_stalker_lager" then
+		t = { section = "logic@darkscape_stalker_lager_kamp_01",
+			idle = 0,
+			prior = 2,
+			state = {0, 1},
+			in_rest = "",
+			out_rest = ""
+		}
+		table.insert(sj, t)	
+		
+		t = { section = "logic@darkscape_stalker_lager_kamp_02",
+			idle = 0,
+			prior = 2,
+			state = {0, 1},
+			in_rest = "",
+			out_rest = ""
+		}
+		table.insert(sj, t)
+		
+		t = { section = "logic@darkscape_stalker_lager_kamp_03",
+			idle = 0,
+			prior = 2,
+			state = {0, 1},
+			in_rest = "",
+			out_rest = ""
+		}
+		table.insert(sj, t)		
+	end
+end
+
+function load_states(gname, type)
+
+if type == "darkscape_stalker_lager" then
+	return function(gulag)
+		if not db.actor then
+			return gulag.state
+		end
+		if level.get_time_hours() >= 5 and level.get_time_hours() <= 22 then
+		        return 0  -- переключает всех мутантов/нпс на дневную работу
+		else
+			return 1  -- ереключает всех мутантов/нпс на ночную работу
+		end
+	end
+end
+	
+end
+
+--------------------------------------------------------------------------
+-- Dynamic ltx
+--------------------------------------------------------------------------
+function load_ltx(gname, type)
+	return nil
+end
+
+function checkStalker(npc_community, gulag_type, npc_rank, se_obj)
+	if gulag_type == "darkscape_stalker_lager" then
+		return npc_community == "stalker"
+	end
+	
+	return false
+end
+
+function checkMonster(npc_community, gulag_type)
+		
+	return false
+end

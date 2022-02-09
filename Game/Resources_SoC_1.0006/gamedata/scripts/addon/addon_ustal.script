@@ -1,0 +1,340 @@
+-- дополнение к усталости гг
+-- чем меньше сил у гг тем сильнее он будет дышать
+-- скорость бега и ходьбы теперь также зависит от усталости
+-- 28.03.19
+-- переработка кода, адоптация под OGSR
+
+local fn = 0
+local d = 0
+local spin_sound = xr_sound.get_safe_sound_object([[scripts\addon_script_breath3]])	-- звук дыхания средней усталости
+local spin_sount = xr_sound.get_safe_sound_object([[scripts\addon_script_breath2]])	-- звук дыхания высокой усталости
+local spin_sounb = xr_sound.get_safe_sound_object([[scripts\breath_1]])			-- звук дыхания стандартной усталости
+local tn = 0
+local tno = 0
+local ff = 0
+local to = 0
+local tmimervaln = 1800 	-- интервал дыхания при средней усталости
+local tmimervalo = 1100		-- интервал дыхания при высокой усталости
+local tmimerval = 2000		-- интервал дыхания при стандартной усталости
+local exo_add_jf = 0		-- прибавка к прыжку (параметр add_jump_float в секции костюма)
+
+-- вызывается на апдейте
+function update()
+local addon_actor 	= db.actor
+	if this.load_variable("addon_opt_ustal",1) == 1 and addon_actor ~= nil then
+	  ust_on()
+	else
+      ust_off()
+	end
+end
+
+-- таймеры интервала дыхания
+function start_timer_new() 
+enTimer = time_global() + tmimervaln
+end 
+
+function timer_minutes_new()
+if enTimer and enTimer < time_global() then
+enTimer = nil
+sndnew_interval()
+end 
+end
+
+function start_timer_newo() 
+eoTimer = time_global() + tmimervalo
+end 
+
+function timer_minutes_newo()
+if eoTimer and eoTimer < time_global() then
+eoTimer = nil
+sndnewo_interval()
+end 
+end
+
+function start_timer_orig() 
+eTimer = time_global() + tmimerval
+end 
+
+function timer_minutes_orig()
+if eTimer and eTimer < time_global() then
+eTimer = nil
+sndorig_interval()
+end 
+end
+
+function sndorig_interval()
+to = 0
+end
+
+function sndnew_interval()
+tn = 0
+end
+
+function sndnewo_interval()
+tno = 0
+end
+
+-- вызывается если опция скриптового контроля усталости включена в доп.меню в настройках
+function ust_on()
+local aobj = get_actor_obj()
+
+timer_minutes_new()
+timer_minutes_newo()
+
+    if db.actor.power > 0.35 and d==0 and fn==0 then	-- если состояние приемлимое
+	--log1("# ustal.script (ust_on): state - norm")
+	fn = 1
+	aobj.jump_speed = (6 + exo_add_jf)
+	aobj.walk_accel = 17
+	aobj.run_coef = 1.8
+	aobj.sprint_coef = 2.1
+--	log3("# ustal.script (float_jump_exo): "..aobj.jump_speed.." ")
+	return
+    end
+
+    if d==1 then		-- в случае смерти гг
+	aobj.jump_speed = (6 + exo_add_jf)
+	aobj.walk_accel = 17
+	aobj.run_coef = 1.8
+	aobj.sprint_coef = 2.1
+	spin_sound:stop()
+	spin_sount:stop()
+	return
+    end
+    if db.actor.power < 0.20 and db.actor.power > 0 and (not spin_sound or not spin_sound:playing() ) and tno==0 and d==0 then -- вторая часть усталости
+	if (not spin_sount or not spin_sount:playing() ) then
+		ust_1()
+		tno = 1
+	end
+    end
+    if db.actor.power < 0.35 and db.actor.power > 0.20 and (not spin_sount or not spin_sount:playing() ) and tn==0 and d==0 then -- первая часть усталости
+	if (not spin_sound or not spin_sound:playing() ) then
+		ust_2()
+		tn = 1
+	end
+    end
+end
+
+-- вызывается при смерти гг
+function actor_dead()
+d = 1
+--log1("# ustal.script (actor_dead): dead actor")
+end
+
+ -- первая стадия усталости
+function ust_2()
+local aobj = get_actor_obj()
+local addon_actor 	= db.actor
+
+	spin_sount:play_at_pos(db.actor, vector():set(0, 0, 0), 0, sound_object.s2d)
+	start_timer_new()
+	
+	fn = 0
+
+	if db.actor.power < 0.35 and db.actor.power > 0.20 then
+
+		if this.load_variable("addon_opt_dinhudsnd",1) == 1 and addon_actor ~= nil then
+			if db.actor:has_info("addon_info_dynamicsnd") then
+				spin_sount.volume = 0.0
+			--	log1("# ustal.script (ust_2): volume - 0.0")
+			else
+				spin_sount.volume = 0.15
+			--	log1("# ustal.script (ust_2): volume - 2.0")
+			end
+		else
+			spin_sount.volume = 0.15
+		--	log1("# ustal.script (ust_2): volume - 2.0")
+
+				---------------------------------------------------------------------------------
+				--log1("signal - upd blurmask")
+				--ogse_signals.get_mgr():call("upd_blurmask")
+				event("upd_blurmask"):trigger()
+				---------------------------------------------------------------------------------
+
+		end
+
+	--log1("# ustal.script (ust_2): state - 1")
+	aobj.jump_speed = (4 + exo_add_jf)
+	aobj.walk_accel = 15
+	aobj.run_coef = 1.5
+	aobj.sprint_coef = 1.9
+	end
+--log3("# ustal.script (float_jump_exo): "..aobj.jump_speed.." ")
+end
+
+-- вторая стадия усталости
+function ust_1()
+local aobj = get_actor_obj()
+local addon_actor 	= db.actor
+
+	spin_sound:play_at_pos(db.actor, vector():set(0, 0, 0), 0, sound_object.s2d)
+	start_timer_newo()
+
+	fn = 0
+	
+	if db.actor.power < 0.20 and db.actor.power > 0 then
+		if this.load_variable("addon_opt_dinhudsnd",1) == 1 and addon_actor ~= nil then
+			if db.actor:has_info("addon_info_dynamicsnd") then
+				spin_sound.volume = 0.0
+		--		log1("# ustal.script (ust_1): volume - 0.0")
+			else
+				spin_sound.volume = 0.5
+		--		log1("# ustal.script (ust_1): volume - 1.9")
+			end
+		else
+			spin_sound.volume = 0.5
+		--	log1("# ustal.script (ust_1): volume - 1.9")
+
+				---------------------------------------------------------------------------------
+				--log1("signal - upd blurmask")
+				--ogse_signals.get_mgr():call("upd_blurmask")
+				event("upd_blurmask"):trigger()
+				---------------------------------------------------------------------------------
+
+		end
+	--log1("# ustal.script (ust_1): state - 2")
+	aobj.jump_speed = (3 + exo_add_jf)
+	aobj.walk_accel = 11
+	aobj.run_coef = 1.2
+	aobj.sprint_coef = 1.8
+	end
+--log3("# ustal.script (float_jump_exo): "..aobj.jump_speed.." ")
+end
+
+-- подобие стандартной схемы (если опция в доп.меню отключена)
+function ust_off()
+local aobj = get_actor_obj()
+
+timer_minutes_orig()
+
+    if db.actor.power > 0.25 and ff==0 and d==0 then
+	ff = 1
+	aobj.jump_speed = (6 + exo_add_jf)
+	aobj.walk_accel = 17
+	aobj.run_coef = 1.8
+	aobj.sprint_coef = 2.1
+	--log1("# ustal.script (ust_off): state - norm")	
+	return
+    end
+
+    if d==1 then -- если гг мертв (возвращает параметры на место)
+	aobj.jump_speed = (6 + exo_add_jf)
+	aobj.walk_accel = 17
+	aobj.run_coef = 1.8
+	aobj.sprint_coef = 2.1
+	spin_sounb:stop()
+	return
+    end
+
+    if db.actor.power < 0.25 and db.actor.power > 0 and (not spin_sounb or not spin_sounb:playing() ) and to==0 and d==0 then -- стадия усталости
+	ustof_1()
+	to = 1
+    end
+end
+
+-- усталость
+function ustof_1()
+local aobj = get_actor_obj()
+local addon_actor 	= db.actor
+
+	spin_sounb:play_at_pos(db.actor, vector():set(0, 0, 0), 0, sound_object.s2d)
+	start_timer_orig()
+	ff = 1
+
+  if db.actor.power < 0.25 and db.actor.power > 0 then
+		if this.load_variable("addon_opt_dinhudsnd",1) == 1 and addon_actor ~= nil then
+			if db.actor:has_info("addon_info_dynamicsnd") then
+				spin_sounb.volume = 0.0
+			--	log1("# ustal.script (ustof_1): volume - 0.0")
+			else
+				spin_sounb.volume = 0.8
+			--	log1("# ustal.script (ustof_1): volume - 0.8")
+			end
+		else
+			spin_sounb.volume = 0.8
+		--	log1("# ustal.script (ustof_1): volume - 0.8")
+
+				---------------------------------------------------------------------------------
+				--log1("signal - upd blurmask")
+				--ogse_signals.get_mgr():call("upd_blurmask")
+				event("upd_blurmask"):trigger()
+				---------------------------------------------------------------------------------
+
+		end
+
+	aobj.jump_speed = (3 + exo_add_jf)
+	aobj.walk_accel = 10
+	aobj.run_coef = 1.2
+	aobj.sprint_coef = 1.5
+  end
+end
+
+------------------------------------------------------------------
+
+function upd_exo_jfloat()
+	exo_add_jf = float_jump_exo()
+	fn = 0
+--	log3("# ustal.script (float_jump_exo): "..exo_add_jf.." ")
+end
+
+-- Возвращает добавочный коэфицент к прыжку, прописанный в секции костюма	
+function float_jump_exo()
+local outfit = nil
+local float_je = 0
+
+  if db.actor:item_in_slot(6) == nil then
+    outfit = nil
+  else
+    outfit = db.actor:item_in_slot(6):section()
+  end
+  
+  if outfit ~= nil then
+  	  if Exist(system_ini(), "Line", outfit, "add_jump_float") then
+        float_je = system_ini():r_string(outfit,"add_jump_float")
+	  else
+	    float_je = 0
+	  end
+	return float_je
+  else
+    float_je = 0
+    return float_je
+  end
+end
+
+-- Возвратит текущую установленную высату прыжка
+function get_float_jump(get)
+local aobj = get_actor_obj()
+local jump_float = 0
+
+jump_float = aobj.jump_speed
+
+  if get then
+--    log3("# ustal.script (get_float_jump): "..jump_float.." ")
+    return jump_float
+  end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("actor_update"):register(update)
+	event("on_actor_death"):register(actor_dead)
+	
+	event("actor_item_toruck"):register(upd_exo_jfloat)
+	event("actor_item_toslot"):register(upd_exo_jfloat)
+	event("actor_item_drop"):register(upd_exo_jfloat)
+end

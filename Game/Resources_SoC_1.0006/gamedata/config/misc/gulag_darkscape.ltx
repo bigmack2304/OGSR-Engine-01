@@ -1,0 +1,46 @@
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;лесопилка
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;-- 1й сталкер у костра
+[logic@darkscape_stalker_lager_kamp_01]
+active = kamp@darkscape_stalker_lager_kamp_01
+ 
+[kamp@darkscape_stalker_lager_kamp_01]
+center_point = darkscape_stalker_lager_kamp_1
+path_walk = pre_darkscape_ogse_camp_fire_01_task
+def_state_moving = patrol
+radius = 2
+meet = def_meet
+
+;-- 2й сталкер у костра
+[logic@darkscape_stalker_lager_kamp_02]
+active = kamp@darkscape_stalker_lager_kamp_02
+ 
+[kamp@darkscape_stalker_lager_kamp_02]
+center_point = darkscape_stalker_lager_kamp_1
+path_walk = pre_darkscape_ogse_camp_fire_01_1_task
+def_state_moving = patrol
+radius = 2
+meet = def_meet
+
+;-- 3й сталкер у костра
+[logic@darkscape_stalker_lager_kamp_03]
+active = kamp@darkscape_stalker_lager_kamp_03
+ 
+[kamp@darkscape_stalker_lager_kamp_03]
+center_point = darkscape_stalker_lager_kamp_1
+path_walk = pre_darkscape_ogse_camp_fire_01_2_task
+def_state_moving = patrol
+radius = 2
+meet = def_meet
+
+[def_meet]
+meet_state = 30|hello@hail|20|wait@wait
+meet_state_wpn = 30|backoff@threat_weap
+victim = 10|actor
+victim_wpn = 10|actor
+use = true
+use_wpn = false
+syndata = hello@hail|backoff@threat_weap

@@ -1,0 +1,540 @@
+--[[
+Modification and Addition by AMK-Team
+File:  se_respawn .script
+Author: Refresh
+
+Since: 31.12.2008 14:28
+	-- Убран весь лишний мусор.
+	-- Добавлена запись времени респавна.
+	-- Проработана среда для АМК респавна.
+	-- Доработаны некоторые методы.
+Since: 27.01.2009 23:51
+	-- Прикручен АМК респавн существ с логикой.
+--]]
+
+--[[
+	Добавил параметр count в секцию респавна, для точно указания количества спавна секций.
+	В этом случае идет спавн всех указанных секций, вероятность спавна, указанная после
+	секции игнорируется. Используйте параметр conditions для указания общей вероятности.
+	Real Wolf.
+--]]
+
+--[[
+--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+-- *			     	Серверный обьект респавнера              	      	       *
+--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+--]]
+
+--[[
+--	Пресеты для времени респавна.
+--]]
+local tIdlePreset = {
+	["twoday"]	= 48*60*60,
+	["seldom"]	= 36*60*60,
+	["medium"]	= 24*60*60,
+	["often"] 	= 12*60*60,
+}
+
+local i,k,v = 0,0,0
+
+--local anom_update_next_time = 0
+
+
+--[[
+	Стандартный респавн.
+--]]
+function RespawnType_0(self, sProbability)
+	local iTblSize = #self.tSpawnObject
+	--[[
+		Экстренный спавн, работает только если указаны iMinCount и iMaxCount.
+	--]]
+	if iTblSize < self.iMinCount then		
+		while #self.tSpawnObject < self.iMinCount do
+			if self:CreateObject(100) == false then
+				return
+			end
+		end	
+		return
+	end
+
+	--[[
+		Спавн по вероятности и без зависимости от 'tSpawnObject'.
+	--]]
+	for i = 1, self.iMaxSpawn do		
+		if self.iMaxCount ~= -1 and self.iMaxCount < iTblSize then 
+			return 
+		end		
+		if self:CreateObject(sProbability) == false then
+			return 
+		end
+	end
+end
+
+--[[
+	Респавн различных секций различным количеством.
+	Вероятность для отдельной секции игнорируется.
+	Вызывается раз через заданное время и создает полностью все секции.
+--]]
+function RespawnType_1(self)
+	for iKey, tRespawn in pairs(self.tSectionsToRespawn) do
+		local iSpawnCount = tonumber(self.tCount[iKey]) or 1
+		for i = 1, iSpawnCount do
+			self:CreateObject(100, tRespawn.section)
+		end
+	end
+end
+
+--[[
+	Респавн различных секций различным количеством.
+	Вероятность для отдельной секции игнорируется.
+	Вызывается через заданное время и досоздает умершие и несуществующие секции.
+--]]
+function RespawnType_2(self)
+	local tAlive = {}
+	for iKey, iID in pairs(self.tSpawnObject) do
+		local oSobj = alife():object(iID)	
+		tAlive[oSobj:section_name()] = (tAlive[oSobj:section_name()] or 0) + 1
+	end
+
+	for iKey, tRespawn in pairs(self.tSectionsToRespawn) do
+		local iNeedCount = self.tCount[iKey] or 1
+		local iHaveCount = tAlive[tRespawn.section] or 0
+		local iSpawnCount = iNeedCount - iHaveCount
+		if iSpawnCount > 0 then
+			--print("Респавн, тип 2: " + self.sName + ", Досоздание: " + tRespawn.section + "," + iSpawnCount, false)
+			for i = 1, iSpawnCount do
+				self:CreateObject(100, tRespawn.section)
+			end
+		end
+	end
+end
+
+local tRespawnType = {
+	this.RespawnType_0, -- 1
+	this.RespawnType_1, -- 2
+	this.RespawnType_2  -- 3
+}
+
+--[[
+--	Таблицы для хранения зарегестрированных респавнеров.
+--]]
+local tRespawners 	    = {}
+local tRespawnersParent = {}
+
+class "se_respawn" (cse_alife_smart_zone)
+function se_respawn:__init(section) super(section)
+	self.tSpawnObject 	= {}	
+	self.tSpawnProp 	= {}
+	self.oRespawnTime = game.CTime()
+	self.iRespawnType = 0
+	self.tCount = {}
+end
+
+
+function se_respawn:STATE_Write( packet )
+	cse_alife_smart_zone.STATE_Write( self, packet )
+	utils.w_CTime(packet, self.oRespawnTime)
+	packet:w_u8(self.iRespawnType)
+	local iTableSize = #self.tSpawnObject
+	packet:w_u8(iTableSize)	
+	for i = 1, iTableSize do
+		packet:w_u16(self.tSpawnObject[i])
+	end
+end
+
+
+function se_respawn:STATE_Read( packet, size )
+	cse_alife_smart_zone.STATE_Read( self, packet, size )	
+	if editor() then
+		return
+	end
+	
+	self.oRespawnTime = utils.r_CTime(packet)
+	self.iRespawnType = packet:r_u8()
+	local iTableSize = packet:r_u8()
+	for i = 1, iTableSize do
+		table.insert(self.tSpawnObject, packet:r_u16() )
+	end	
+end
+
+function se_respawn:on_register()
+	cse_alife_smart_zone.on_register(self)
+	RegisterInit(self)
+	
+--	if anom_zone_update_from_id == -1 then
+--		anom_zone_update_from_id = self.id
+--	end
+	
+--	if self.sName == "escape_1935_42" then
+--		print("Obj exist")
+--	end
+	
+	db.respawn_off_by_id[self.id] = self
+	db.respawn_off_by_name[self.id] = self	
+end
+
+function se_respawn:on_unregister()
+	cse_alife_smart_zone.on_unregister(self)
+	
+	db.respawn_off_by_id[self.id] = nil
+	db.respawn_off_by_name[self.id] = nil
+	
+	task_manager.get_random_task():unregister_target(self)	
+end
+
+function se_respawn:update()
+	cse_alife_smart_zone.update(self)
+	
+	-- Минимальное время обновления: раз в 5 секунд.
+--	if anom_update_next_time < time_global() then
+--		anom_update_next_time =  time_global() + 5000
+--		for id, se_obj in pairs(db.anom_off_by_id) do
+--			se_obj:update()
+--		end
+--	end
+	
+	self:execute()
+end
+
+function se_respawn:update_online()
+	if db.actor and db.actor:position():distance_to(self.position) >= 15 then
+		self:execute()
+	else
+		sim_statistic.respawn_enabled(self, false)		
+	end
+end
+
+function se_respawn:execute()
+	if self.iIdleSpawn == -1 then 
+		return 
+	end	
+	
+	self:UpdateObject()
+	
+	--[[
+	--	Не пришло ли время для респавна?
+	--]]
+	if self.oRespawnTime > game.get_game_time() then
+		return
+	end
+
+	local oIdleTime = game.CTime()
+	oIdleTime:setHMSms(0,0,0, self.iIdleSpawn * math.random(1, 5) * 1000)
+	self.oRespawnTime = game.get_game_time() + oIdleTime		
+	
+	local sProbability = xr_logic.pick_section_from_condlist(db.actor_proxy, self, self.tConditions)
+	if not sProbability or tonumber(self.sProbability) == 0 then 
+		sim_statistic.respawn_enabled(self, false)
+		return 
+	end
+	sim_statistic.respawn_enabled(self, true)
+
+	local oFuncRespawn = tRespawnType[self.iRespawnType + 1]
+	if not oFuncRespawn then
+		print("Нету функции для респавна: Тип респавна: " + self.iRespawnType + ", Имя респавна: " + self:name() )
+	else
+		oFuncRespawn(self, sProbability)
+	end
+end
+
+
+function se_respawn:UpdateObject()
+	for i = 1, #self.tSpawnObject do
+		local id = self.tSpawnObject[i]
+		local obj = level.object_by_id(id) or alife():object(id)	
+
+		if not obj or ((IsStalker(obj) or IsMonster(obj)) and (not obj:alive())) then
+			table.remove(self.tSpawnObject, i)
+		end		
+	end
+end
+
+function se_respawn:is_all_die()
+	return #self.tSpawnObject == 0
+end
+
+function se_respawn:get_spawned_objs()
+	return self.tSpawnObject
+end
+
+function se_respawn:CreateObject(sProbability, sSpawnSection)
+	if math.random(100) > tonumber(sProbability) then
+		return
+	end	
+	
+	local iSum = 0
+	
+	--[[
+	--	Вычитываем секцию для спавна, по указанной вероятности. 
+	--]]
+	if not sSpawnSection then	
+		for k,v in pairs(self.tSectionsToRespawn) do
+			iSum = iSum + v.probability
+		end
+		
+		iSum = math.random(0, iSum)
+		for k,v in pairs(self.tSectionsToRespawn) do
+			iSum = iSum - v.probability			
+			if iSum <= 0 then
+				sSpawnSection = v.section
+				break
+			end
+		end
+	end
+	
+	if sSpawnSection == nil then return false end		
+	
+	if self.iParent then
+		local oParent = alife():story_object(self.iParent)
+		if oParent == nil then
+			abort("SPAWNING [%s], cant find parent with SID [%s]", self:name(), self.iParent)
+			return
+		end
+
+		if oParent.id and self.bItemSpawn then
+			local oItem = alife():create(sSpawnSection,	
+				self.position,
+				self.m_level_vertex_id,	
+				self.m_game_vertex_id,
+				oParent.id)						
+			table.insert(self.tSpawnObject, oItem.id)
+			return true
+		end
+	else
+		local oCreature = alife():create(sSpawnSection,	
+			self.position,
+			self.m_level_vertex_id,	
+			self.m_game_vertex_id)
+
+		local Is_Monster = IsMonster(oCreature)
+		--[[
+			Мутанты будут бегать в радиус от 25 до 75 метров от точки респавна.
+			Через mob_home не вариант из-за точек в спавне.
+			Ограничивающей зоной будет сама точка респавна, радиус которой случайный от 25 до 75.
+		--]]
+		if (Is_Monster) then
+			alife():add_out_restriction(oCreature, self.id)
+		end
+
+		if self.sName==nil then
+			if self.tSpawnProp[sSpawnSection].isCheck == true then
+				oCreature:brain():update()
+				local iSmartTerrainID = oCreature:smart_terrain_id()			
+				if iSmartTerrainID ~= 65535 then		
+					table.insert(self.tSpawnObject, oCreature.id)
+					
+					return true
+				else					
+					alife():release(oCreature, true)
+					return false
+				end
+			end						
+			table.insert(self.tSpawnObject, oCreature.id)
+			return true
+		else	
+			if self.sLogic ~= "nil" then
+				if Is_Monster then
+					local tData = net_packet_read.GetMonster(oCreature)
+					tData.sCustomData = "[logic]\ncfg = scripts\\"..self.sLogic..".ltx" 
+					net_packet_write.SetMonster(tData, oCreature)
+				elseif IsStalker(oCreature) then	
+					local tData = net_packet_read.GetStalker(oCreature)
+					tData.sCustomData = "[logic]\ncfg = scripts\\"..self.sLogic..".ltx" 
+					net_packet_write.SetStalker(tData, oCreature)
+				end
+			end
+			table.insert(self.tSpawnObject, oCreature.id)
+			return true
+		end
+	end
+end
+
+function RegisterInit(oRespawn)
+	local ini = oRespawn:spawn_ini()
+	if not ini:section_exist("respawn") then 
+		return	
+	end
+
+	oRespawn.tSectionsToRespawn = readSpawns(ini, "respawn", "respawn_section", oRespawn.tSpawnProp)	
+	if oRespawn.tSectionsToRespawn == nil then
+		abort("RESPAWN: [%s] field 'respawn_section' doesn't exist.", tostring(oRespawn:name()))
+	end	
+	
+	oRespawn.iRespawnType = cfg_read(ini, "num", "respawn", "type", 0)
+	oRespawn.sLogic = cfg_read(ini, "str", "respawn", "logic")	
+	oRespawn.sName = cfg_read(ini, "str", "respawn", "name")
+	oRespawn.iMinCount =  cfg_read(ini, "num", "respawn", "min_count",  0)
+	oRespawn.iMaxCount =  cfg_read(ini, "num", "respawn", "max_count", -1)
+	oRespawn.iMaxSpawn =  cfg_read(ini, "num", "respawn", "max_spawn",  1)
+	oRespawn.iIdleSpawn = cfg_read(ini, "str", "respawn", "idle_spawn", "medium")
+	oRespawn.sCond = cfg_read(ini, "str", "respawn", "conditions", 100)
+	oRespawn.tConditions = xr_logic.parse_condlist(oRespawn, "respawn", "conditions", oRespawn.sCond)
+	oRespawn.iParent =  cfg_read(ini, "num", "respawn", "parent", nil)
+	oRespawn.bItemSpawn = cfg_read(ini, "bool", "respawn", "item_spawn", false)
+	
+	--local sCount = cfg_read(ini, "str", "respawn", "count")
+	--oRespawn.tCount = sCount ~= "nil" and string.split(sCount, 1, ",") or {}
+
+	local sCount = ReadLine(ini, "String", "respawn", "count", "nil")
+	if sCount ~= "nil" then
+		oRespawn.tCount = SplitString(sCount, 1, ",")
+	end	
+
+
+	if oRespawn.iMinCount > oRespawn.iMaxCount and oRespawn.iMaxCount ~= -1 then
+		abort("RESPAWN: [%s] min_count > max_count", oRespawn:name())
+	end
+	if tIdlePreset[oRespawn.iIdleSpawn] ~= nil then
+		oRespawn.iIdleSpawn = tIdlePreset[oRespawn.iIdleSpawn]
+	else
+		oRespawn.iIdleSpawn = tonumber(oRespawn.iIdleSpawn)
+		if oRespawn.iIdleSpawn == nil then
+			abort("RESPAWN: [%s] 'idle_spawn' doesn't exist.", oRespawn:name())
+		end
+	end
+
+	tRespawners[oRespawn:name()] = oRespawn
+	if oRespawn.iParent ~= nil then
+		tRespawnersParent[oRespawn.iParent] = oRespawn
+	end
+	
+	lwc_respawn.existing_respawn[tostring(oRespawn.sName)] = oRespawn	
+	
+	--' Отметка респавнера мапспотом (для статистики)
+	sim_statistic.register_respawn(oRespawn)
+	
+	-- Регистрация в таскменеджере
+	if oRespawn.sName then
+		task_manager.get_random_task():register_target(oRespawn)
+	end
+end
+
+--[[
+--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+-- *			     		Прочие функции             	      	       	       *
+--* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+--]]
+
+--[[
+--	Событийный спавн.
+--	@param	string	name		- имя респавнера
+--]]
+function spawnAction(name)
+	local myRespawn = tRespawners[name]
+	if myRespawn == nil then
+		return
+	end
+
+	local sProbability = xr_logic.pick_section_from_condlist(db.actor_proxy, myRespawn, myRespawn.tConditions)
+	for i = 1, myRespawn.iMaxSpawn do		
+		if myRespawn.iMaxCount ~= -1 and #myRespawn.tSpawnObject >= myRespawn.iMaxCount then
+			return
+		end
+		if myRespawn.tCount then
+			for iKey, tRespawn in pairs(myRespawn.tSectionsToRespawn) do
+				local iCount = myRespawn.tCount[iKey] or 1
+				
+				for i = 1, iCount do
+					myRespawn:CreateObject(sProbability, tRespawn.section)
+				end
+			end				
+			StartTime(myRespawn)
+			
+			return
+		end
+		
+		if myRespawn:CreateObject(sProbability) == false then
+			return
+		else
+			StartTime(myRespawn)
+		end
+	end	
+end
+
+function StartTime(myRespawn)
+	local oIdleTime = game.CTime()
+	oIdleTime:setHMSms(0,0,0, myRespawn.iIdleSpawn * math.random(1, 5) * 1000)
+	myRespawn.oRespawnTime = game.get_game_time() + oIdleTime
+end
+
+--[[
+--	Извлечь из строки все подстроки разделенные запятыми.
+--	@param	string	s		- строка которую нужно отпарсить.
+--	@return	table		t		- таблица с подстроками.
+--]]
+function parse_names(s)
+    local t = {}
+    for sName in string.gfind(s, "([%w_%-.\\]+)%p*") do
+        table.insert(t, sName)
+    end
+    return t
+end
+
+--[[
+--	Изьять из ini файла "respawn_section", составить таблицу вероятности спавна для каждой
+--	полученной секции.
+--	@param	ini		spawn_ini		- ini файл респавнера.
+--	@param	string	section		- секция респавнера.
+--	@param	string	line			- параметр который нужно изьять "respawn_section".
+--	@param	table		aSectSpawnProps	- таблица секций спавна и вероятностей.
+--	@return	table		aRetTable		- таблица с информацией о каждой секции спавна.
+--]]
+function readSpawns(spawn_ini, section, line, tSpawnProp)
+	if spawn_ini:line_exist(section, line) then			
+		local tRetTable = {}
+		local aTableSpawn = parse_names(spawn_ini:r_string(section, line))	
+		local iCount = #aTableSpawn	
+		local k = 1		
+		while k <= iCount do			
+			local tSpawn = {}
+			tSpawn.section = aTableSpawn[k]
+
+			if aTableSpawn[k+1] ~= nil then
+				local p = tonumber(aTableSpawn[k+1])
+				if p then
+					tSpawn.probability = p
+					k = k + 2
+				else
+					tSpawn.probability = 1
+					k = k + 1
+				end
+			else
+				tSpawn.probability = 1
+				k = k + 1
+			end
+			table.insert(tRetTable, tSpawn)	
+			if tSpawnProp[tSpawn.section] == nil then		
+				local respawn_ini = system_ini()
+				local sCommunity 	= cfg_read(respawn_ini, "str", tSpawn.section, "community", "nil")
+				local sRank 		= cfg_read(respawn_ini, "str", tSpawn.section, "spec_rank", "nil")
+				local isCheck 		= true
+				local sCustomData 	= cfg_read(respawn_ini, "str", tSpawn.section, "custom_data")		
+				if sCustomData ~= nil then
+					local iniCustomData = ini_file(sCustomData)			
+					if iniCustomData:section_exist("smart_terrains") then					
+						if cfg_read(iniCustomData, "str", "smart_terrains", "none") == "true" then
+							isCheck = false
+						end						
+                        if cfg_read(iniCustomData, "str", "smart_terrains", "respawn_check") == "false" then
+							isCheck = false
+						end			
+					end
+				end				
+				tSpawnProp[tSpawn.section] = { sCommunity = sCommunity, sRank = sRank, isCheck = isCheck }
+			end					
+		end	
+		return tRetTable
+	end	
+	return nil
+end
+
+
+function create_ammo(section, position, lvi, gvi, pid, num)
+	local ini = system_ini()
+	local num_in_box = ini:r_u32(section, "box_size")
+	while num > num_in_box do
+		alife():create_ammo(section, position, lvi,	gvi, pid, num_in_box)
+		num = num - num_in_box
+	end
+	return alife():create_ammo(section, position, lvi,	gvi, pid, num)
+end

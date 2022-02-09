@@ -1,0 +1,140 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+-----------------------------------------------------------------------
+--- ogse_detectors.script
+--- Скриптовая оболочка детекторов в руках
+--- Авторы: K.D., KamikaZze
+--- version 1.7.00 (23/01/2015)
+--- Доработка скрипта, исправление ошибок: KRodin © 2016
+-----------------------------------------------------------------------
+--- 06.01.22 version 1.8.0
+---   адоптация под этот мод, выкинул все лишнее и немного переписал код
+--- 10.01.22 version 1.8.1
+---   Добавил два новых параметра в секцию детектора, an_detect и af_detect
+---   они принимают значение (true\false) и отвечают за отображение на
+---   экране детектора аномалий и артефактов.
+---   Если параметров в секции не окажется, но секция детектора будет в addon_detectors
+---   то будут приняты хначения по умолчанию (true)
+--- 11.01.22 version 1.8.2
+---   при открытии инвентаря будем удалять обьекты с экрана детектора
+-----------------------------------------------------------------------
+
+function attach(sm)
+	sm:subscribe({signal = "on_first_update",	fun = this.on_first_update})
+	sm:subscribe({signal = "on_update",			fun = this.update})
+end
+
+local wnd_inventory = level.get_inventory_wnd() -- окно инвинтаря
+local read_params = false						-- флаг считывания параметров из конфига
+local anom_detect = false						-- возможность детектировать аномалии, берется из секции детектора
+local art_detect = false						-- возможность детектировать арты, берется из секции детектора
+local det_radius = 0							-- радиус детектирования, берется из секции детектора
+local MAX_OBJECTS = 24							-- максимальное кол.во отрисоввываемых аномалий артов (не в сумме) + это число еще стоит в движке 
+
+local addon_detectors = {						-- детекторы с экраном
+    ["detector_cop_3"]		= true,
+	["detector_cop_4"]		= true
+}
+
+function on_first_update()
+	set_detector_mode(0, 9)						-- хз что это
+end
+
+function update()
+	local is_det_active = get_actor_obj():IsDetectorActive()			-- наличие детектора в руках
+	local item_in_slot = db.actor:item_in_slot(8)						-- получить обьект из 8го слота
+	
+	if wnd_inventory and wnd_inventory:IsShown() then					-- если открыт инвентарь
+		clear_params()													-- отчищаем параметры для детектора
+		return															-- прекращаем дальнейшее выполнение
+	end
+	
+	if (item_in_slot and addon_detectors[item_in_slot:section()]) then	-- если в слоте есть детектор и он есть в списке addon_detectors
+	  check_params(item_in_slot)										-- читаем параметры переменных для детектора
+	  if (is_det_active) then											-- если мы держим детектор в руке
+		detector_update()												-- начинаем обработку дисплея экрана
+	  else 																-- если это какой-то другой детектор
+		clear_params()													-- отчищаем параметры для детектора
+	  end
+	else																-- если детектора в руках нету
+	  clear_params()													-- отчищаем параметры переменных для детектора
+	end
+end
+
+function clear_params()
+	if (read_params) then												-- если мы уже читали параметры для детектора
+	  set_param(0, false, false) 										-- отчищаем переменные для детектора
+	  read_params = false												-- сбрасываем флаг считанных параметров
+	  
+	  for i = 0, MAX_OBJECTS-1 do										-- цыклом проходим по элементам экрана детектора							
+	    set_artefact_slot(i, -9000, 0, 0)								-- удаляем элементы c экрана
+	    set_anomaly_slot(i, -9000, 0, 0)								-- удаляем элементы c экрана
+	    i = i + 1														-- увеличиваем счетчик
+	  end
+	end
+end
+
+function check_params(obj) 
+	if (not read_params) then																-- если мы еще не читали параметры для детектора
+	  local det_section = obj:section()
+	  local get_detector_radius = get_u32(det_section, "af_radius", 0)						-- получаем из его секции - радиус детектирования
+	  local get_detector_an_d = cfg_read(ini, "bool", det_section, "an_detect", true)		-- получаем из его секции - возможность видить аномалии
+	  local get_detector_af_d = cfg_read(ini, "bool", det_section, "af_detect", true)		-- получаем из его секции - возможность видить артефакты
+	  set_param(get_detector_radius, get_detector_an_d, get_detector_af_d)					-- записываем прочитанные данные
+	  read_params = true																	-- фыставляем флаг чтения данных
+	end
+end
+
+function set_param(det_rad, det_anoms, det_arts) 
+	det_radius = det_rad										-- записываем радиус детектирования
+	anom_detect = det_anoms										-- видит-ли детектор аномалии
+	art_detect = det_arts										-- видит-ли детектор артефакты
+end
+
+function detector_update()
+	local act_pos = db.actor:position()							-- получаем позицию актора
+	if (art_detect == true) then renderer_arts(act_pos) end		-- рендерим артефакты
+	if (anom_detect == true) then renderer_anoms(act_pos) end	-- рендерим аномалии
+end
+
+function renderer_arts(actor_pos)
+	local act_pos = actor_pos												-- запишем позицию актора
+	local render_n = 0														-- счетчик отрисованных артефактов
+
+	for id, art in pairs (db.artefacts) do									-- обходим весь массив артефактов (он формируется через биндер артефактов)
+	  if not art:parent() then												-- проверка, не в рюкзаке ли этот арт
+	    local art_pos = art:position()										-- получаем его позицию на карте
+		if act_pos:distance_to(art_pos) < det_radius then					-- если он в пределах радиуса детектирования 
+		  if (render_n < MAX_OBJECTS) then									-- если количество отображаемых обьектов не привышено
+		    set_artefact_slot(render_n, art_pos.x, art_pos.y, art_pos.z)	-- добавим обьект в ячейку массива artefact_slot (он в движке)
+		    render_n = render_n + 1											-- увеличиваем счетчик отрисованных артефактов
+		  end
+		end							
+	  end
+	end
+	
+	for k = render_n, MAX_OBJECTS-1 do										-- цыклом проходим по всем оставшимся ячейкам artefact_slot
+	  set_artefact_slot(k, -9000, 0, 0)										-- убераем обьект с экрана детектора (конешно не совсем убираем, а перемещаем на какуету далекую позицию)
+	  k = k + 1																-- счетчик итераций по artefact_slot
+	end
+end
+
+function renderer_anoms(actor_pos) 						
+	local act_pos = actor_pos												-- запишем позицию аномалии
+	local render_n = 0														-- счетчик отрисованных аномалий
+
+	for id, anom in pairs (db.addon_anoms) do								-- обходим весь массив аномалий (он формируется через биндер аномалий)
+	  local anom_pos = anom:position()										-- получаем ее позицию на карте
+	  if act_pos:distance_to(anom_pos) < det_radius then					-- если она в пределах радиуса детектирования 
+	    if (render_n < MAX_OBJECTS) then									-- если количество отображаемых обьектов не привышено
+		  set_anomaly_slot(render_n, anom_pos.x, anom_pos.y, anom_pos.z)	-- добавим обьект в ячейку массива anomaly_slot (он в движке)
+		  render_n = render_n + 1											-- увеличиваем счетчик отрисованных аномалий
+		end
+	  end
+	end
+
+	for k = render_n, MAX_OBJECTS-1 do										-- цыклом проходим по всем оставшимся ячейкам anomaly_slot
+	  set_anomaly_slot(k, -9000, 0, 0)										-- убераем обьект с экрана детектора (конешно не совсем убираем, а перемещаем на какуету далекую позицию)
+	  k = k + 1																-- счетчик итераций по anomaly_slot
+	end
+end

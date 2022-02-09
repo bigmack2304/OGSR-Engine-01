@@ -1,0 +1,1200 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+
+<window>
+
+	<background x="0" y="0" width="1024" height="768">
+		<texture x="0" y="0" width="1024" height="768">ui\ui_static_mm_back_07</texture>
+	</background>
+
+
+		
+	<form_for_opt>
+	
+		<form_dlg x="17" y="27" width="980" height="720">
+			<texture></texture>
+		</form_dlg>
+		
+		<btn_okay x="668" y="695" width="123" height="26">
+			<texture>ui_button_s</texture>	
+			<text font="graffiti19">ui_addon_inv_ok</text>
+			<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+			</text_color>
+		</btn_okay>
+		
+		<btn_quit x="870" y="695" width="123" height="26">
+			<texture>ui_button_s</texture>
+			<text font="graffiti19">ui_addon_inv_cancel</text>
+			<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+			</text_color>
+		</btn_quit>
+		
+		<tab x="1" y="695" width="494" height="26">
+			<button x="0" y="0" width="123" height="26">
+				<texture>ui_button_s</texture>
+				<text font="graffiti19" align="c">ui_addon_opt_game1</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>
+		
+			<button x="118" y="0" width="123" height="26">
+				<texture>ui_button_s</texture>
+				<text font="graffiti19" align="c">ui_addon_opt_game2</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>
+		</tab>
+		
+	</form_for_opt>
+		
+	<form_for_opt1>
+	
+		<form_dlg1 x="17" y="27" width="980" height="660">
+			<texture></texture>
+		</form_dlg1>
+		
+		<caption1 x="38" y="29" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">option_addon_fps</text>
+		</caption1>
+
+		<radio_hud x="35" y="55" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</radio_hud>
+
+		<caption2 x="38" y="85" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="216" g="58" b="30">addon_opt_hoffs</text>
+		</caption2>
+
+		<addon_din_hud_snd2 x="35" y="167" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_din_hud_snd2>
+
+		<caption3 x="38" y="141" width="149" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_afhit</text>
+		</caption3>
+
+		<addon_din_hud_snd x="35" y="111" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_din_hud_snd>
+
+		<caption4 x="38" y="197" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_rukhud</text>
+		</caption4>
+
+		<addon_se x="35" y="223" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_se>
+
+		<caption5 x="38" y="253" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_sitem</text>
+		</caption5>
+
+		<addon_wpnrask x="35" y="279" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_wpnrask>
+
+		<caption6 x="38" y="309" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_swpn</text>
+		</caption6>
+
+		<addon_batoryfanar x="35" y="335" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_batoryfanar>
+
+		<caption7 x="38" y="365" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_autosav</text>
+		</caption7>
+
+		<addon_wpn_hd x="35" y="391" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_wpn_hd>
+
+		<caption8 x="38" y="421" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_invdof</text>
+		</caption8>
+
+		<addon_wpn_rl x="35" y="447" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_wpn_rl>
+
+		<caption9 x="38" y="477" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_blood</text>
+		</caption9>
+
+		<addon_pasmenu x="35" y="503" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_pasmenu>
+
+		<caption10 x="38" y="533" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_explw</text>
+		</caption10>
+
+		<addon_wpn_inert x="35" y="559" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_wpn_inert>
+
+		<caption11 x="415" y="29" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_winert</text>
+		</caption11>
+
+		<addon_blood x="415" y="55" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_blood>
+
+		<caption12 x="415" y="85" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_relin</text>
+		</caption12>
+
+		<addon_buildpsdog x="415" y="111" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_buildpsdog>
+
+		<caption13 x="415" y="141" width="149" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_dinhud</text>
+		</caption13>
+
+		<addon_fps x="415" y="167" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_fps>
+
+		<caption14 x="415" y="197" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_dinhudsnd</text>
+		</caption14>
+
+		<addon_itemstat x="415" y="223" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_itemstat>
+
+		<caption15 x="415" y="253" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_dinhudrdr</text>
+		</caption15>
+
+		<addon_inv x="415" y="279" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_inv>
+
+		<caption16 x="415" y="309" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_ustal</text>
+		</caption16>
+
+		<addon_afhit x="415" y="335" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_afhit>
+
+		<caption17 x="415" y="365" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_sndusitm</text>
+		</caption17>
+
+		<addon_ustal x="415" y="391" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_ustal>
+
+		<caption18 x="415" y="421" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_disusitm</text>
+		</caption18>
+
+		<addon_slots x="415" y="447" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_slots>
+
+		<caption19 x="415" y="477" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_realmed</text>
+		</caption19>
+
+		<addon_newsdynn x="415" y="503" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_newsdynn>
+
+		<caption20 x="415" y="533" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="216" g="58" b="30">addon_opt_autopaus</text>
+		</caption20>
+
+		<addon_autopaus x="415" y="559" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_autopaus>
+
+		<caption21 x="792" y="29" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_surge</text>
+		</caption21>
+
+		<addon_surge x="792" y="55" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_surge>
+
+		<caption22 x="792" y="85" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_surge_npc</text>
+		</caption22>
+
+		<addon_surge_npc x="792" y="111" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_surge_npc>
+
+		<caption23 x="792" y="141" width="149" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_surge_pda</text>
+		</caption23>
+
+		<addon_surge_pda x="792" y="167" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_surge_pda>
+
+		<caption24 x="792" y="197" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_surge_info</text>
+		</caption24>
+
+		<addon_surge_info x="792" y="223" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_surge_info>
+
+		<caption25 x="792" y="253" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_surge_news</text>
+		</caption25>
+
+		<addon_surge_news x="792" y="279" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_surge_news>
+
+		<caption26 x="792" y="309" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_nnpceye</text>
+		</caption26>
+
+		<addon_nnpceye x="792" y="335" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_nnpceye>
+
+		<caption27 x="792" y="365" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="216" g="58" b="30">addon_opt_invkg</text>
+		</caption27>
+
+		<addon_invkg x="792" y="391" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_invkg>
+
+		<caption28 x="792" y="421" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_sound_pda</text>
+		</caption28>
+
+		<addon_sound_pda x="792" y="447" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_sound_pda>
+
+		<caption29 x="792" y="477" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_corpse_food</text>
+		</caption29>
+
+		<addon_corpse_food x="792" y="503" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_corpse_food>
+
+		<caption30 x="792" y="533" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_torch_battery</text>
+		</caption30>
+
+		<addon_torch_battery x="792" y="559" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_torch_battery>
+		
+	
+	</form_for_opt1>
+
+<!---------------------------------------2 страница----------------------------------------------------->
+
+
+	<form_for_opt2>
+
+		<form_dlg2 x="17" y="27" width="980" height="660">
+			<texture></texture>
+		</form_dlg2>
+
+  <!--		
+		<text_static x="310" y="300" width="300" height="330" complex_mode="1" stretch="1">
+			<text x="0" y="0" align="c" font="graffiti19" r="230" g="230" b="230">ui_addon_opt_game3</text>
+		</text_static>
+  -->
+
+		<caption31 x="38" y="29" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">option_addon_pnvbat</text>
+		</caption31>
+
+		<addon_pnv_battery x="35" y="55" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_pnv_battery>
+
+		<caption32 x="38" y="85" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">option_addon_nnpctorch</text>
+		</caption32>
+
+		<addon_nnpctorch x="35" y="111" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_nnpctorch>
+
+		<caption33 x="38" y="141" width="149" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_sakbody</text>
+		</caption33>
+
+		<addon_sakbody x="35" y="167" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_sakbody>
+
+		<caption34 x="38" y="197" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_exobat</text>
+		</caption34>
+
+		<addon_exobat x="35" y="223" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_exobat>
+
+		<caption35 x="38" y="253" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_hiteff</text>
+		</caption35>
+
+		<addon_hiteff x="35" y="279" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_hiteff>
+
+		<caption36 x="38" y="309" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_lcinf</text>
+		</caption36>
+
+		<addon_lcinf x="35" y="335" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_lcinf>
+
+		<caption37 x="38" y="365" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_agloss</text>
+		</caption37>
+
+		<addon_agloss x="35" y="391" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_agloss>
+
+		<caption38 x="38" y="421" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_newtalk</text>
+		</caption38>
+
+		<addon_newtalk x="35" y="447" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_newtalk>
+
+		<caption39 x="38" y="477" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_lonmon</text>
+		</caption39>
+
+		<addon_lonmon x="35" y="503" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_lonmon>
+
+		<caption40 x="38" y="533" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_lonmoninf</text>
+		</caption40>
+
+		<addon_lonmoninf x="35" y="559" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_lonmoninf>
+
+		<caption41 x="415" y="29" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_ahemi</text>
+		</caption41>
+
+		<addon_ahemi x="415" y="55" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_ahemi>
+
+		<caption42 x="415" y="85" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_radfon</text>
+		</caption42>
+
+		<addon_radfon x="415" y="111" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_radfon>
+
+		<caption43 x="415" y="141" width="149" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_dinhudblr</text>
+		</caption43>
+
+		<addon_dinhudblr x="415" y="167" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_dinhudblr>
+
+		<caption44 x="415" y="197" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_campower</text>
+		</caption44>
+
+		<addon_campower x="415" y="223" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_campower>
+
+		<caption45 x="415" y="253" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_camheal</text>
+		</caption45>
+
+		<addon_camheal x="415" y="279" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_camheal>
+
+		<caption46 x="415" y="309" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_sndbody</text>
+		</caption46>
+
+		<addon_sndbody x="415" y="335" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_sndbody>
+
+		<caption47 x="415" y="365" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_mysosh</text>
+		</caption47>
+
+		<addon_mysosh x="415" y="391" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_mysosh>
+
+		<caption48 x="415" y="421" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_buildpsdogi</text>
+		</caption48>
+
+		<addon_buildpsdogi x="415" y="447" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_buildpsdogi>
+
+		<caption49 x="415" y="477" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_camdrv</text>
+		</caption49>
+
+		<addon_camdrv x="415" y="503" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_camdrv>
+
+		<caption50 x="415" y="533" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_camjs</text>
+		</caption50>
+
+		<addon_camjs x="415" y="559" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_camjs>
+
+		<caption51 x="792" y="29" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_camhid</text>
+		</caption51>
+
+		<addon_camhid x="792" y="55" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_camhid>
+
+		<caption52 x="792" y="85" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_nqsave</text>
+		</caption52>
+
+		<addon_nqsave x="792" y="111" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_nqsave>
+
+		<caption53 x="792" y="141" width="149" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_dinhud_hit</text>
+		</caption53>
+
+		<addon_dinhud_hit x="792" y="167" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_dinhud_hit>
+
+		<caption54 x="792" y="197" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_deathnews</text>
+		</caption54>
+
+		<addon_deathnews x="792" y="223" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_deathnews>
+
+		<caption55 x="792" y="253" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_reldof</text>
+		</caption55>
+
+		<addon_reldof x="792" y="279" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_reldof>
+		
+		<caption56 x="792" y="309" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_newsrnd</text>
+		</caption56>
+
+		<addon_newsrnd x="792" y="335" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_newsrnd>
+		
+		<caption57 x="792" y="365" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_newsdyn</text>
+		</caption57>
+
+		<addon_newsdyn x="792" y="391" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_newsdyn>
+		
+		<caption58 x="792" y="421" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_newsdynmn</text>
+		</caption58>
+
+		<addon_newsdynmn x="792" y="447" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_newsdynmn>
+
+		<caption59 x="792" y="477" width="130" height="30" complex_mode="0">
+			<text font="graffiti22" r="219" g="174" b="28">addon_opt_dinhudvis</text>
+		</caption59>
+
+		<addon_dinhudvis x="792" y="503" width="110" height="60" radio="1">
+			<button x="0" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28"  complex_mode="0">dynamic_hud_off</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>		
+			<button x="75" y="0" width="110">
+				<text font="graffiti19" r="219" g="174" b="28" complex_mode="0">dynamic_hud_on</text>
+				<text_color>
+					<e r="219" g="174" b="28"/> <t r="255" g="255" b="255"/> <h r="255" g="255" b="255"/>
+				</text_color>
+			</button>	
+		</addon_dinhudvis>
+		
+	</form_for_opt2>	
+
+</window>

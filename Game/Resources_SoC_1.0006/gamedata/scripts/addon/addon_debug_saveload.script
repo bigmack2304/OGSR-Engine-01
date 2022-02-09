@@ -1,0 +1,30 @@
+-- скрипт сохранения и перезагрузки игры после изменений доп.настроек
+
+local s = 0
+
+function start_timer()
+if s==9 then
+	lwc_timer.Add("timer_ssav", "addon_debug_saveload.start_save()", 4, 0, 0)
+	level.disable_input()
+	s = 1
+end
+end
+
+function start_save()
+if s==1 then
+	lwc_timer.Add("timer_slod", "addon_debug_saveload.start_load()", 6, 0, 0)
+	cmd("save addon_debug")
+	s = 2
+end
+end
+
+function start_load()
+if s==2 then
+	level.enable_input()
+	cmd("load addon_debug")
+end
+end
+
+function rl()
+s = 9
+end

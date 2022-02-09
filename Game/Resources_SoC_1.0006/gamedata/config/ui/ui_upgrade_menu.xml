@@ -1,0 +1,20 @@
+<ui_texture>
+    <file_name>ui\upgrade\ui_menu</file_name>    	
+	    <texture id="ui_upg_menu" 		x="0"   y="0"   width="492" height="491" />
+	    <texture id="ui_upg_message" 	x="510" y="12"   width="427" height="165" />
+
+	    <texture id="ui_upg_btn_mess_d" 	x="510" y="207" width="89"  height="21"  />
+	    <texture id="ui_upg_btn_mess_e" 	x="510" y="207" width="89"  height="21"  />
+	    <texture id="ui_upg_btn_mess_t" 	x="601" y="206" width="89"  height="21"  />
+	    <texture id="ui_upg_btn_mess_h" 	x="601" y="206" width="89"  height="21"  />
+
+	    <texture id="ui_upg_menu_1" 	x="0"   y="508"   width="492" height="491" />
+	    <texture id="ui_slot_texture" 	x="512" y="240"   width="326" height="128" />		
+	    <texture id="ui_slot_button_h" 	x="519" y="403"   width="310" height="95" />
+	    <texture id="ui_slot_button_e" 	x="1023" y="1023"   width="1" height="1" />
+	    <texture id="ui_slot_button_t" 	x="1023" y="1023"   width="1" height="1" />
+
+	    <texture id="ui_upg_menu_2" 	x="507" y="507"   width="489" height="491" />
+
+</ui_texture>
+

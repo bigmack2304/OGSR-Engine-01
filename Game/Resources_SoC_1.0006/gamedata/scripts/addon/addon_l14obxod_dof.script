@@ -1,0 +1,31 @@
+-- автонастройка r2_dof_far на уровне l14_obxod
+-- для атмосферы
+
+function attach(sm)
+	sm:subscribe({signal = "on_spawn",			fun = this.start})
+end
+
+-- эти параметры отвечают за размытие картинки на расстоянии от гг
+local scheme_stat	= true
+local fog_strong0	= 500	-- если мы не на том уровне
+local fog_strong1	= 70	-- если мы на нужном уровне
+
+function check_level()
+  if level.name() == "l14_obxod" then
+    return true
+  else
+	return false
+  end
+end
+
+function start()
+  if scheme_stat == true then
+    if check_level() then
+      cmd("r2_dof_far "..fog_strong1.."")
+--	  log3("dof "..fog_strong1.." ")
+    else
+      cmd("r2_dof_far "..fog_strong0.."")
+--	  log3("dof "..fog_strong0.." ")
+    end
+  end
+end

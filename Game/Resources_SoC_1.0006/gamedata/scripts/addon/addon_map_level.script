@@ -1,0 +1,36 @@
+-- скрытие карт локаций
+-- скрипт пока отключон но в будующем можно будет сделать 
+-- к примеру покупку\поиск\получение информации о локациях и тем самым разблокаровать карту
+-- нужной локации в пда
+-- в данном случае карта показывается только после получения нужного инфопоршня
+
+function update()
+
+local wnd_pda = level.get_pda_wnd()	
+local esc_t = texture_find("map\\map_escape")
+
+  if wnd_pda and wnd_pda:IsShown() then
+
+
+    if esc_t then
+      local esc_tex = esc_t[ "map\\map_escape" ]
+      local esc_name = "map\\map_escape_noise"
+      local esc_nameo = "map\\map_escape"
+        if db.actor:dont_has_info("esc_kill_bandits_quest_have") then
+           esc_tex:load(esc_name)
+          -- log3("texture "..esc_name.." -dds replacment")
+        else
+           esc_tex:load(esc_nameo)
+          -- log3("texture "..esc_nameo.." -dds unreplacment")
+        end
+    end
+
+
+  end
+
+end
+
+function init()
+	event("evt_pda_open"):register(update)
+--	event("evt_pda_hide"):register(ph)
+end

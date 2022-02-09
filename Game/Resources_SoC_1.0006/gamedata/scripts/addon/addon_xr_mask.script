@@ -1,0 +1,766 @@
+----------------------------------------------------------------------------------------------------
+-------------      Динамическйи Худ. Функции АМК                                         -----------
+----------------------------------------------------------------------------------------------------
+-- адоптация для addon2, + дополнение кода.
+----------------------------------------------------------------------------------------------------
+-- 27.03.18 адоптация под OGSR + дополнение кода
+----------------------------------------------------------------------------------------------------
+-- 19.10.19 добавлен эффект запотевания + обновление кода
+---------------------------------------------------------------------------------------------------
+-- 10.10.20 добавленна задаржка перед запотеванием, это позволит наносить запотевание
+-- 			именно в момент когда гг выдыхает, а не в момент воспроизведение звука 
+--			втоха\выдоха как это было ранее.
+---------------------------------------------------------------------------------------------------
+-- 24.07.21 добавил эффект visor reflections + исправление мелких ошибок + небольшой рефакторинг
+---------------------------------------------------------------------------------------------------
+-- что уже есть;
+-- 			текстура с худом
+--			зависимость тикустуры худа от состояния костюма (трещины на стекле)
+--			звук дыхания
+--			интенсивность дыхания в зависимости от усталости
+--			контроль шейдера rain drops
+--			запотевание стела шлема от дыхания
+--			контроль шейдера visor reflections
+----------------------------------------------------------------------------------------------------
+--
+-- таблица с секцией костюма и ее параметрами
+--
+-- секция = {hud = "вид худа",   sound = "звук дыхания", mask = наличие закрытого шлема, bt = "вид запотевания", ft1 = задержка перед отпотеванием 0.1с , ft2 = замедление процесса отпотевания 0.01с, ft3 = задержка перед запотеванием 0.01с},
+--
+
+local outfits_param = {
+	military_outfit			= {hud = "hud_mil",   sound = "breath_1", mask = true, bt = "hud_blur3", ft1 = 4, ft2 = 6, ft3 = 92},
+	exo_outfit				= {hud = "hud_exo",   sound = "breath_1", mask = true, bt = "hud_blur3", ft1 = 6, ft2 = 6, ft3 = 92},
+	exo_outfit_aa			= {hud = "hud_exo",   sound = "breath_1", mask = true, bt = "hud_blur3", ft1 = 6, ft2 = 6, ft3 = 92},
+	exo_outfit_ab			= {hud = "hud_exo",   sound = "breath_1", mask = true, bt = "hud_blur3", ft1 = 6, ft2 = 6, ft3 = 92},
+	exo_outfit_ac			= {hud = "hud_exo",   sound = "breath_1", mask = true, bt = "hud_blur3", ft1 = 6, ft2 = 6, ft3 = 92},
+	exo_outfit_ba			= {hud = "hud_exo",   sound = "breath_1", mask = true, bt = "hud_blur3", ft1 = 6, ft2 = 6, ft3 = 92},
+	exo_outfit_bb			= {hud = "hud_exo",   sound = "breath_1", mask = true, bt = "hud_blur3", ft1 = 6, ft2 = 6, ft3 = 92},
+	exo_outfit_bc			= {hud = "hud_exo",   sound = "breath_1", mask = true, bt = "hud_blur3", ft1 = 6, ft2 = 6, ft3 = 92},
+	outfit_exo_m1			= {hud = "hud_exo",   sound = "breath_1", mask = true, bt = "hud_blur2", ft1 = 5, ft2 = 6, ft3 = 92},
+	scientific_outfit		= {hud = "hud_scien", sound = "breath_2", mask = true, bt = "hud_blur2", ft1 = 4, ft2 = 6, ft3 = 100},
+	scientific_outfit_aa	= {hud = "hud_scien", sound = "breath_2", mask = true, bt = "hud_blur2", ft1 = 4, ft2 = 6, ft3 = 100},
+	scientific_outfit_ab	= {hud = "hud_scien", sound = "breath_2", mask = true, bt = "hud_blur2", ft1 = 4, ft2 = 6, ft3 = 100},
+	scientific_outfit_ac	= {hud = "hud_scien", sound = "breath_2", mask = true, bt = "hud_blur2", ft1 = 4, ft2 = 6, ft3 = 100},
+	scientific_outfit_ba	= {hud = "hud_scien", sound = "breath_2", mask = true, bt = "hud_blur2", ft1 = 4, ft2 = 6, ft3 = 100},
+	scientific_outfit_bb	= {hud = "hud_scien", sound = "breath_2", mask = true, bt = "hud_blur2", ft1 = 4, ft2 = 6, ft3 = 100},
+	scientific_outfit_bc	= {hud = "hud_scien", sound = "breath_2", mask = true, bt = "hud_blur2", ft1 = 4, ft2 = 6, ft3 = 100},
+	dolg_scientific_outfit	= {hud = "hud_scien", sound = "breath_2", mask = true, bt = "hud_blur2", ft1 = 5, ft2 = 6, ft3 = 100},
+	ecolog_outfit			= {hud = "hud_scien", sound = "breath_2", mask = true, bt = "hud_blur4", ft1 = 4, ft2 = 5, ft3 = 100},
+	protection_outfit		= {hud = "hud_scien", sound = "breath_2", mask = true, bt = "hud_blur5", ft1 = 3, ft2 = 5, ft3 = 100}
+	}
+
+local d0 = 0
+local d1 = 0
+local hb1 = "breath_1"
+local hb2 = "breath_2"
+local deadact = 0
+local sBreathSound = "nil"
+local eTimer
+local spin_sound_b1 = xr_sound.get_safe_sound_object([[interface\mask_hud\breath_1]])
+local spin_sound_b2 = xr_sound.get_safe_sound_object([[interface\mask_hud\breath_2]])
+local helmet_d
+local helmet_f
+local helmet_a
+local helmet_z
+local tmimerval = 6000
+local t = 0
+local rain = 0
+
+local string_find = string.find
+local actor = db.actor
+local option = 1      -- здесь вкл/откл
+local outfcond
+local mycurrent_suithud
+local outfhudtype = ""
+
+local blurt
+local blur1						-- слабое запотевание (hud_blur5)
+local blur2						-- среднее запотевание (hud_blur4)
+local blur3						-- сильное запотевание (hud_blur2)
+local blur4						-- оч.сильное запотевание (hud_blur3)
+
+local init_float        = 50 				-- количество обновлений для update_blurs
+local ifloat            = 0				-- текущее количество обновлений для update_blurs
+local hud_screen        = Frect():set(0,0,1024,768)	-- позиция худа на экране
+local blur_shag	        = 2				-- шаг увеличения непрозрачности блюра
+local blur_float        = 0				-- текущее значение запотевания
+local blur_mshag        = 1				-- количество выпоняемых шагов blur_shag (за обновление)
+local iNextUpdate 	= 0		  		-- задержка перед отпотеванием
+local float_time 	= 0 		  		-- таймер (по умолчанию 5)
+local float_tm		= 100		  		-- множитель значения (float_time), если 1000 то (float_time - сек), если 100 то (float_time) - м.сек
+
+local blur_mshag2       = 1				-- количество выпоняемых шагов blur_shag2 (за обновление)
+local blur_shag2        = 2				-- шаг уменьшения непрозрачности блюра
+local iNextUpdate2 	= 0		  		-- замедление update отпотевания
+local float_time2 	= 0 		  		-- таймер (по умолчанию 6)
+local float_tm2		= 10		  		-- множитель значения (float_time), если 1000 то (float_time - сек), если 100 то (float_time) - м.сек
+
+local iNextUpdate3 	= 0		  		-- задержка перед запотеванием
+local float_time3 	= 0 		  		-- таймер (по умолчанию 0)
+local float_tm3		= 10		  		-- множитель значения (float_time), если 1000 то (float_time - сек), если 100 то (float_time) - м.сек
+
+
+-- первоначальная функция, вызывается из абдейта
+function dynamic_hud()
+
+local addon_actor = db.actor
+
+if this.load_variable("addon_opt_dinhudsnd",1) == 1 and addon_actor ~= nil then
+		dynamic_hud_snd()
+end
+		update_blurs()
+	--	control_rain()
+		local outf = db.actor:get_current_outfit()
+		local itemo, hud_type, htype
+		if outf ~= nil then itemo = outf:section() else itemo = nil end
+		if itemo ~= nil then
+
+			outfcond = ""
+		  if this.load_variable("addon_opt_dinhud_hit",1) == 1 and addon_actor ~= nil then
+			if outf:condition() >0.87 then
+				outfcond = "blue"
+			elseif outf:condition() >0.69 then
+				outfcond = "green"
+			elseif outf:condition() >0.60 then
+				outfcond = "yellow"
+			elseif outf:condition() >0.40 then
+				outfcond = "red"
+			elseif outf:condition() >0.25 then
+				outfcond = "red2"
+			else
+				outfcond = "red3"
+			end
+		  else
+		    outfcond = "blue"
+		  end
+
+			if this.load_variable("addon_opt_dinhud",1) == 1 and addon_actor ~= nil then
+				for k,v in pairs(outfits_param) do
+					if string_find(itemo, k) then
+						--hud_type = v.."_"..outfcond
+						--outfhudtype = v
+                                          ------------------------------------------------
+						htype = v
+						hud_type = htype.hud.."_"..outfcond
+						outfhudtype = htype.hud
+                                          ------------------------------------------------
+						break
+					end
+				end
+----------------------------------------------------
+if deadact==1 then
+	hud_type = nil
+end
+----------------------------------------------------
+			end
+			dhud_inf_1()
+		else
+			if this.load_variable("addon_opt_dinhud",1) == 1 and addon_actor ~= nil then
+				hud_type = nil
+			end
+			dhud_inf_0()
+		end
+			actor_gethud(hud_type)
+			if this.load_variable("addon_opt_dinhud",1) == 0 and addon_actor ~= nil then
+				hud_type = nil
+			end
+
+if this.load_variable("addon_opt_dinhudsnd",1) == 0 and addon_actor ~= nil then
+	dhud_inf_dop()
+end
+
+end
+
+ -- вызывается при снятии любово костюма
+function dhud_inf_0()
+local addon_actor = db.actor
+	if d0==1 then
+		return
+	end
+
+if this.load_variable("addon_opt_dinhudsnd",1) == 1 and addon_actor ~= nil then
+	dhud_inf_dop()
+end
+
+if this.load_variable("addon_opt_dinhudrdr",1) == 1 and addon_actor ~= nil then
+	cmd("r2_rain_drops_control off")
+--	cmd("r2_rain_drops off")
+--	log1("# xr_mask.script (off): rainn drops - off")
+end
+
+if this.load_variable("addon_opt_dinhudvis",1) == 1 and addon_actor ~= nil then
+	cmd("r2_visor_refl_control off")  -- visor reflrctions
+end
+
+--start_blurs(false)
+dhsnd_info_off()
+d0 = 1
+d1 = 0
+db.actor:give_info_portion("addon_din_hud")
+--log1("# xr_mask.script : костюм снят")
+
+---------------------------------------------------------------------------------
+	--log1("signal - upd blurmask")
+	--ogse_signals.get_mgr():call("upd_blurmask")
+	event("upd_blurmask"):trigger()
+---------------------------------------------------------------------------------
+
+end
+
+ -- отключение звуков дыхания
+function dhud_inf_dop()
+	if (spin_sound_b1 or spin_sound_b1:playing() ) then
+		spin_sound_b1:stop()
+		t = 0
+	end
+	if (spin_sound_b2 or spin_sound_b2:playing() ) then
+		spin_sound_b2:stop()
+		t = 0
+	end
+end
+
+-- вызывается при одевании любово костюма
+function dhud_inf_1()
+	if d1==1 then
+		return
+	end
+d1 = 1
+d0 = 0
+local addon_actor = db.actor
+local outfitm = db.actor:item_in_slot(6)
+local helmet = db.actor:alive() and db.actor:get_current_outfit()
+local obj_outf = outfits_param[helmet:section()]
+
+if not obj_outf then
+	helmet_f = nil
+else
+	local sect = helmet:section()
+	for k,v in pairs(outfits_param) do
+			if string.find(sect,k) then
+				helmet_f = v
+			end
+		end
+		if helmet_f then
+			if helmet_f.mask == true then
+			  dhrdon()
+			  dhvis()
+			end
+		end
+	end
+
+db.actor:disable_info_portion("addon_din_hud")
+--log1("# xr_mask.script : костюм одет")
+end
+
+ -- функция включения шейдера капель от дождя
+function dhrdon()
+	if this.load_variable("addon_opt_dinhudrdr",1) == 1 and addon_actor ~= nil then
+		cmd("r2_rain_drops_control on")
+		--log1("# xr_mask.script (on): rainn drops - on")
+	end
+end
+
+-- функция включения эффекта visor
+function dhvis()
+	if this.load_variable("addon_opt_dinhudvis",1) == 1 and addon_actor ~= nil then
+		cmd("r2_visor_refl_control on")  -- visor reflrctions
+	end
+end
+
+ -- вызывается при перемещении в слот каково лиюо костюма
+function dhrdon_dop(e)
+local addon_actor = db.actor
+
+  if e.obj:is_outfit() then
+     if this.load_variable("addon_opt_dinhudblr",1) == 1 and addon_actor ~= nil then
+	local hud = get_hud()
+	local hud_blur2 = hud:GetCustomStatic("hud_blur2")
+	local hud_blur3 = hud:GetCustomStatic("hud_blur3")
+	local hud_blur4 = hud:GetCustomStatic("hud_blur4")
+	local hud_blur5 = hud:GetCustomStatic("hud_blur5")
+
+	if hud_blur2 then
+	      start_blurs(false)
+      	      hud:RemoveCustomStatic("hud_blur2")
+	end
+	if hud_blur3 then
+	      start_blurs(false)
+      	      hud:RemoveCustomStatic("hud_blur3")
+	end
+	if hud_blur4 then
+	      start_blurs(false)
+      	      hud:RemoveCustomStatic("hud_blur4")
+	end
+	if hud_blur5 then
+	      start_blurs(false)
+      	      hud:RemoveCustomStatic("hud_blur5")
+	end
+     end
+
+     if this.load_variable("addon_opt_dinhudrdr",1) == 1 and addon_actor ~= nil then
+		dhrdon_dopdeb()
+     end
+	 
+	  if this.load_variable("addon_opt_dinhudvis",1) == 1 and addon_actor ~= nil then
+	 	visor_dopdeb()	-- visor reflrctions
+	  end
+	 
+  end
+end
+
+ -- вызывается из предыдущей функции, необходимо для испровления бага при одевании костюма, если одет другой костюм
+function dhrdon_dopdeb()
+local outfitm = db.actor:item_in_slot(6)
+local helmet = db.actor:alive() and db.actor:get_current_outfit()
+local obj_outf = outfits_param[helmet:section()]
+
+if not obj_outf then
+	helmet_a = nil
+	cmd("r2_rain_drops_control off")
+	--log1("# xr_mask.script (to slot): rainn drops - off")
+else
+	local sect = helmet:section()
+	for k,v in pairs(outfits_param) do
+			if string.find(sect,k) then
+				helmet_a = v
+			end
+		end
+		if helmet_a then
+			if helmet_a.mask == true then
+				cmd("r2_rain_drops_control on")
+				--log1("# xr_mask.script (to slot): rainn drops - on")
+			else
+				cmd("r2_rain_drops_control off")
+				--log1("# xr_mask.script (to slot): rainn drops - off")
+			end
+		end
+end
+end
+
+function visor_dopdeb()				-- visor reflrctions
+local outfitm = db.actor:item_in_slot(6)
+local helmet = db.actor:alive() and db.actor:get_current_outfit()
+local obj_outf = outfits_param[helmet:section()]
+
+if not obj_outf then
+	helmet_a = nil
+	cmd("r2_visor_refl_control off")
+else
+	local sect = helmet:section()
+	for k,v in pairs(outfits_param) do
+			if string.find(sect,k) then
+				helmet_a = v
+			end
+		end
+		if helmet_a then
+			if helmet_a.mask == true then
+				cmd("r2_visor_refl_control on")
+			else
+				cmd("r2_visor_refl_control off")
+			end
+		end
+end
+end
+
+-- функция контроля звуков дыхания
+function dynamic_hud_snd()
+local helmet = db.actor:alive() and db.actor:get_current_outfit()
+timer_minutes2()
+snd_timer_control()
+	if not helmet then
+		helmet_d = nil
+		sBreathSound = "nil"
+else
+		local sect = helmet:section()
+		helmet_d = nil
+		for h,j in pairs(outfits_param) do
+			if string.find(sect,h) then
+				helmet_d = j
+			end
+		end
+		if helmet_d then
+			sBreathSound = helmet_d.sound
+	--		news_manager.send_tip(db.actor, " %c[128,0,128,0] Степень заражения "..sBreathSound.." Мкр", nil, nil, 7000)
+			dh_snd_play()
+			dhsnd_info_on()
+		else
+			helmet_d = nil
+			sBreathSound = "nil"
+			dhsnd_info_off()
+		end
+	end
+end
+
+-- таймер для регулировки частоты дыхания
+function start_timer() 
+eTimer = time_global() + tmimerval
+end 
+
+function timer_minutes2()
+if eTimer and eTimer < time_global() then
+eTimer = nil
+dhsnd_interval()
+end 
+end
+
+-- функция контроля частоты дыхания
+function snd_timer_control()
+
+local addon_actor = db.actor
+
+if this.load_variable("addon_opt_ustal",1) == 1 and addon_actor ~= nil then
+	if db.actor.power > 0.8 then
+		tmimerval = 6000
+	end
+	if db.actor.power < 0.8 then
+		tmimerval = 5000
+	end
+	if db.actor.power < 0.6 then
+		tmimerval = 4000
+	end
+	if db.actor.power < 0.4 then
+		tmimerval = 3000
+	end
+	if db.actor.power < 0.2 then
+		tmimerval = 2000
+	end
+end
+
+	if this.load_variable("addon_opt_ustal",1) == 0 and addon_actor ~= nil then
+		if db.actor.power < 0.25 then
+			tmimerval = 2000
+		end
+		if db.actor.power > 0.25 then
+			tmimerval = 6000
+		end
+	end
+end
+
+-- функция воспроизведения звуков дыхания
+function dh_snd_play()
+--if this.load_variable("option_addon_dinhudsnd2",1) == 0 and actor ~= nil then
+--return
+--end
+
+
+	if sBreathSound==hb1 and (not spin_sound_b1 or not spin_sound_b1:playing() ) and t==0 then
+		spin_sound_b1:play_at_pos(db.actor, vector():set(0, 0, 0), 0, sound_object.s2d)
+		spin_sound_b1.volume = 0.4
+		start_timer()
+	--	lwc_timer.Add("dh_snd_int", "xr_mask.dhsnd_interval()", 50, 0, 0)
+		t = 1
+--		log1("xr_meet.script : play breath_1")
+
+---------------------------------------------------------------------------------
+	--log1("signal - upd blurmask")
+	--ogse_signals.get_mgr():call("upd_blurmask")
+	event("upd_blurmask"):trigger()
+---------------------------------------------------------------------------------
+
+	end
+	if sBreathSound==hb2 and (not spin_sound_b2 or not spin_sound_b2:playing() ) and t==0 then
+		spin_sound_b2:play_at_pos(db.actor, vector():set(0, 0, 0), 0, sound_object.s2d)
+		spin_sound_b2.volume = 0.4
+		start_timer()
+	--	lwc_timer.Add("dh_snd_int", "xr_mask.dhsnd_interval()", 50, 0, 0)
+		t = 1
+--		log1("xr_meet.script : play breath_2")
+
+---------------------------------------------------------------------------------
+	--log1("signal - upd blurmask")
+	--ogse_signals.get_mgr():call("upd_blurmask")
+	event("upd_blurmask"):trigger()
+---------------------------------------------------------------------------------
+
+	end
+end
+
+local dsif = 0
+local dsin = 0
+
+-- вызывается при отключении звуков дыхания
+function dhsnd_info_off()
+if dsif==1 then
+return
+end
+	db.actor:disable_info_portion("addon_info_dynamicsnd")
+	dsif = 1
+	dsin = 0
+end
+
+-- вызывается при включении звуков дыхания
+function dhsnd_info_on()
+local addon_actor = db.actor
+if dsin==1 then
+return
+end
+
+--	if this.load_variable("addon_opt_dinhudsnd",1) == 1 and addon_actor ~= nil then
+		db.actor:give_info_portion("addon_info_dynamicsnd")
+		dsin = 1
+		dsif = 0
+--	end
+end
+
+----------------------------------------------------------------------------------------------------------
+-- вызывается при сохранении настроек в доп.настройках из меню
+function upd()
+local addon_actor = db.actor
+if this.load_variable("addon_opt_dinhudsnd",1) == 0 and addon_actor ~= nil then
+	db.actor:disable_info_portion("addon_info_dynamicsnd")
+--	dsif = 0
+--	dsin = 0
+--else
+--	db.actor:give_info_portion("addon_info_dynamicsnd")
+--	dsin = 0
+--	dsif = 0
+end
+end
+----------------------------------------------------------------------------------------------------------
+
+-- работает совмесно с таймером
+function dhsnd_interval()
+t = 0
+--log1("xr_meet.script : timer - t=0")
+end
+
+-- не задействовано
+function control_rain()
+rain = level.rain_factor()
+	if rain < 0.10 then
+--		log1("xr_meet.script : дождя нет")
+		rn = 0
+	end	
+	if rain > 0.11 then
+--		log1("xr_meet.script : начался дождь")
+		rn = 1
+	end
+end
+
+-- функция включения худа маски
+local suitfirstrun = "yes"
+function actor_gethud(my_hud)
+	if my_hud == nil then
+		local wchud = get_hud():GetCustomStatic(mycurrent_suithud)
+		if wchud ~= nil then get_hud():RemoveCustomStatic(mycurrent_suithud) end
+			mycurrent_suithud = nil
+			suitfirstrun = "yes"
+		return
+	end
+	if my_hud ~= mycurrent_suithud then
+		if mycurrent_suithud then
+			get_hud():RemoveCustomStatic(mycurrent_suithud)
+		end
+	if my_hud then
+		get_hud():AddCustomStatic(my_hud)
+ogse_signals.get_mgr():call("addon_remove_hud")
+		if string_find(my_hud, outfhudtype) then
+			if suitfirstrun == "no" and outfcond ~= "green" and outfcond ~= "blue" then
+				local snd_obj = sound_object("material\\glass\\glass_fall03hl")
+				snd_obj:play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 9.0)
+			end
+			if suitfirstrun == "yes" then suitfirstrun = "no" end
+		end
+	end
+	mycurrent_suithud = my_hud
+	end
+end
+
+-- вызывается в том случае если опция капель от дождя выключена в доп.меню в настройках
+function upd_rdrops()
+local addon_actor = db.actor
+	if this.load_variable("addon_opt_dinhudrdr",1) == 0 and addon_actor ~= nil then
+		cmd("r2_rain_drops_control off")
+	end
+	
+	if this.load_variable("addon_opt_dinhudvis",1) == 0 and addon_actor ~= nil then
+		cmd("r2_visor_refl_control off")		-- visor reflrctions
+	end
+	
+end
+
+ -- вызывается при смерти гг
+function actor_dead()
+deadact = 1
+cmd("r2_rain_drops_control off")
+cmd("r2_visor_refl_control off")
+--log1("# xr_mask.script (actor_dead): dead actor")
+end
+
+
+-- сдесь мы будем выставлять переменную на запуск цикла запотевания
+function init_blurs()
+  ifloat = 0
+  iNextUpdate3 = time_global() + float_time3 * float_tm3
+--  log3("set timer, -float_time3 "..float_time3.." -float_tm3 "..float_tm3.."")
+end
+
+-- при запущеном цикле запотевания вешаем его на абдейт
+function update_blurs()
+local adactor 		= db.actor
+local ini_outf = db.actor:get_current_outfit()
+local obj_outf
+
+  if ini_outf ~= nil then
+    obj_outf = outfits_param[ini_outf:section()]
+  else
+    obj_outf = nil
+  end
+
+  if obj_outf then
+    if this.load_variable("addon_opt_dinhudblr",1) == 1 and adactor ~= nil then
+      if iNextUpdate <= time_global() then
+        if iNextUpdate2 <= time_global() then
+          del_blurs()
+       end
+      end
+     end
+
+    if ifloat >= init_float then
+      return
+    end
+      if this.load_variable("addon_opt_dinhudblr",1) == 1 and adactor ~= nil then
+	    if iNextUpdate3 <= time_global() then
+          start_blurs(true)
+          ifloat = ifloat + 1
+--		  log3("timer end")
+		end
+      else
+        start_blurs(false)
+      end
+  else
+    start_blurs(false)
+  end
+end
+
+-- сам цикл запотевания
+function start_blurs(state)
+local adactor 		= db.actor
+
+local hud = get_hud()
+
+  if state then	-- если в слоте есть костюм
+    if this.load_variable("addon_opt_dinhudblr",1) == 1 and adactor ~= nil then
+
+
+	local helmet = db.actor:alive() and db.actor:get_current_outfit()
+	local obj_outf = outfits_param[helmet:section()]	
+
+	      if not obj_outf then
+		  helmet_z = nil
+		  float_time = 0
+		  float_time2 = 0
+		  float_time3 = 0
+		  blurt = nil
+	      else
+		  local sect = helmet:section()
+		  for k,v in pairs(outfits_param) do
+			if string.find(sect,k) then
+			  helmet_z = v
+			end
+		  end
+		  if helmet_z then
+			float_time = helmet_z.ft1
+			float_time2 = helmet_z.ft2
+			float_time3 = helmet_z.ft3
+			blurt = helmet_z.bt
+		  end
+	      end
+
+	blur3 = hud:GetCustomStatic(blurt)
+
+
+      if not blur3 then	-- если blur3 не установлен
+        hud:AddCustomStatic(blurt)
+        blur3 = hud:GetCustomStatic(blurt):wnd()
+        blur3:SetColor(GetARGB(0,255,255,255))
+        blur3:SetWndRect(Frect():set(hud_screen.x1,hud_screen.y1,hud_screen.x2,hud_screen.y2+56))
+--log3("start_blurs - установили "..blurt.."")
+      end
+    end
+
+    if blur3 then		-- если блюр установлен
+      if this.load_variable("addon_opt_dinhudblr",1) == 1 and adactor ~= nil then
+        add_blurs()
+      end
+    end
+
+  else		-- если в слоте нету костюма
+
+    if blur3 then
+--log3("start_blurs - удалили "..blurt.."")
+      hud:RemoveCustomStatic(blurt)
+      blur_float = 0
+      blur3 = nil
+      helmet_z = nil
+      blurt = nil
+      float_time = 0
+      float_time2 = 0
+	  float_time3 = 0
+
+    end
+  end
+end
+
+function add_blurs()
+local hud = get_hud()
+blur3 = hud:GetCustomStatic(blurt)
+
+  for i = 1, blur_mshag do			-- запотевает
+    blur_float = blur_float + blur_shag
+      if blur_float >= 255 then blur_float = 255 return end		-- ставим ограниечение blur_float не более 255
+        blur3 = hud:GetCustomStatic(blurt):wnd()
+	blur3:SetColor(GetARGB(blur_float,255,255,255))
+	--log3("непрозрачность blur2 "..blur_float.."")
+	  if i==blur_mshag then			-- если цикл завершон
+  	    iNextUpdate = time_global() + float_time*float_tm
+	    -- log3("цикл запотевания завершен")
+	end
+  end
+end
+
+function del_blurs()
+
+local hud = get_hud()
+blur3 = hud:GetCustomStatic(blurt)
+
+  if blur3 then		-- если блюр установлен
+    for i = 1, blur_mshag2 do				-- отпотевает
+      blur_float = blur_float - blur_shag2
+        if blur_float <= 0 then blur_float = 0 return end		-- ставим ограниечение blur_float не мение 0
+          blur3 = hud:GetCustomStatic(blurt):wnd()
+          blur3:SetColor(GetARGB(blur_float,255,255,255))
+	 -- log3("# непрозрачность blur2 "..blur_float.."")
+            if i==blur_mshag2 then			-- если цикл завершон
+  	      iNextUpdate2 = time_global() + float_time2*float_tm2
+	    end
+    end
+--else
+--log1("del_blurs - блюра нет")
+  end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("actor_net_spawn"):register(upd_rdrops)
+	event("actor_update"):register(dynamic_hud)
+	event("actor_item_toslot"):register(dhrdon_dop)
+	event("on_actor_death"):register(actor_dead)
+	event("upd_blurmask"):register(init_blurs)
+end

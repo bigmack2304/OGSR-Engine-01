@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<upgrade_slot>	
+	<background x="0" y="0" width="492" height="491">
+		<texture>ui_upg_menu_1</texture>
+	</background>
+
+	<slot x="37" y="32" width="326" height="128">
+		<texture>ui_slot_texture</texture>
+	</slot>
+	
+	<a x="34" y="183" width="90" height="44">  
+		<texture_e>base_a_e</texture_e>
+		<texture_t>base_a_t</texture_t>
+		<texture_h>base_a_h</texture_h>
+	</a>
+
+	<e x="34" y="183" width="90" height="44">  
+		<texture_e>base_ba_e</texture_e>
+		<texture_t>base_ba_t</texture_t>
+		<texture_h>base_ba_h</texture_h>
+	</e>
+
+	<ba x="145" y="161" width="90" height="44">  
+		<texture_e>base_ba_e</texture_e>
+		<texture_t>base_ba_t</texture_t>
+		<texture_h>base_ba_h</texture_h>
+	</ba>
+
+	<bb x="145" y="209" width="90" height="44">  
+		<texture_e>base_bb_e</texture_e>
+		<texture_t>base_bb_t</texture_t>
+		<texture_h>base_bb_h</texture_h>
+	</bb>
+
+	<ca x="257" y="161" width="90" height="44">  
+		<texture_e>base_cb_e</texture_e>
+		<texture_t>base_cb_t</texture_t>
+		<texture_h>base_cb_h</texture_h>
+	</ca>
+
+	<cb x="257" y="209" width="90" height="44">  
+		<texture_e>base_ca_e</texture_e>
+		<texture_t>base_ca_t</texture_t>
+		<texture_h>base_ca_h</texture_h>
+	</cb>
+
+	<b x="145" y="183" width="90" height="44">  
+		<texture_e>base_bb_e</texture_e>
+		<texture_t>base_bb_t</texture_t>
+		<texture_h>base_bb_h</texture_h>
+	</b>
+
+	<c x="257" y="183" width="90" height="44">  
+		<texture_e>base_ca_e</texture_e>
+		<texture_t>base_ca_t</texture_t>
+		<texture_h>base_ca_h</texture_h>
+	</c>
+
+	<d x="257" y="183" width="90" height="44">  
+		<texture_e>base_cb_e</texture_e>
+		<texture_t>base_cb_t</texture_t>
+		<texture_h>base_cb_h</texture_h>
+	</d>
+
+	<btn_repair x="62" y="424" width="117" height="29">
+		<texture_e>ui_button_main01_e</texture_e>
+		<texture_t>ui_button_main01_t</texture_t>
+		<texture_h>ui_button_main01_h</texture_h>
+		<text x="13" y="8" align="c" font="letterica18" r="200" g="200" b="200">ui_inv_repair</text>
+	</btn_repair>
+
+	<btn_quit x="282" y="424" width="117" height="29">
+		<texture_e>ui_button_main01_e</texture_e>
+		<texture_t>ui_button_main01_t</texture_t>
+		<texture_h>ui_button_main01_h</texture_h>
+		<text x="13" y="8" align="c" font="letterica18" r="200" g="200" b="200">ui_inv_exit</text>
+	</btn_quit>
+</upgrade_slot>

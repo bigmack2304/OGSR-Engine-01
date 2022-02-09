@@ -1,0 +1,409 @@
+[wpn_knife]:identity_immunities
+GroupControlSection			= spawn_group
+discovery_dependency 		= 
+$spawn              		= "weapons\knife"
+$npc                		= off
+$prefetch 		    		= 8
+scheduled           		= off
+cform						= skeleton
+description					= enc_weapons1_wpn-knife
+
+ef_weapon_type				= 1
+
+class						= WP_KNIFE
+
+visual						= weapons\knife\wpn_knife.ogf
+inv_name					= st_knife
+
+;вещью нельзя торговать
+
+can_trade			= false
+
+inv_name_short				= st_knife
+inv_weight					= 0
+inv_grid_width				= 2
+inv_grid_height				= 1
+inv_grid_x					= 18
+inv_grid_y					= 8
+
+kill_msg_x					= 197
+kill_msg_y					= 177
+kill_msg_width				= 53
+kill_msg_height				= 16
+
+show_ammo					= false
+
+slot						= 0
+animation_slot				= 5
+single_handed				= 1
+
+hud							= wpn_knife_hud
+	
+cost						= 70
+
+hand_dependence		     	= 1
+
+cam_relax_speed          	= 5.0
+cam_dispersion           	= 0.9
+cam_max_angle		     	= 7
+cam_max_angle_horz			= 5.0
+cam_step_angle_horz			= 0.5
+
+
+fire_dispersion          	= 0.5
+fire_dispersion_add      	= 5.3
+fire_dispersion_relax    	= 0.6
+fire_dispersion_base	 	= 0.5
+disp_vel_factor		     	= 0.9
+disp_crouch_factor	     	= 0.75
+disp_jump_factor	     	= 7
+fire_dispersion_condition_factor = 0.0
+misfire_probability 		= 0.0
+condition_shot_dec 			= 0.0
+
+direction                	= 0, 0, 1
+shell_point		         	= 0.0, 0.0, 0.0
+fire_point               	= 0.0, 0.1, 0.4
+
+flame_particles			 	= 
+
+rpm_empty_click 	     	= 200
+
+; ttc	
+hit_power                	= 1.50
+hit_impulse		         	= 140
+hit_type				 	= wound
+
+hit_power_2                	= 2.30
+hit_impulse_2	         	= 140
+hit_type_2				 	= wound_2
+
+fire_distance            	= 1.8;1.8
+bullet_speed			 	= 1000;500			;начальная скорость пули
+rpm                      	= 1000;600
+; end ttc
+
+normal                   	= 0, 1, 0
+position                 	= -0.021, -0.085, 0.024		;-0.021, -0.078, 0.0
+orientation              	= 0,90,0
+startup_ammo             	= 1000
+wm_size                  	= 0.10
+
+light_disabled				= true
+
+ph_mass			         	= 4
+
+ammo_limit		         	= 180
+ammo_current		     	= 90
+ammo_elapsed		     	= 0
+	
+ammo_mag_size		     	= 0
+ammo_class				 	= ammo_9x39_pab9
+	
+min_radius               	= 50
+max_radius               	= 50
+
+scope_status				= 0
+silencer_status				= 0
+grenade_launcher_status		= 0
+zoom_enabled				= false
+
+snd_shoot					= weapons\knife_1
+
+weapon_remove_time			= 5000	;время уничтожения оружия (с учетом TimeFactor) для мультиплеера
+
+nearwall_on 			= true  ; включение (умолчание false)
+nearwall_target_hud_fov 	= 0.15  ; HUD FOV когда ГГ полностью уперся в стену
+nearwall_dist_min 		= 0.05	; мин. расстояние когда уже дошли до nearwall_target_hud_fov
+nearwall_dist_max 		= 0.8	; макс. расстояние с которого текущий HUD FOV начинает меняться к целевому nearwall_target_hud_fov
+nearwall_speed_mod 		= 8	; скорость изменения HUD FOV
+
+
+[wpn_knife_hud]
+zoom_hide_crosshair			= true
+
+hands_position				= 0.02,-0.14,-0.03
+hands_orientation			= 0,0,0
+
+hands_position_16x9			= 0.02,-0.14,-0.03
+hands_orientation_16x9			= 0,0,0
+
+item_position				= 0,0,0
+item_orientation			= 10,0,0
+
+item_visual             		= dynamics\weapons\wpn_knife\wpn_knife_hud.ogf
+attach_place_idx			= 0
+
+shell_point				= 0,0,0
+shell_bone              		= wpn_body
+
+fire_point				= 0.0045,0.0625,-0.1785
+fire_bone               		= knife
+
+anm_show				= knife_draw
+anm_show_empty				= knife_draw
+anm_hide				= knife_holster
+anm_idle				= knife_idle
+anm_idle_aim				= knife_idle
+anm_attack				= knife_kick
+anm_attack2				= knife_kick_2
+anm_idle_moving				= knife_idle_moving
+anm_idle_sprint				= knife_idle_sprint
+anm_bore				= knife_idle_bore
+
+aim_hud_offset_pos			= 0,0,0
+aim_hud_offset_rot			= 0,0,0
+
+gl_hud_offset_pos			= 0,0,0
+gl_hud_offset_rot			= 0,0,0
+
+lean_hud_offset_pos			= 0,0,0
+lean_hud_offset_rot			= 0,0,0
+
+
+; 1 нож первой ветки
+[wpn_knife1_1]:wpn_knife
+cost				= 2500
+
+hit_power                	= 6.75
+hit_impulse		        = 6
+hit_power_2                	= 8.85
+hit_impulse_2	          	= 8
+fire_distance            	= 1.73
+condition_shot_dec 	        = 0.0015
+critical_condition              = 0.02
+
+inv_grid_width     = 3
+inv_grid_height    = 1
+inv_grid_x         = 20
+inv_grid_y         = 7
+description			= enc_weapons1_st_knife_alabama
+
+position                 	= -0.030, 0.005, 0.025
+orientation              	= 0,90,-65
+hud				= wpn_knife1_1_hud
+visual				= weapons\knife\wpn_alabama.ogf
+
+[wpn_knife1_1_hud]
+position            		= 0.033,-0.148,0.10
+visual              		= weapons\knife\wpn_alabama_hud.ogf
+
+shell_point			= 0.0, 0.0, 0.0
+fire_point          		= 0.05, -0.03, 0.1
+fire_bone           		= knife
+orientation         		= 0,0,0
+
+anim_idle					= knife_idle
+anim_draw					= knife_draw
+anim_hide					= knife_holster
+anim_shoot1_start			= new_kick_start
+anim_shoot2_start			= kick2_start
+anim_shoot1_end				= new_kick_end
+anim_shoot2_end				= kick2_end
+anim_idle_moving			= knife_idle_moving
+anim_idle_sprint			= knife_idle_sprint
+
+
+
+; 2 нож первой ветки
+[wpn_knife1_2]:wpn_knife
+cost				= 2500
+
+hit_power                	= 6.75
+hit_impulse		        = 6
+hit_power_2                	= 8.85
+hit_impulse_2	          	= 8
+fire_distance            	= 1.73
+condition_shot_dec 	        = 0.0015
+critical_condition              = 0.02
+
+inv_grid_width     = 3
+inv_grid_height    = 1
+inv_grid_x         = 23
+inv_grid_y         = 7
+description			= enc_knife_m
+
+position                 	= -0.030, 0.005, 0.025
+orientation              	= 0,90,-65
+hud				= wpn_knife1_2_hud
+visual              		= weapons\knife\wpn_kabar.ogf
+
+[wpn_knife1_2_hud]
+position            		= 0.033,-0.148,0.10
+visual              		= weapons\knife\wpn_kabar_hud.ogf
+
+shell_point			= 0.0, 0.0, 0.0
+fire_point          		= 0.05, -0.03, 0.1
+fire_bone           		= knife
+orientation         		= 0,0,0
+
+anim_idle					= knife_idle
+anim_draw					= knife_draw
+anim_hide					= knife_holster
+anim_shoot1_start			= new_kick_start
+anim_shoot2_start			= kick2_start
+anim_shoot1_end				= new_kick_end
+anim_shoot2_end				= kick2_end
+anim_idle_moving			= knife_idle_moving
+anim_idle_sprint			= knife_idle_sprint
+
+
+
+; 3 нож первой ветки
+[wpn_knife1_3]:wpn_knife
+cost				= 2500
+
+hit_power                	= 6.75
+hit_impulse		        = 6
+hit_power_2                	= 8.85
+hit_impulse_2	          	= 8
+fire_distance            	= 1.73
+condition_shot_dec 	        = 0.0015
+critical_condition              = 0.02
+
+description			= enc_weapons1_st_wpn_knife_ghost
+
+inv_grid_width     = 3
+inv_grid_height    = 1
+inv_grid_x         = 26
+inv_grid_y         = 7
+
+position                 	= -0.030, 0.005, 0.025
+orientation              	= 0,90,-65
+hud				= wpn_knife1_3_hud
+visual              		= weapons\knife\wpn_knife_iw6.ogf
+
+[wpn_knife1_3_hud]
+position            		= 0.033,-0.150,0.10
+visual              		= weapons\knife\wpn_knife_iw6_hud.ogf
+
+shell_point			= 0.0, 0.0, 0.0
+fire_point          		= 0.05, -0.03, 0.1
+fire_bone           		= knife
+orientation         		= 0,0,0
+
+anim_idle					= knife_idle
+anim_draw					= knife_draw
+anim_hide					= knife_holster
+anim_shoot1_start			= new_kick_start
+anim_shoot2_start			= kick2_start
+anim_shoot1_end				= new_kick_end
+anim_shoot2_end				= kick2_end
+anim_idle_moving			= knife_idle_moving
+anim_idle_sprint			= knife_idle_sprint
+
+
+
+; 1 нож второй ветки
+[wpn_knife2_1]:wpn_knife
+cost				= 2500
+
+hit_power                	= 6.75
+hit_impulse		        = 6
+hit_power_2                	= 8.85
+hit_impulse_2	          	= 8
+fire_distance            	= 1.73
+condition_shot_dec 	        = 0.0015
+critical_condition              = 0.02
+
+description			= enc_weapons1_st_wpn_6x4_knife
+
+inv_grid_width     = 3
+inv_grid_height    = 1
+inv_grid_x         = 20
+inv_grid_y         = 8
+
+position                 	= -0.030, 0.005, 0.025
+orientation              	= 0,90,-65
+hud				= wpn_knife2_1_hud
+
+[wpn_knife2_1_hud]:wpn_knife_hud
+shell_point			= 0.0, 0.0, 0.0
+
+
+; 2 нож второй ветки
+[wpn_knife2_2]:wpn_knife
+cost				= 2500
+
+hit_power                	= 6.75
+hit_impulse		        = 6
+hit_power_2                	= 8.85
+hit_impulse_2	          	= 8
+fire_distance            	= 1.73
+condition_shot_dec 	        = 0.0015
+critical_condition              = 0.02
+
+description			= enc_weapons1_st_wpn_sw_bayonet
+
+inv_grid_width     = 3
+inv_grid_height    = 1
+inv_grid_x         = 23
+inv_grid_y         = 8
+
+position                 	= -0.030, 0.005, 0.025
+orientation              	= 0,90,-65
+hud				= wpn_knife2_2_hud
+visual              		= weapons\knife\wpn_knife_d3.ogf
+
+[wpn_knife2_2_hud]
+position            		= 0.0327,-0.147,0.10
+visual              		= weapons\knife\wpn_knife_d3_hud.ogf
+
+shell_point			= 0.0, 0.0, 0.0
+fire_point          		= 0.05, -0.03, 0.1
+fire_bone           		= knife
+orientation         		= 0,0,0
+
+anim_idle					= knife_idle
+anim_draw					= knife_draw
+anim_hide					= knife_holster
+anim_shoot1_start			= new_kick_start
+anim_shoot2_start			= kick2_start
+anim_shoot1_end				= new_kick_end
+anim_shoot2_end				= kick2_end
+anim_idle_moving			= knife_idle_moving
+anim_idle_sprint			= knife_idle_sprint
+
+
+; 3 нож второй ветки
+[wpn_knife2_3]:wpn_knife
+cost				= 2500
+
+hit_power                	= 6.75
+hit_impulse		        = 6
+hit_power_2                	= 8.85
+hit_impulse_2	          	= 8
+fire_distance            	= 1.73
+condition_shot_dec 	        = 0.0015
+critical_condition              = 0.02
+
+description			= enc_weapons1_st_wpn_knifesurv
+
+inv_grid_width     = 3
+inv_grid_height    = 1
+inv_grid_x         = 26
+inv_grid_y         = 8
+
+position                 	= -0.030, 0.005, 0.025
+orientation              	= 0,90,-65
+hud				= wpn_knife2_3_hud
+visual              		= weapons\knife\wpn_knifesurv.ogf
+
+[wpn_knife2_3_hud]
+position            		= 0.0327,-0.147,0.10
+visual              		= weapons\knife\wpn_knifesurv_hud.ogf
+
+shell_point			= 0.0, 0.0, 0.0
+fire_point          		= 0.05, -0.03, 0.1
+fire_bone           		= knife
+orientation         		= 0,0,0
+
+anim_idle					= knife_idle
+anim_draw					= knife_draw
+anim_hide					= knife_holster
+anim_shoot1_start			= new_kick_start
+anim_shoot2_start			= kick2_start
+anim_shoot1_end				= new_kick_end
+anim_shoot2_end				= kick2_end
+anim_idle_moving			= knife_idle_moving
+anim_idle_sprint			= knife_idle_sprint

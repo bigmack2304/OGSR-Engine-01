@@ -1,0 +1,164 @@
+--[[
+	Схема порчи еды со временем.
+	Автор: Real Wolf
+]]
+
+function init(oItem)
+	local oNewBinder = CFoodBinder(oItem)
+	oItem:bind_object(oNewBinder)
+end
+
+class "CFoodBinder" (object_binder)
+function CFoodBinder:__init(obj) super(obj)
+	self.bLoaded = false
+	self.iCond = 1
+	self.iNextUpdate = 0
+	self.iPortions = 1
+end 
+
+function CFoodBinder:reload(section)
+	object_binder.reload(self, section)
+end
+
+function CFoodBinder:reinit()
+	object_binder.reinit(self)
+end
+
+function CFoodBinder:net_save_relevant()
+	return true
+end
+
+function CFoodBinder:save(packet)
+	object_binder.save(self, packet)
+	packet:w_u8( math.floor(self.object:condition() * 100) )
+	packet:w_u8(self.iPortions)
+end
+
+function CFoodBinder:load(reader)
+	object_binder.load(self, reader)
+	self.bLoaded = true
+	if not reader:r_eof() then
+		self.iCond = math.floor( reader:r_u8() ) / 100
+		self.iPortions = reader:r_u8()
+	end
+end
+
+function CFoodBinder:net_spawn(data)
+	if not object_binder.net_spawn(self, data) then
+		return false
+	end
+	return true
+end
+
+function CFoodBinder:net_destroy()
+	object_binder.net_destroy(self)
+end
+
+function CFoodBinder:update(delta)
+	object_binder.update(self, delta)
+	if not db.actor or not db.actor:alive() then 
+		return 
+	end
+
+	if self.bLoaded then
+		self.bLoaded = false
+		self.object:set_condition(self.iCond)
+	end
+
+local adactor 		= db.actor
+
+
+
+if this.load_variable("addon_opt_corpse_food",1) == 1 and adactor ~= nil then
+	if Exist(system_ini(), "Line", self.object:section(), "cor_time") then
+		if self.iNextUpdate <= time_global() then
+			local oParent = self.object:parent()
+			if oParent then
+				if IsStalker(oParent) then
+					if oParent.radiation > 0.4 then
+						local sFakeSect = self.object:section().."_fake"
+						if Exist(system_ini(), "Section", sFakeSect) then
+							AddObjInv(sFakeSect, 1, oParent)
+						end
+						DelObj(self.object)
+					end
+				end
+			end
+
+			self.iNextUpdate = time_global() + 8*1000
+		end
+	end
+end
+
+
+
+
+
+
+
+--[[
+	if Exist(system_ini(), "Line", self.object:section(), "cor_time") then
+		if self.iNextUpdate <= time_global() then
+			self.object:set_condition(self.object:condition() - self:GetDamage())
+			local oParent = self.object:parent()
+			if oParent then
+				if self.object:condition() < 0.2 then
+					local sFakeSect = self.object:section().."_fake"
+					if Exist(system_ini(), "Section", sFakeSect) then
+						AddObjInv(sFakeSect, 1, oParent)
+					end
+					DelObj(self.object)
+					
+				elseif IsStalker(oParent) then
+					if oParent.radiation > 0.4 then
+						local sFakeSect = self.object:section().."_fake"
+						if Exist(system_ini(), "Section", sFakeSect) then
+							AddObjInv(sFakeSect, 1, oParent)
+						end
+						DelObj(self.object)
+					end
+				end
+			else
+				if self.object:condition() < 0.2 then
+					local sFakeSect = self.object:section().."_fake"
+					if Exist(system_ini(), "Section", sFakeSect) then
+						local vPos = self.object:position()
+						local iLVid = self.object:level_vertex_id()
+						local iGVid = self.object:game_vertex_id()
+						AddObj(sFakeSect, 1, vPos, iLVid, iGVid)
+					end
+					DelObj(self.object)
+				end
+			end
+
+			self.iNextUpdate = time_global() + 8*1000
+		end
+	end
+end	
+--]]	
+
+end
+
+function CFoodBinder:GetDamage()
+	local iDay = ReadLine(system_ini(), "Number", self.object:section(), "cor_time", -1)
+	if iDay < 0 then
+		return 0
+	end
+	return 100/iDay/24/100/60
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

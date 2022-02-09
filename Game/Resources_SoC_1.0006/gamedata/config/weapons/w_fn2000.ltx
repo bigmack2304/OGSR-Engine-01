@@ -1,0 +1,262 @@
+[wpn_fn2000]:identity_immunities
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn                   = "weapons\fn-2000"
+$prefetch 		         = 8
+scheduled                = off                              ; option for ALife Simulator
+cform                    = skeleton
+class                    = WP_LR300
+min_radius               = 5
+max_radius               = 100
+description				= enc_weapons1_wpn-fn2000
+
+ef_main_weapon_type		 = 2
+ef_weapon_type			 = 6
+
+;-----------------------------------------------------------------------------------
+holder_range_modifier	= 1.85            ; во сколько раз увеличивается eye_range 
+holder_fov_modifier		= 0.3              ; во сколько раз увеличивается eye_fov
+;-----------------------------------------------------------------------------------
+
+cost					 = 17000
+weapon_class			 = assault_rifle
+
+ammo_limit		         = 180
+ammo_current		     = 90
+ammo_elapsed		     = 30
+
+ammo_mag_size		     = 30
+
+hand_dependence		     = 1
+single_handed			 = 0
+
+ammo_class		         = ammo_5.56x45_ss190, ammo_5.56x45_ap
+fire_modes					= 1, -1
+launch_speed			= 0
+
+slot 			         = 2		; // secondary
+animation_slot			 = 2		; type of the animation that will be used
+
+inv_name		         = wpn-fn2000
+inv_name_short		     = wpn-fn2000
+inv_weight		         = 4.6
+
+inv_grid_width     = 5
+inv_grid_height    = 2
+inv_grid_x         = 30
+inv_grid_y         = 0
+
+kill_msg_x					= 131
+kill_msg_y					= 123
+kill_msg_width				= 64
+kill_msg_height				= 30
+
+;-----------------------------------------------------------------------------------
+;базовая дисперсия
+fire_dispersion_base		= 0.2 	;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
+control_inertion_factor		= 1.65f
+
+;отдача
+cam_relax_speed         	= 5.6		;скорость возврата в исходное положение
+cam_dispersion          	= 0.2	;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc			= 0.1	;увеличениe cam_dispersion с каждым выстрелом
+cam_dispertion_frac			= 1.0	;ствол будет подыматься на cam_dispersion*cam_dispertion_frac +- cam_dispersion*(1-cam_dispertion_frac)
+cam_max_angle				= 8.5	;максимальный угол отдачи
+cam_max_angle_horz			= 9.0	;(degree) maximum shot horizontal degree 
+cam_step_angle_horz			= 0.6	;(degree) size of step camera moved in horizontal position while shooting
+
+fire_dispersion_condition_factor = 3	;увеличение дисперсии в процентах при максимальном износе 
+misfire_probability 		= 0.001	;вероятность осечки при максимальном износе
+misfire_condition_k			= 0.05 
+condition_shot_dec 			= 0.0004 ;увеличение износа при каждом выстреле
+;-----------------------------------------------------------------------------------
+
+direction                = 0, 0, 1
+
+fire_point			= 0.010000,0.166000,0.475000
+
+flame_particles				= amik\weapons\flame_particles\dtk_flame_particles_4
+smoke_particles         		= amik\weapons\smoke_particles\smoke_particles_00
+shell_particles	 			= amik\weapons\5.56x45_shells_r
+grenade_flame_particles			= amik\weapons\grenade_flame_particles\grenade_flame_particles_01
+
+shell_point			= -0.020000,0.186000,0.200000
+shell_dir		 		= 0.0, 1.0, 0.0
+rpm_empty_click 	     = 200
+
+PDM_disp_base 			= 1.0
+PDM_disp_vel_factor 		= 1.05
+PDM_disp_accel_factor 		= 1.05
+PDM_crouch	 		= 1.0
+PDM_crouch_no_acc 		= 1.0
+
+; ttc
+hit_power          = 0.58
+silencer_hit_power = 0.56
+hit_impulse		   = 105
+hit_type 		   = fire_wound
+
+fire_distance            	= 400
+bullet_speed			= 925	;начальная скорость пули
+rpm                      	= 680
+; end ttc
+
+use_aim_bullet				= true		;Поддерживается ли первая суппер пуля
+time_to_aim					= 1.0	
+
+hud                      = wpn_fn2000_hud
+normal                   = 0, 1, 0
+position                 = -0.026, -0.132, 0.0
+orientation              = 0, 0, 0
+
+;--STRAP PARAMETERS-----------------------------------------------------------------
+strap_position         		= -0.15,-0.35,0.27			; position (offset) and orientation of the weapon when it is strapped
+strap_orientation      		= -10,-3,10					; (3rd person view in degrees))
+strap_bone0					= bip01_spine2
+strap_bone1					= bip01_spine1
+
+startup_ammo             = 1000
+visual                   = dynamics\weapons\wpn_aug_a1\wpn_aug_a1.ogf
+
+light_color		         = 0.6,0.5,0.3
+light_range		         = 4
+light_var_color		     = 0.05
+light_var_range		     = 0.1
+light_time 		         = 0.2
+
+
+ph_mass			         = 4
+
+;addons
+scope_status				= 1
+silencer_status				= 2
+grenade_launcher_status			= 0
+
+;scope_texture				= wpn\wpn_crosshair_f2000
+;lens_texture				= wpn\wpn_crosshair_g36_lens
+
+;lens_texture_x		= 183
+;lens_texture_y		= 75
+;lens_texture_w		= 648
+;lens_texture_h		= 648
+
+
+silencer_name  				= wpn_addon_silencer
+silencer_x 					= 218						; offset in inventory icon
+silencer_y 					= 10
+scope_name 				= wpn_addon_scope_fn
+scope_x 				= 46
+scope_y 				= -10
+
+zoom_enabled				= true
+use_scope_zoom 				= true		;устанавливается-ли 3д прицел
+scope_zoom_factor	    		= 1.1 		;приближение камеры при прицеле на мушку	
+ironsight_zoom_factor			= 1.1		;приблежение камеры при прецеле через пг
+scope_lense_fov_factor          	= 6.3		;величина увеличиния 3д прицела (должно совпадать со значением в конфиге самого прицела)
+scope_lense_hud_fov			= 0.12		;изменение hud fov при прицеливаниичерез 3д прицел
+scope_inertion_factor			= 4.0f		;чувствительность мыши при прецеливании через прицел
+scope_dynamic_zoom 			= true, 3, 0.3	;возможность увеличевать зум, уровни увеличения, какойто коэфицент
+
+;звуки
+snd_holster				= weapons\fn2000\holster
+snd_shoot				= weapons\aug\aug_shoot
+snd_draw				= weapons\aug\aug_draw
+snd_empty				= weapons\aug\aug_empty
+snd_holster				= weapons\aug\aug_holster
+snd_reload_partly		= weapons\aug\aug_reload
+snd_reload				= weapons\aug\aug_reload_empty
+snd_reload_misfire		= weapons\aug\aug_reload_empty
+snd_shoot_grenade		= weapons\fn2000\grenshoot
+snd_reload_grenade		= weapons\fn2000\grenload;, 1.0, 0.25
+snd_switch				= weapons\fn2000\switch
+snd_silncer_shot		= weapons\fn2000\shot_sil
+
+snd_zoom_change 		= weapons\zoom_change, 0.2 ;звук при изменении зума
+snd_fire_modes			= weapons\empty_a
+
+;params when silencer is attached 
+;similar to corresponding params without prefix silencer_
+
+;silencer_flame_particles 	= weapons\generic_weapon01
+silencer_smoke_particles 		= amik\weapons\smoke_particles\p_smoke_particles_02
+
+silencer_light_color		= 0.6,0.5,0.3
+silencer_light_range		= 0.01
+silencer_light_var_color	= 0.05
+silencer_light_var_range	= 0.5
+silencer_light_time 		= 0.2
+
+grenade_vel					= 76
+
+grenade_class				= ammo_m209
+
+nearwall_on 			= true  ; включение (умолчание false)
+nearwall_target_hud_fov 	= 0.15  ; HUD FOV когда ГГ полностью уперся в стену
+nearwall_dist_min 		= 0.05	; мин. расстояние когда уже дошли до nearwall_target_hud_fov
+nearwall_dist_max 		= 0.8	; макс. расстояние с которого текущий HUD FOV начинает меняться к целевому nearwall_target_hud_fov
+nearwall_speed_mod 		= 8	; скорость изменения HUD FOV
+
+
+
+[wpn_fn2000_hud]
+
+allow_scope_zoom_inertion			= true
+allow_zoom_inertion         			= true  ;Разрешает применять инерцию худ модели оружия в режиме прицеливания. По умолчанию отключено.
+inertion_origin_offset    			= -0.05 ;отклонение модели от "курса" из за инерции во время движения
+inertion_tendto_speed     			= 8     ;скорость возврата худ модели в нужное положение
+inertion_zoom_origin_offset 			= -0.03 ;отклонение модели от "курса" из за инерции во время движения с прицеливанием
+inertion_zoom_tendto_speed  			= 13    ;скорость возврата худ модели в нужное положение во время прицеливания
+
+zoom_hide_crosshair			= true
+attach_place_idx			= 0
+item_visual				= dynamics\weapons\wpn_aug_a1\wpn_aug_a1_hud.ogf
+
+hands_position				= -0.045625,-0.147500,0.122877
+hands_orientation			= -1.013800,0.021218,0.150000
+
+hands_position_16x9			= -0.045625,-0.147500,0.122877
+hands_orientation_16x9			= -1.013800,0.021218,0.150000
+
+item_position				= 0,0,0
+item_orientation			= 0,0,0
+
+aim_hud_offset_pos			= -0.109625,0.029375,-0.267
+aim_hud_offset_rot			= 0.040475,-0.003400,0.005937
+
+aim_hud_offset_pos_16x9				= -0.109625,0.029375,-0.061000
+aim_hud_offset_rot_16x9				= 0.041575,-0.003350,0.005937
+
+shell_point             		= 0,0,0
+shell_dir               		= 0,1,0
+shell_bone              		= gilza
+
+fire_point				= 0,0,0
+fire_bone              			= muzzle
+fire_point2             		= 0,0,0
+fire_bone2				= wpn_body
+grenade_bone            	= wpn_grenade	; name of the bone in the model for grenade launcher
+
+anm_show             			= aug_a1_draw
+anm_hide             			= aug_a1_holster
+anm_idle             			= aug_a1_idle
+anm_idle_sprint         		= aug_a1_idle_sprint
+anm_idle_moving 			= aug_a1_idle_moving
+anm_idle_moving_crouch 			= aug_a1_idle_crouch
+anm_shots               		= aug_a1_shoot, shoot
+anm_shots_when_aim              	= aug_a1_shoot_scope, shoot
+anm_reload_partly              		= aug_a1_reload, reload
+anm_reload			= aug_a1_reload_empty, reload_empty
+anm_reload_misfire			= aug_a1_reload_empty, reload_empty
+anm_idle_aim           			= aug_a1_idle_aim
+anm_bore				= aug_a1_idle_aim
+
+gl_hud_offset_pos			= 0,0,0
+gl_hud_offset_rot			= 0,0,0
+
+gl_hud_offset_pos_16x9			= 0,0,0
+gl_hud_offset_rot_16x9			= 0,0,0
+
+lean_hud_offset_pos			= 0,0,0
+lean_hud_offset_rot			= 0,0,0
+
+

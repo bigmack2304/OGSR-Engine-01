@@ -1,0 +1,101 @@
+-- эффект отрезания плоти
+-- воспроизводим звук
+-- отключаем управление во время отрезания
+
+function attach(sm)
+	sm:subscribe({signal = "monster_obj_use",	fun = this.take_body})
+	sm:subscribe({signal = "monster_obj_close",	fun = this.clear_body})
+	sm:subscribe({signal = "on_take",		fun = this.take_item_monster})
+end
+
+local state_searsh = false
+
+local monster_items = {
+    ["mutant_flesh_eye"]        	=true,
+    ["mutant_boar_leg"]			=true,
+    ["mutant_dog_tail"]			=true,
+    ["mutant_psevdodog_tail"]		=true,
+    ["mutant_krovosos_jaw"]		=true,
+    ["mutant_burer_hand"]		=true,
+    ["mutant_zombie_hand"]		=true,
+    ["mutant_snork_leg"]		=true
+}
+
+
+function take_body(obj)
+--  log3("вызвали сигнал")
+    if not state_searsh then
+      if IsMonster(obj) then
+        state_searsh = true
+--      log3("1 - начали обыск монстра")
+      end
+    end
+end
+
+function clear_body()
+    if state_searsh then
+        state_searsh = false
+--      log3("3 - завершили обыск монстра")
+    end
+end
+
+function take_item_monster(obj)
+local adactor 		= db.actor
+
+  if this.load_variable("addon_opt_mysosh",1) == 1 and adactor ~= nil then
+    if state_searsh then
+      if monster_items[obj:section()] then 
+--        log3("2 - забрали предмет")
+          rand_sound() 
+	  level.disable_input()
+	  lwc_timer.Add("use_item", "addon_myso.control_on()", 3, 0, 0)
+	  cmd("unbind quit")
+      end
+    end
+  end
+end
+
+function rand_sound()
+local rs = math.random(1,5)
+  if rs == 1 then
+    local snd = sound_object([[interface\take\monsters\detect_monster_1]]) 
+    snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 3.0)
+  end
+  if rs == 2 then
+    local snd = sound_object([[interface\take\monsters\detect_monster_2]]) 
+    snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 3.0)
+  end
+  if rs == 3 then
+    local snd = sound_object([[interface\take\monsters\detect_monster_3]]) 
+    snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 3.0)
+  end
+  if rs == 4 then
+    local snd = sound_object([[interface\take\monsters\detect_monster_4]]) 
+    snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 3.0)
+  end
+  if rs == 5 then
+    local snd = sound_object([[interface\take\monsters\detect_monster_5]]) 
+    snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 3.0)
+  end
+end
+
+function control_on()
+level.enable_input()
+cmd("bind quit kescape")
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

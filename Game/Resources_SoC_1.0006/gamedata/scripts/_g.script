@@ -226,6 +226,649 @@ end
 log = function(...) --[[log1(...)]] end
 --***************************************************************************************************************
 
+----------------------------------------------------------------------------
+-- новые функции
+
+sys_ini = system_ini()
+
+tTAnom = {}
+
+--[[
+	Таблица, содержащая [ID] = oItem объектов на поясе у игрока
+--]]
+tBeltId = {}
+
+--[[
+	Таблица, содержащая секцию объектов на поясе у игрока, sSection = iCount
+--]]
+tBeltSection = {}
+
+get_var = lwc_variables.Get
+set_var = lwc_variables.Set
+
+function on_actor_thirst()
+end
+
+-- c ледним обновлением движка чтото изменилось, теперь скрипт не видит энергоблок на поясе при загрузке игры, исправляем.
+-- этим способом можно не только наличие предмета на поясе, но и его количество.
+function check_belt_ps(sect)
+	local item_sect = sect
+	local ps_belt_status = 0
+	if db.actor:object(item_sect) then
+		db.actor:iterate_belt(function(dummy, item) 
+			if item:section() == item_sect then
+				ps_belt_status = ps_belt_status + 1
+--					log3("st - 2y")
+			else
+				ps_belt_status = ps_belt_status
+--					log3("st - 2no")
+			end
+		end)
+	end
+	return ps_belt_status
+end
+
+--переводит h из диапозона omin-omax в h в диапозоне nmin-nmax
+function addon_map_float(h,omin,omax,nmin,nmax)
+local hisl = h
+local orig_min = omin
+local orig_max = omax
+local new_min = nmin
+local new_max = nmax
+local shkal_orig = 0
+local shkal_new = 0
+local new_hisl = 0
+
+shkal_orig = orig_max - orig_min
+shkal_orig = shkal_orig/100
+shkal_orig = (hisl - orig_min)/shkal_orig
+
+if new_max > new_min then
+    shkal_new = new_max - new_min
+else
+    shkal_new = new_min - new_max
+end
+
+shkal_new = shkal_new/100
+new_hisl = shkal_new * shkal_orig
+new_hisl = new_hisl + new_min
+ 
+return new_hisl
+
+end
+
+-- возвращает level_vertex_id по позиции на уровне
+function level.vertex_id_by_pos( ... )
+  return level.vertex_id( ... )
+end
+
+-- возвращает level_vertex_id и game_vertex_id по координатам на текущем уровне
+-- вызывать так.. local c_lvid, c_gid = get_gvid_levelid(pos)
+function get_gvid_levelid(pos_xyz)
+local pos = pos_xyz
+local get_level_vertex = level.vertex_id_by_pos(pos)
+  if level.valid_vertex_id(get_level_vertex) then
+	local get_game_vertex = cross_table():vertex(get_level_vertex):game_vertex_id()
+	return get_level_vertex, get_game_vertex
+  else
+--    log3("! get_gvid_levelid: invalid level_vertex")
+  end	  
+end
+
+function save_load_control(name, mode, packet)
+	if mode == "load" then
+		return packet:r_stringZ() == name
+	elseif mode == "save" then
+		packet:w_stringZ(name)
+	end
+end
+
+function split_comma_separated_list(s)
+	local res = {}
+	for v in string.gmatch(s, "[^,]+") do
+		table.insert(res, v)
+	end
+	return res
+end
+
+function get_string(section, param, def_val, ini_file)
+	local ini = ini_file or sys_ini
+	ASSERT(ini:section_exist(section), "get_string: section '"..section.."' doesn't exist")
+	if ini:line_exist(section, param) then
+		return ini:r_string(section, param)
+	else
+		return def_val
+	end
+end
+
+function get_float(section, param, def_val, ini_file)
+	local ini = ini_file or sys_ini
+	ASSERT(ini:section_exist(section), "get_float: section '"..section.."' doesn't exist")
+	if ini:line_exist(section, param) then
+		return ini:r_float(section, param)
+	else
+		return def_val
+	end
+end
+
+function get_names(section, param, ini_file)
+	ASSERT(section, "get_names: section not defined, param="..param)
+	local ini = ini_file or sys_ini
+	ASSERT(ini:section_exist(section), "get_names: section '"..section.."' doesn't exist")
+	local s = ini:r_string(section, param)
+	return split_comma_separated_list(s)
+end
+
+function get_numbers(section, param, ini_file)
+	local t = {}
+	for i,sv in ipairs(get_names(section, param, ini_file)) do
+		local v = tonumber(sv)
+		ASSERT(v, "get_numbers: can not convert to number item ["..i.."]: "..tostring(sv))
+		table.insert(t, v)
+	end
+	return t
+end
+
+--[[
+	Функции для работы со звуками
+--]]
+function PlaySound(sSound, oObj)
+	if not oObj then 
+		oObj = db.actor 
+	end
+	oSnd = xr_sound.get_safe_sound_object(sSound)
+	oSnd:play_no_feedback(oObj, sound_object.s2d, 0, vector(), 1.0)
+end
+
+--[[
+	Остальные функции
+--]]
+function SendTip(sHeader, sText, sSender, iShowTime, iTimeOut, iSenderId)
+	news_manager.send_tip(db.actor, sText, iTimeOut, sSender, iShowTime, iSenderId, sHeader)
+end
+
+function SendTip_amk(sText, sHeader, iTimeOut, iShowTime, sSender, iSenderId)
+	amk_utils.send_tip(sText, sHeader, iTimeOut, iShowTime, sSender, "news")
+end
+
+--[[
+	Функция проверки существования секции или ключа в секции
+	Автор: Real Wolf
+--]]
+function Exist(oIni, sMode, sSection, sLine)
+	local oIni = oIni
+	if sMode == "Section" then
+		return oIni:section_exist(sSection)
+	elseif sMode == "Line" then
+		return oIni:line_exist(sSection, sLine)
+	end
+	return nil
+end
+
+--[[
+	Функция чтения из конфига значений(string, float, boolean)
+	Автор: Real Wolf
+--]]
+function ReadLine(oIni, sMode, sSection, sLine, Value)
+	if Exist(oIni, "Line", sSection, sLine) then
+		if sMode == "String" then
+			return tostring(oIni:r_string(sSection, sLine) )
+		elseif sMode == "Number" then
+			return tonumber(oIni:r_float(sSection, sLine) )
+		elseif sMode == "Boolean" then
+			return oIni:r_bool(sSection, sLine)
+		end
+	end
+	return Value
+end
+
+-- Играет звук для игрока.
+function play_actor_sound(sound_name, mode)
+	mode = mode or sound_object.s2d
+	local sound = xr_sound.get_safe_sound_object(sound_name)
+	if sound then
+		sound:play(db.actor, 0, mode)
+		return sound:length()
+	end
+	return 0
+end
+
+--[[
+	Функция создания объекта заданного количества в инвентарь НПС.
+	Спавн можно производить и в инвентарь НПС, который в оффлайне.
+	Возвращает таблицу с созданными объектов.
+--]]
+function AddObjInv(sObjSection, iCount, oNpc)
+	if not oNpc then
+		oNpc = db.actor
+	end
+	
+	if not iCount then
+		iCount = 1
+	end
+	
+	local tObjects = {}
+	local vPos = vector():set(0, 0, 0)
+	local iLVid = 0
+	local iGVid = 0
+	local iNpcId = 0
+	
+	if IsServerObj(oNpc) then
+		vPos = oNpc.position
+		iLVid = oNpc.m_level_vertex_id
+		iGVid = oNpc.m_game_vertex_id
+		iNpcId = oNpc.id
+	else
+		vPos = oNpc:position()
+		iLVid = oNpc:level_vertex_id()
+		iGVid = oNpc:game_vertex_id()
+		iNpcId = oNpc:id()
+	end
+
+	for i = 1, iCount do
+		local oObj = alife():create(sObjSection, vPos, iLVid, iGVid, iNpcId)
+		table.add(tObjects, oObj)
+	end
+	return tObjects
+end
+
+--[[
+	Более ускоренное добавление элемента в таблицу при условии, что
+	структура таблицы не меняется.
+--]]
+function table.add(tTable, Value)
+	tTable[#tTable + 1] = Value
+end
+
+local otherIniFiles = {}
+
+function g_ini_file( fileName )
+	if fileName then
+		if not otherIniFiles[fileName] then
+			otherIniFiles[fileName] = ini_file(fileName)
+		end
+		return otherIniFiles[fileName]
+	end
+end
+
+--[[
+	Возвращает случайный элемент таблицы и ключ.
+	Автор: Real Wolf
+--]]
+function table.random_old(tTable)
+	local iSize = 0
+	local tValues = {}
+	local tSwapTable = {}
+	for Key, Value in pairs(tTable) do
+		iSize = iSize + 1
+		tValues[iSize] = Value
+		tSwapTable[iSize] = Key
+	end
+	if iSize > 0 then
+		local iRandom = math.random(1, iSize)
+		return  tSwapTable[iRandom], tValues[iRandom]
+	end
+end
+
+function table.size_old(tTable)
+	local iSize = 0
+	for Key, Value in pairs(tTable) do
+		iSize = iSize + 1
+	end
+	return iSize
+end
+
+--[[
+	Меняет ключ и значение местами во всей таблице.
+	Либо, если указан 2 параметр, возвращает ключ, который
+	соответствует данному значению.
+	Автор: Real Wolf
+--]]
+local tAllowedTypes = {
+	["number"] = true,
+	["string"] = true
+}
+
+function table.swap(tTable, ValueFind)
+	if ValueFind and not tAllowedTypes[type(ValueFind)] then
+		return
+	end
+	
+	local tNewTable = {}
+	for Key, Value in pairs(tTable) do
+		if tAllowedTypes[type(Value)] then
+			if ValueFind and ValueFind == Value then
+				return Key
+			end
+			tNewTable[Value] = Key
+		end
+	end
+	
+	return tNewTable
+end
+
+--[[
+--standart
+-- Записываем переменную
+function addon_save_variable(variable_name, value)
+	xr_logic.pstor_store(db.actor, variable_name, value)
+end
+
+-- Загружаем переменную
+function addon_load_variable(variable_name, value_if_not_found)
+	return xr_logic.pstor_retrieve(db.actor, variable_name, value_if_not_found)
+end
+
+-- Удаляем переменную
+function addon_del_variable(variable_name)
+	if db.storage[db.actor:id()].pstor[variable_name] then
+		db.storage[db.actor:id()].pstor[variable_name] = nil
+	end
+end
+--]]
+
+--[[
+	Функция, возвращающая стандартное значение тайм-фактора
+--]]
+function TimeFactor()
+	return system_ini():r_float("alife", "time_factor")
+end
+
+--[[
+	Безопасная Функция удаления объекта, как серверного, так и клиентского, можно передавать ИД вместо объекта.
+	Автор: Real Wolf
+--]]
+function DelObj(Value)
+	if Value then
+		local oServerObj = Value
+		if type(Value) == "number" then
+			oServerObj = alife():object(Value)
+			
+		elseif type(Value) == "userdata" then
+			if not IsServerObj(Value) then
+				oServerObj = alife():object(Value:id() )
+			end
+		end
+		
+		if type(oServerObj) == "userdata" then
+			if IsServerObj(oServerObj) then
+				alife():release(oServerObj, true)
+			end
+		end
+	end
+end
+
+--[[
+	Функция проверки какого типа объект: серверный или клиентский. 
+	Автор: Artos
+--]]
+function IsServerObj(oGO)
+	return type(oGO.id) == "number"
+end
+
+--[[
+	Функции для схемы опгрейдов
+--]]
+
+function GetAmmoSection(sItemSection, iAmmoType)
+	local sAmmo = ReadLine(system_ini(), "String", sItemSection, "ammo_class")
+	local tAmmo = {}
+	if sAmmo then
+		tAmmo = SplitString(sAmmo, 1, ",")
+	end										 							
+	return tAmmo[iAmmoType + 1]
+end
+
+function GetAddons(oServerWpn)
+	local oPacket = net_packet()
+	oServerWpn:STATE_Write(oPacket)
+	
+	local iSize = oPacket:w_tell()
+	oPacket:r_seek(iSize - 2)
+	
+	return oPacket:r_u8(), oPacket:r_u8()
+end
+
+function SplitString(sStr, Mode, sDiv, sPattern)
+    local tRet = {}
+    local sPatt
+    if sDiv and  not sPattern then
+		sPatt = '%s*([^'..sDiv..']+)%s*'
+    elseif not sDiv and  sPattern then 
+		sPatt = sPattern
+    else
+		sPatt = '[%w%_]+'
+    end
+    if Mode == nil then 
+        for sValue in sStr:gmatch(sPatt) do
+            table.insert(tRet, sValue)
+        end
+    elseif Mode == true then 
+        for sValue in sStr:gmatch(sPatt) do
+            tRet[sValue] = true
+        end
+    elseif type(Mode) == "number" then 
+        for sValue in sStr:gmatch(sPatt) do
+			tRet[#tRet+1] = tonumber(sValue) or sValue
+        end
+    end
+	return tRet
+end
+
+function AddAmmoInv(sObjSection, iCount, oNpc)
+	if not oNpc then
+		oNpc = db.actor
+	end
+	
+	local tObjects = {}
+	local vPos = vector():set(0, 0, 0)
+	local iLVid = 0
+	local iGVid = 0
+	local iNpcId = 0
+	
+	if IsServerObj(oNpc) then
+		vPos = oNpc.position
+		iLVid = oNpc.m_level_vertex_id
+		iGVid = oNpc.m_game_vertex_id
+		iNpcId = oNpc.id
+	else
+		vPos = oNpc:position()
+		iLVid = oNpc:level_vertex_id()
+		iGVid = oNpc:game_vertex_id()
+		iNpcId = oNpc:id()
+	end
+
+	return se_respawn.create_ammo(sObjSection, vPos, iLVid, iGVid, iNpcId, iCount)
+end
+
+--[[
+	Функция вывода в лог
+	Автор: Real Wolf
+--]]
+tScriptDebug = {
+	["all"] = false,
+	["smart_terrain"] = false
+}
+
+local con = get_console()
+
+function get_con_float(param)		-- получить число с плавающей точкой из консольной команды
+	return con:get_float(param)
+end
+function get_con_string(param)		-- получить строку из консольной команды
+	return con:get_string(param)
+end
+function get_con_bool(param)		-- получить логическое значение (true - false, 1 - 0) консольной команды
+	return con:get_bool(param)
+end
+
+function get_u32(section, param, def_val, ini_file)
+	local ini = ini_file or sys_ini
+	ASSERT(ini:section_exist(section), "get_u32: section '"..section.."' doesn't exist")
+	if ini:line_exist(section, param) then
+		return ini:r_u32(section, param)
+	else
+		return def_val
+	end
+end
+
+-- Проверка на существование секции.
+function is_sect_exist(sect, ini)
+	ini = ini or system_ini()
+	return sect ~= nil and ini:section_exist(sect)
+end
+
+-- Проверка на существование параметра в секции.
+function is_line_exist(sect, line, ini)
+	ini = ini or system_ini()
+	return sect and line and ini:line_exist(sect, line)
+end
+
+-- Функция чтения из конфига значений(string, float, boolean)
+function cfg_read(ini, mode, section, line, val)
+	ini = ini or system_ini()
+	if is_sect_exist(section, ini) and is_line_exist(section, line, ini) then
+		if mode == "str" then
+			return tostring(ini:r_string(section, line) )
+		elseif mode == "num" then
+			return tonumber(ini:r_float(section, line) )
+		elseif mode == "bool" then
+			return ini:r_bool(section, line)
+		end
+	end
+	return val
+end
+
+--[[
+	Функция разделения строки.
+	Авторы: Gun12, Garry_Galler, Artos
+--]]
+function string.split(str, mode, div, pattern)
+    local tbl = {}
+
+	if div then
+		pattern = '%s*([^'..div..']+)%s*'
+	elseif not pattern then
+		pattern = '[%w%_]+'
+	end
+	
+    if mode == nil then 
+        for str_parse in str:gmatch(pattern) do
+            table.insert(tbl, str_parse)
+        end
+    elseif mode == true then 
+        for str_parse in str:gmatch(pattern) do
+            tbl[str_parse] = true
+        end
+    elseif type(mode) == "number" then 
+        for str_parse in str:gmatch(pattern) do
+			tbl[#tbl+1] = tonumber(str_parse) or str_parse
+        end
+    end
+	return tbl
+end
+
+-- Вставки строки вместо символа в строке.
+function string.set(str, key, val)
+	return str:sub(1, key - 1)+val+str:sub(key + 1, #str)
+end
+
+function IsInventoryBox( object, class_id )
+  local id = class_id or get_clsid( object )
+  return id == clsid.inventory_box or id == clsid.inventory_container		
+end
+
+CLID_INVENTORY_BOX = 83
+NONE_SID = 4294967295
+NONE_CL_SID = 4294967296
+
+kScreen = math.min( (1024/768) / (device().width/device().height), 1 )
+
+local IsBlocked = false
+function BlockUIDescr( b )
+	if b == nil then
+		return IsBlocked
+	else
+		IsBlocked = b
+	end
+end
+
+function GetIconParams(section)
+    if section~=nil and section~=""
+        and sys_ini:section_exist(section)
+        and sys_ini:line_exist(section, "inv_grid_x")
+    then
+        return {x = sys_ini:r_u32(section, "inv_grid_x") *50,
+                y = sys_ini:r_u32(section, "inv_grid_y") *50,
+                w = sys_ini:r_u32(section, "inv_grid_width") *50,
+                h = sys_ini:r_u32(section, "inv_grid_height") *50 }
+            --    g = sys_ini:r_u32(section, "icon_group", 0) }
+	end
+    return {x=0, y=0, w=1, h=1}
+end
+
+function isEatable(object, class_id)
+	local id = class_id or get_clsid(object)
+	return id and eat_classes[id]
+end
+
+function need_show_condition(item)
+	--local b = sys_ini:r_bool(item:section(), "show_condition", nil)
+	--return ( ( item:is_weapon() or item:is_outfit() ) and b ~= false ) or b == true
+	return true
+	end
+
+--[[
+	Функция, возвращающая расстояни между объектами или векторами
+--]]
+function Dist(sMode, ValueOne, ValueSecond)
+	if sMode == "Obj" then
+		local oVectorOne = ValueOne:position()
+		local oVectorSec = ValueSecond:position()
+		return oVectorOne:distance_to(oVectorSec)
+	elseif sMode == "Vec" then
+		return ValueOne:distance_to(ValueSecond)
+	end
+	return 0
+end
+
+-- установка невидимости сталкера со стороны аномалий
+function set_anomaly_invisibility(npc, vis)
+	npc:get_custom_monster().visible_for_zones = not vis
+end
+
+-- получение статуса невидимости сталкера со стороны аномалий
+function get_anomaly_invisibility(npc)
+	return not npc:get_custom_monster().visible_for_zones
+end
+	
+--[[
+	Функция проверки, является ли объект аномалией.
+--]]
+function IsAnomaly(oObj)
+	if oObj:clsid() > 167 and oObj:clsid() < 180 then
+		return true
+	end
+	return false
+end
+
+--[[
+	Функция получения локации, на которой находится серверный объект.
+	Автор: Garry Galler
+--]]
+
+function get_obj_level(se_obj)
+	local gvid = se_obj.m_game_vertex_id
+	if game_graph():valid_vertex_id(gvid) then
+		return alife():level_name(game_graph():vertex(gvid):level_id() )
+	else
+		return "nil"
+	end
+end
+	
+-- новые функции
+----------------------------------------------------------------------------
+
 
 schemes = {} -- соответствие схем модулям
 stypes = {} -- типы схем
@@ -1452,6 +2095,10 @@ function start_game_callback()
 	treasure_manager.clear_treasure_manager()
 	xr_sound.clear_all_sound_object()
 	dialog_manager.fill_phrase_table()	
+	
+	-- xStream -- sandbox init --
+	xs_sandbox.init()
+	event("game_start"):trigger()
 end
 
 ammo_section = {}
@@ -1500,3 +2147,18 @@ quest_section["hunters_toz"]		= true
 quest_section["bar_ecolog_flash"]	= true
 quest_section["bar_tiran_pda"]		= true
 quest_section["bar_lucky_pda"]		= true
+
+-- ffi позволяет юзать С++ код прямо из скрипта lua
+-- данный код меняет навзание окна игры (отключен) 
+ffi = require 'ffi'
+ffi.cdef [[
+    typedef unsigned long HANDLE;
+    typedef HANDLE HWND;
+    typedef const char *LPCTSTR;
+
+    HWND GetActiveWindow(void);
+
+    bool SetWindowTextA(HWND hWnd, LPCTSTR lpString);
+]]
+
+--ffi.C.SetWindowTextA(ffi.C.GetActiveWindow(), "S.T.A.L.K.E.R. Shadow of Chernobyl")

@@ -1,0 +1,85 @@
+-- зависимасть cam_inert от общего состояния актора
+-- чем выше усталость тем больше cam_inert
+-- чем меньше здоровия тем больше cam_inert
+
+
+function attach(sm)
+	sm:subscribe({signal = "on_update",	fun = this.update})
+end
+
+local iNextUpdate 	= 0	-- таймер абдейта
+local float_time 	= 3 	-- интервал апдейта
+local float_tm		= 100	-- множитель значения (float_time), если 1000 то (float_time - сек), если 100 то (float_time) - м.сек
+
+local cammax		= 0.8	-- максимальное значение cam_inert		
+local cammin		= 0.1	-- минимальное значение cam_inert
+local setphmin		= 0.05	-- cammin деленое на 2
+local setfloatp 	= 0	-- текущее влияние усталости на cam_inert
+local setfloath 	= 0	-- тукущее влияние здоровия на cam_inert
+local phsum		= 0	-- текущая сумма setfloatp и setfloath
+local min_power 	= 0.80	-- значение усталости после которово начинается увеличение cam_inert
+local min_health 	= 0.80	-- значение здоровия после которово начинается увеличение cam_inert
+
+function update()
+local actor = db.actor
+local power = db.actor.power
+local health = db.actor.health
+
+  if this.load_variable("addon_opt_campower",1) == 0
+  and this.load_variable("addon_opt_camheal",1) == 0
+  and actor ~= nil then
+    return
+  end
+
+ if iNextUpdate <= time_global() then
+   if this.load_variable("addon_opt_campower",1) == 1 and actor ~= nil then
+      if power < min_power then
+	setfloatp = (0.82-(power/100)*90)/1.9
+--	log3("# setfloatp = "..setfloatp.."")
+      else
+	setfloatp = setphmin
+      end
+   else
+     setfloatp = setphmin
+   end
+
+   if this.load_variable("addon_opt_camheal",1) == 1 and actor ~= nil then
+      if health < min_health then
+	setfloath = (0.82-(health/100)*90)/1.9
+--	log3("! setfloath = "..setfloath.."")
+      else
+        setfloath = setphmin
+      end
+   else
+     setfloath = setphmin
+   end
+
+        phsum = setfloath+setfloatp
+--  	log3("- phsum = "..phsum.."")
+
+      if phsum < cammax then
+        if phsum >= cammin then
+          level.set_cam_inert(phsum)
+        end
+      end
+
+    iNextUpdate = time_global() + float_time*float_tm
+  end
+
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

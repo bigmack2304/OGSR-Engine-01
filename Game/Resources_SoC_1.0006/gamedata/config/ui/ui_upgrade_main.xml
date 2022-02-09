@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<upg_main_menu>	
+	<background x="0" y="0" width="492" height="491">
+		<texture>ui_upg_menu_2</texture>
+	</background>
+
+	<slot1 x="88" y="76" width="310" height="95">
+		<texture_e>ui_slot_button_e</texture_e>
+		<texture_t>ui_slot_button_t</texture_t>
+		<texture_h>ui_slot_button_h</texture_h>
+	</slot1>
+
+	<slot2 x="88" y="251" width="310" height="95">
+		<texture_e>ui_slot_button_e</texture_e>
+		<texture_t>ui_slot_button_t</texture_t>
+		<texture_h>ui_slot_button_h</texture_h>
+	</slot2>
+
+	<btn_quit x="282" y="424" width="117" height="29">
+		<texture_e>ui_button_main01_e</texture_e>
+		<texture_t>ui_button_main01_t</texture_t>
+		<texture_h>ui_button_main01_h</texture_h>
+		<text x="13" y="8" align="c" font="letterica18" r="200" g="200" b="200">ui_inv_exit</text>
+	</btn_quit>
+</upg_main_menu>

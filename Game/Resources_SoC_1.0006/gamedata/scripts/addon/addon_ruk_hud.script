@@ -1,0 +1,103 @@
+-----------------------------------------------------------------------------------------------------------------------------------
+-- Схема смены рук при смене костюма
+-- Автор: Kondr48 (Вампир35).
+-- Последнее редактирование: 25.02.2016 12:00
+-- За метод замены текстуры спасибо Alpet'у
+-- адоптация под ogsr, addon dt. : 03.02.2019
+-- 18 07 2021
+-- при переходе на новую систему зп худа, надобность в этом скрипте отпадает
+-----------------------------------------------------------------------------------------------------------------------------------
+
+local last_outfit
+
+function update(e)
+local adactor = db.actor
+
+if this.load_variable("addon_opt_rukhud",1) == 1 and adactor ~= nil then
+
+if last_outfit == nil then last_outfit = "hello" end
+  if db.actor:item_in_slot(6) == nil then
+    outfit = "sviter"
+  else
+    outfit = db.actor:item_in_slot(6):section()
+  end
+  if last_outfit ~= outfit then
+    perchatka = system_ini():r_string(outfit,"texture_arm")
+
+    local t = texture_find("act\\act_arm_perchatka_cs")
+      if t then
+        local tex = t["act\\act_arm_perchatka_cs"]
+        local name = "hands\\"..perchatka
+		  if tex then
+            tex:load(name)
+	      end
+--log3("texture "..name.." -dds")
+      end
+--[[
+    local tb = texture_find("act\\act_arm_perchatka_cs_bump")
+      if tb then
+        local texb = tb[ "act\\act_arm_perchatka_cs_bump" ]
+        local nameb = "hands\\"..perchatka.."_bump"
+        texb:load(nameb)
+--log3("texture_bump "..nameb.." -dds")
+      end
+
+    local tbr = texture_find("act\\act_arm_perchatka_cs_bump#")
+      if tbr then
+        local texbr = tbr[ "act\\act_arm_perchatka_cs_bump#" ]
+        local namebr = "hands\\"..perchatka.."_bump#"
+        texbr:load(namebr)
+--log3("texture_bump# "..namebr.." -dds")
+      end
+--]]
+    last_outfit = outfit  
+  end
+
+else
+
+    local to = texture_find("act\\act_arm_perchatka_cs")
+      if to then
+        local texo = to[ "act\\act_arm_perchatka_cs" ]
+        local nameo = "act\\act_arm_perchatka_cs"
+        texo:load(nameo)
+      end
+--[[
+    local tbo = texture_find("act\\act_arm_perchatka_cs_bump")
+      if tbo then
+        local texbo = tbo[ "act\\act_arm_perchatka_cs_bump" ]
+        local namebo = "act\\act_arm_perchatka_cs_bump"
+        texbo:load(namebo)
+      end
+
+    local tbro = texture_find("act\\act_arm_perchatka_cs_bump#")
+      if tbro then
+        local texbro = tbro[ "act\\act_arm_perchatka_cs_bump#" ]
+        local namebro = "act\\act_arm_perchatka_cs_bump#"
+        texbro:load(namebro)
+      end
+--]]
+ end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("actor_item_take"):register(update)
+	event("actor_item_drop"):register(update)
+	event("actor_item_toruck"):register(update)
+	event("actor_item_toslot"):register(update)
+end

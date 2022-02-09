@@ -36,6 +36,8 @@ class				= II_FOOD
 cform				= skeleton
 visual				= weapons\bred\bred.ogf
 description			= enc_equipment_food_bread1
+script_binding  		= bind_lwc_food.init
+cor_time			= 1
 
 inv_name			= Bread
 inv_name_short		= Bread
@@ -58,12 +60,13 @@ position_offset			 = 0.0,0.0,0.0
 angle_offset			 = 1.570790,1.570790,3.92699
 
 ; eatable item
-eat_health = 0.05
+eat_health = 0.01
 eat_satiety = 0.2
 eat_power = 0
 eat_radiation = 0
 wounds_heal_perc = 0
 eat_portions_num = -1
+eat_thirst	    = -0.1 -- значение утоления жажды
 
 ; food item
 animation_slot		= 4
@@ -71,6 +74,25 @@ animation_slot		= 4
 ;hud item
 hud = wpn_vodka_hud
 
+[bread_fake]:identity_immunities
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn 				= "food and drugs\bread_fake"
+class				= II_ATTCH
+cform				= skeleton
+visual				= weapons\bred\bred.ogf
+radius				= 1
+
+description			= enc_equipment_food_bread1_bad
+
+inv_name			= Bread_bad
+inv_name_short		= Bread_bad
+inv_weight			= 0.3
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 21
+inv_grid_y         = 40
+cost				= 3
 
 [kolbasa]:identity_immunities
 GroupControlSection	= spawn_group
@@ -81,6 +103,8 @@ class				= II_FOOD
 cform				= skeleton
 visual				= weapons\kolbasa\kolbasa.ogf
 description			= enc_equipment_food_kolbasa1
+script_binding  		= bind_lwc_food.init
+cor_time			= 1
 
 inv_name			= Kolbasa
 inv_name_short		= Kolbasa
@@ -103,18 +127,39 @@ position_offset			 = 0.0,0.0,0.0
 angle_offset			 = 1.570790,1.570790,3.92699
 
 ; eatable item
-eat_health = 0.1
+eat_health = 0.02
 eat_satiety = 0.3
 eat_power = 0
 eat_radiation = 0
 wounds_heal_perc = 0
 eat_portions_num = -1
+eat_thirst	    = -0.1 -- значение утоления жажды
 
 ; food item
 animation_slot		= 4
 
 ;hud item
 hud = wpn_vodka_hud
+
+[kolbasa_fake]:identity_immunities
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn 				= "food and drugs\kolbasa_fake"
+class				= II_ATTCH
+cform				= skeleton
+visual				= weapons\kolbasa\kolbasa.ogf
+radius				= 1
+
+description			= enc_equipment_food_kolbasa1_bad
+
+inv_name			= kolbasa_bad
+inv_name_short		= kolbasa_bad
+inv_weight			= 0.5
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 20
+inv_grid_y         = 40
+cost				= 3
 
 [kolbasa_a]:identity_immunities
 GroupControlSection		= spawn_group
@@ -151,6 +196,8 @@ class				= II_FOOD
 cform				= skeleton
 visual				= food\conserv1.ogf
 description			= enc_equipment_food_conserva1
+script_binding  		= bind_lwc_food.init
+cor_time			= 1
 
 inv_name			= Conserva
 inv_name_short		= Conserva
@@ -163,10 +210,11 @@ inv_grid_y			= 13
 cost				= 100
 
 ; eatable item
-eat_health = 0.15
+eat_health = 0.02
 eat_satiety = 0.4
 eat_power = 0
 eat_radiation = 0
+eat_thirst	    = -0.1 -- значение утоления жажды
 wounds_heal_perc = 0
 eat_portions_num = -1
 
@@ -185,6 +233,26 @@ auto_attach				= false
 bone_name				= bip01_r_hand
 position_offset			 = 0.0,0.0,0.0
 angle_offset			 = 1.570790,1.570790,3.92699
+
+[conserva_fake]:identity_immunities
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn 				= "food and drugs\conserva_fake"
+class				= II_ATTCH
+cform				= skeleton
+visual				= food\conserv1.ogf
+radius				= 1
+
+description			= enc_equipment_food_conserva1_bad
+
+inv_name			= conserva_bad
+inv_name_short		= conserva_bad
+inv_weight			= 0.5
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 20
+inv_grid_y         = 39
+cost				= 3
 
 [vodka_a]:identity_immunities
 GroupControlSection		= spawn_group
@@ -245,11 +313,19 @@ position_offset			 = 0.0,0.0,0.0
 angle_offset			 = 1.570790,1.570790,3.92699
 
 ; eatable item
+mr_time				= 0.4	; время действия 
+mr_eat_health		= 0.0; уровень поднятия здоровья
+mr_affect			= 0.1; величина эффекта употребления
+mr_eat_power		= 0 ; медицинская резинка
+mr_eat_radiation	= -0.15 ; медицинская резинка
+
+eat_psy_health  = 0.3
 eat_health		= 0.01
 eat_satiety		= 0.01
 eat_power		= 0
-eat_radiation	= -0.3
+eat_radiation	= 0 ;-0.3
 eat_alcohol		= 0.1
+eat_thirst	    = 1 -- значение утоления жажды
 wounds_heal_perc 	= 0
 eat_portions_num 	= -1
 
@@ -303,9 +379,91 @@ attach_position_offset	= 0.081856, -0.035081, 0.011694
 attach_bone_name		= bip01_l_hand
 auto_attach				= false
 
+[antir_f]:identity_immunities ;то, что ГГ может использовать
+GroupControlSection	= spawn_group
+discovery_dependency	=
+cform               = skeleton
+class				= II_ANTIR
+; eatable item
+eat_health 			= 0
+eat_satiety 		= 0
+eat_power 			= 0
+eat_radiation 		= 0
+eat_alcohol 		= 0
+wounds_heal_perc 	= 0
+eat_portions_num 	= 1
+; food item
+animation_slot  	= 4
+;hud item
+hud 				= wpn_vodka_hud
+
+[sigaret]:antir_f
+$spawn				= "food and drugs\sigaret"
+visual              = weapons\sigaret\sigaret.ogf
+description		    = enc_equipment_sigaret
+
+;script_binding  		= bind_lwc_food.init
+
+cost					= 10
+inv_name				= sigaret
+inv_name_short			= sigaret
+inv_weight				= 0.1
+
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 29
+inv_grid_y         = 36
+
+attach_angle_offset		= 9.0, 0.0, 0.0
+attach_position_offset	= 0.025, -0.02, 0.0
+attach_bone_name		= bip01_r_finger11
+auto_attach				= false
+
+; eatable item
+eat_psy_health  = 0.1
+eat_health = -0.02
+eat_satiety = 0.03
+eat_power = -0.07
+eat_alcohol	= -0.1
+eat_thirst = -0.15
+eat_radiation = 0
+wounds_heal_perc = 0
+eat_portions_num = 1
+
+; food item
+; slot				= 6
+animation_slot		= 4
+
+;hud item
+hud = wpn_sigaret_hud
+
+[sigaret_quest]:sigaret
+visual = equipments\item_cigarette.ogf
+
+[wpn_sigaret_hud]:identity_immunities
+fire_point               = 0.0, 0.0, 0.06
+fire_bone                = bip01_head
+orientation              = 0, 0, 0
+position                 = 0, 0, 0
+visual                   = weapons\sigaret\sigaret_hud.ogf
+
+anim_idle			= kurit_2
+anim_show			= kurit_1
+anim_hide			= kurit_4
+anim_play			= kurit_5
+anim_prepare		= kurit_5
+anim_eat			= kurit_3
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	MEDICAL
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[medkit_attach_params]
+auto_attach			= false
+attach_angle_offset		= 1.78, 3.22, -1.58	; y,z,x
+attach_position_offset		= 0.176, -0.006, 0.058
+attach_bone_name		= bip01_r_hand
+
 [antirad]:identity_immunities
 GroupControlSection	= spawn_group
 discovery_dependency =
@@ -327,12 +485,19 @@ inv_grid_y			= 12
 cost				= 300
 
 ; eatable item
+mr_time				= 1	; время действия
+mr_eat_health		= 0; уровень поднятия здоровья
+mr_affect			= 0; величина эффекта
+mr_eat_radiation    = -0.8 ; медицинская резинка
+mr_eat_power		= 0 ; медицинская резинка
+
 eat_health = 0
 eat_satiety = 0
 eat_power = 0
-eat_radiation = -1.0
+eat_radiation = 0.0
 wounds_heal_perc = 0
 eat_portions_num = 1
+eat_thirst	    = -0.15 -- значение утоления жажды
 
 ; food item
 animation_slot		= 4
@@ -340,8 +505,7 @@ animation_slot		= 4
 ;hud item
 hud = wpn_vodka_hud
 
-
-[medkit]:identity_immunities
+[medkit]:identity_immunities,medkit_attach_params
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\medkit"
@@ -361,10 +525,17 @@ inv_grid_y			= 14
 cost				= 150
 
 ; eatable item
-eat_health			= 0.6
-eat_satiety			= 0
-eat_power			= 0.0
-eat_radiation		= -0.1
+mr_time				= 0.5	; время действия 
+mr_eat_health		= 0.15; уровень поднятия здоровья
+mr_affect			= 0.1; величина эффекта употребления
+mr_eat_power		= 0 ; медицинская резинка
+mr_eat_radiation	= 0 ; медицинская резинка
+
+eat_health			= 0.08
+eat_satiety			= -0.05
+eat_power			= -0.08
+eat_thirst	    	= -0.09 -- значение утоления жажды
+eat_radiation		= 0
 wounds_heal_perc	= 0.3
 eat_portions_num	= 1
 eat_max_power		= 0.1
@@ -372,10 +543,13 @@ eat_max_power		= 0.1
 ; food item
 animation_slot		= 4
 
+;script_binding  = bind_lwc_food.init
+;cor_time			= 1
+
 ;hud item
 hud = wpn_vodka_hud
 
-[medkit_army]:identity_immunities
+[medkit_army]:identity_immunities,medkit_attach_params
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\medkit_army"
@@ -395,21 +569,30 @@ inv_grid_y			= 20
 cost				= 220
 
 ; eatable item
-eat_health			= 1.0
-eat_satiety			= 0
-eat_power			= 0.0
-eat_radiation		= -0.1
-wounds_heal_perc	= 1.0
+mr_time				= 0.6	; время действия 
+mr_eat_health		= 0.4; уровень поднятия здоровья
+mr_affect			= 0.1; величина эффекта употребления
+mr_eat_power		= 0 ; медицинская резинка
+mr_eat_radiation	= 0 ; медицинская резинка
+
+eat_health			= 0.1
+eat_satiety			= -0.05
+eat_power			= -0.06
+eat_thirst	    	= -0.06 -- значение утоления жажды
+eat_radiation		= 0
+wounds_heal_perc	= 0.3
 eat_portions_num	= 1
 eat_max_power		= 0.1
 
 ; food item
 animation_slot		= 4
 
+;script_binding  = bind_lwc_food.init
+
 ;hud item
 hud = wpn_vodka_hud
 
-[medkit_scientic]:identity_immunities
+[medkit_scientic]:identity_immunities,medkit_attach_params
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\medkit_scientic"
@@ -426,19 +609,28 @@ inv_grid_width		= 2
 inv_grid_height		= 1
 inv_grid_x			= 14
 inv_grid_y			= 20
-cost				= 200
+cost				= 450
 
 ; eatable item
-eat_health			= 1.0
-eat_satiety			= 0
-eat_power			= 0.0
-eat_radiation		= -1.0
+mr_time				= 0.7	; время действия 
+mr_eat_health		= 0.8; уровень поднятия здоровья
+mr_affect			= 0.1; величина эффекта употребления
+mr_eat_power		= 0 ; медицинская резинка
+mr_eat_radiation	= 0 ; медицинская резинка
+
+eat_health			= 0.12
+eat_satiety			= -0.05
+eat_power			= -0.04
+eat_thirst	    	= -0.05 -- значение утоления жажды
+eat_radiation		= 0
 wounds_heal_perc	= 0.3
 eat_portions_num	= 1
 eat_max_power		= 0.1
 
 ; food item
 animation_slot		= 4
+
+;script_binding  = bind_lwc_food.init
 
 ;hud item
 hud = wpn_vodka_hud
@@ -450,6 +642,9 @@ inv_name			= energy_drink_name
 inv_name_short		= energy_drink_short_name
 visual				= equipments\drink_nonstop.ogf ;equipments\drink_stalker.ogf
 description			= enc_equipment_energydrink
+script_binding  		= bind_lwc_food.init
+cor_time			= 1
+
 cost				= 75
 
 inv_grid_width		= 1
@@ -457,6 +652,12 @@ inv_grid_height		= 1
 inv_grid_x			= 19 ;19 ;11
 inv_grid_y			= 7 ;7  ;0
 inv_weight			= 0.3
+
+mr_time				= 0.4	; время действия 
+mr_eat_health		= 0.0; уровень поднятия здоровья
+mr_affect			= 0.1; величина эффекта употребления
+mr_eat_power		= 0.04 ; медицинская резинка
+mr_eat_radiation	= 0.0 ; медицинская резинка
 
 eat_health			= 0
 eat_satiety			= 0
@@ -466,12 +667,84 @@ eat_radiation		= 0
 wounds_heal_perc	= 0
 eat_portions_num	= 1
 eat_max_power		= 0.2
+eat_thirst	    	= 1 -- значение утоления жажды
 
 attach_angle_offset		= 0.000000, 0.000000, 0.000000
 attach_position_offset	= 0.087266, -0.078540, 0.052360
 attach_bone_name		= bip01_r_hand
 auto_attach				= false
 
+[energy_drink_fake]:identity_immunities
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn 				= "food and drugs\energy_drink_fake"
+class				= II_ATTCH
+cform				= skeleton
+visual				= equipments\drink_nonstop.ogf
+radius				= 1
+
+description			= enc_equipment_food_energy_drink1_bad
+
+inv_name			= energy_drink_bad
+inv_name_short		= energy_drink_bad
+inv_weight			= 0.3
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 22
+inv_grid_y         = 40
+cost				= 3
+
+[addon_fh_voda]:vodka
+$spawn 				= "food and drugs\addon_fh_voda"
+inv_name			= fh_voda
+inv_name_short		= fh_voda
+visual				= food\drink_evian.ogf ;equipments\drink_stalker.ogf
+description			= enc_equipment_food_fh_voda
+script_binding  		= bind_lwc_food.init
+cor_time			= 1
+
+cost				= 50
+
+inv_grid_width     = 1
+inv_grid_height    = 2
+inv_grid_x         = 24
+inv_grid_y         = 39
+inv_weight			= 0.3
+
+eat_health			= 0
+eat_satiety			= 0
+eat_power			= 0
+eat_alcohol			= 0
+eat_radiation		= 0
+wounds_heal_perc	= 0
+eat_portions_num	= 1
+eat_max_power		= 0.2
+eat_thirst	    	= 1 -- значение утоления жажды
+
+attach_angle_offset		= 0.000000, 0.000000, 0.000000
+attach_position_offset	= 0.087266, -0.078540, 0.052360
+attach_bone_name		= bip01_r_hand
+auto_attach				= false
+
+[addon_fh_voda_fake]:identity_immunities
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn 				= "food and drugs\addon_fh_voda_fake"
+class				= II_ATTCH
+cform				= skeleton
+visual				= food\drink_evian.ogf
+radius				= 1
+
+description			= enc_equipment_food_fh_voda_bad
+
+inv_name			= fh_voda_bad
+inv_name_short		= fh_voda_bad
+inv_weight			= 0.3
+inv_grid_width     = 1
+inv_grid_height    = 2
+inv_grid_x         = 25
+inv_grid_y         = 39
+cost				= 3
 
 [bandage]:identity_immunities
 GroupControlSection	= spawn_group
@@ -494,11 +767,17 @@ inv_grid_y			= 18
 cost				= 20
 
 ; eatable item
-eat_health = 	0.1
-eat_satiety = 	0
-eat_power = 	0.0
+;mr_time				= 0.14	; время действия 
+;mr_eat_health		= 0.00; уровень поднятия здоровья
+;mr_affect			= 0.2; величина эффекта употребления
+;mr_eat_power		= 0 ; медицинская резинка
+;mr_eat_radiation	= 0 ; медицинская резинка
+
+eat_health = 	0.01
+eat_satiety		= -0.02
+eat_power		= -0.05
 eat_radiation = 0.0
-wounds_heal_perc = 1.0
+wounds_heal_perc = 0.5
 eat_portions_num = 1	;100
 
 ; food item
@@ -507,6 +786,11 @@ animation_slot		= 4
 ;hud item
 hud = wpn_vodka_hud
 
+; attach parameters
+auto_attach			= false
+attach_angle_offset		= 1.57, 3.14, -1.7
+attach_position_offset		= 0.11, 0.06, 0.05
+attach_bone_name		= bip01_r_hand
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	DEVICES
@@ -582,8 +866,9 @@ can_trade			= true
 position			= 0.35,0.25,0.0
 light_trace_bone	= cone_bone
 attach_angle_offset		= 0, -3.14, 1.6
-attach_position_offset	= 0.115, 0.00, 0.07
+attach_position_offset	=  0.12, 0.0, 0.07
 attach_bone_name		= bip01_head
+
 auto_attach				= false
 
 night_vision				= on
@@ -614,7 +899,7 @@ radius				= 10	;15
 buzzer_radius		= 1.5
 noise				= zone_mosquito_bald       ;detectors\geiger_noise_loop
 buzzer				= zone_mosquito_bald       ;detectors\DA-2_alarm_loop
-slot				= 8
+;slot				= 8
 ef_detector_type	= 1
 
 inv_name			= Detector
@@ -626,7 +911,7 @@ inv_grid_height		= 1
 inv_grid_x			= 9
 inv_grid_y			= 14
 cost				= 500	;30
-;belt				= true;
+belt				= true;
 default_to_ruck		= false
 
 
@@ -646,24 +931,10 @@ zone_sound_2_		= detectors\DA-2_beep1
 zone_min_freq_2		= 0.1
 zone_max_freq_2		= 20
 
-zone_class_3		= zone_radioactive
-; zone_sound_3_		= detectors\DA-2_beep1
-zone_sound_3_		= detectors\geiger_1
-zone_sound_3_1		= detectors\geiger_2
-zone_sound_3_2		= detectors\geiger_3
-zone_sound_3_3		= detectors\geiger_4
-zone_sound_3_4		= detectors\geiger_5
-zone_sound_3_5		= detectors\geiger_6
-zone_sound_3_6		= detectors\geiger_1
-zone_sound_3_7		= detectors\geiger_1
-zone_sound_3_8		= detectors\geiger_1
-zone_min_freq_3		= 1
-zone_max_freq_3		= 20
-
-zone_class_4		= zone_gravi_zone
-zone_sound_4_		= detectors\DA-2_beep1
-zone_min_freq_4		= 0.5
-zone_max_freq_4		= 30
+zone_class_3		= zone_gravi_zone
+zone_sound_3_		= detectors\DA-2_beep1
+zone_min_freq_3		= 0.5
+zone_max_freq_3		= 30
 
 
 [detector_advances]:identity_immunities
@@ -696,17 +967,11 @@ zone_min_freq_2		= 0.1
 zone_max_freq_2		= 20
 zone_map_location_2 = anomaly_zone_location
 
-zone_class_3		= zone_radioactive
+zone_class_3		= zone_gravi_zone
 zone_sound_3_		= detectors\DA-2_beep1
-zone_min_freq_3		= 1
-zone_max_freq_3		= 20
+zone_min_freq_3		= 0.5
+zone_max_freq_3		= 30
 zone_map_location_3 = anomaly_zone_location
-
-zone_class_4		= zone_gravi_zone
-zone_sound_4_		= detectors\DA-2_beep1
-zone_min_freq_4		= 0.5
-zone_max_freq_4		= 30
-zone_map_location_4 = anomaly_zone_location
 
 inv_name			= Detector
 inv_name_short		= Detector
@@ -717,9 +982,9 @@ inv_grid_height		= 1
 inv_grid_x			= 15
 inv_grid_y			= 7
 cost				= 1000	;30
-;belt				= true;
+belt				= true;
 default_to_ruck		= false
-slot				= 8
+;slot				= 8
 
 
 [detector_elite]:identity_immunities
@@ -752,17 +1017,11 @@ zone_min_freq_2		= 0.1
 zone_max_freq_2		= 20
 zone_map_location_2 = anomaly_zone_location
 
-zone_class_3		= zone_radioactive
-zone_sound_3_		= detectors\geiger_click3
-zone_min_freq_3		= 1
-zone_max_freq_3		= 20
+zone_class_3		= zone_gravi_zone
+zone_sound_3_		= detectors\DA-2_beep1
+zone_min_freq_3		= 0.5
+zone_max_freq_3		= 30
 zone_map_location_3 = anomaly_zone_location
-
-zone_class_4		= zone_gravi_zone
-zone_sound_4_		= detectors\DA-2_beep1
-zone_min_freq_4		= 0.5
-zone_max_freq_4		= 30
-zone_map_location_4 = anomaly_zone_location
 
 inv_name			= st_detector
 inv_name_short		= st_detector
@@ -775,8 +1034,9 @@ inv_grid_height		= 1
 inv_grid_x			= 5
 inv_grid_y			= 14
 cost				= 1500	;30
-;belt				= true;
-slot				= 8
+belt				= true;
+default_to_ruck		= false
+;slot				= 8
 
 attach_angle_offset		= -0.160570,-1.425061,-0.361283
 attach_position_offset	= 0.160570,-0.060214,0.020071
@@ -785,7 +1045,190 @@ auto_attach				= false
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;	Новое
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+[medkit_fake]:identity_immunities
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn 				= "food and drugs\kolbasa_fake"
+class				= II_ATTCH
+cform				= skeleton
+visual				= equipments\item_aptechka.ogf
+radius				= 1
+
+description			= "радиоактивная аптечка"
+
+inv_name			= аптечка
+inv_name_short		= аптечка
+inv_weight			= 0.4
+
+inv_grid_width		= 2
+inv_grid_height		= 1
+inv_grid_x			= 6
+inv_grid_y			= 14
+cost				= 0
+
+[addon_inventory_box]
+GroupControlSection = spawn_group
+discovery_dependency =
+$spawn = "devices\inventory box"
+class = O_INVBOX
+cform = skeleton
+visual = dynamics\equipment_cache\equipment_box_01_case.ogf
+script_binding = bind_physic_object.init
+
+[inv_ruck]:identity_immunities
+GroupControlSection = spawn_group
+discovery_dependency =
+$spawn = "food and drugs\antirad"
+$prefetch = 32
+class = II_ANTIR
+cform = skeleton
+visual = dynamics\devices\dev_rukzak\dev_rukzak.ogf
+description = enc_tre_ruck
+
+inv_weight = 0.3
+inv_name = tre_ruck
+inv_name_short = tre_ruck_s
+
+inv_grid_width     = 2
+inv_grid_height    = 2
+inv_grid_x         = 25
+inv_grid_y         = 24
+cost = 1000
+
+;eatable item
+eat_health = 0
+eat_satiety = 0
+eat_power = 0
+eat_radiation = 0
+eat_alcohol = 0
+wounds_heal_perc = 0
+eat_portions_num = 1
+
+;food item
+animation_slot = 4
+
+;hud item
+hud = wpn_vodka_hud
+
+[inv_ruck2]:inv_ruck
+GroupControlSection = spawn_group
+discovery_dependency =
+$spawn = "food and drugs\antirad"
+$prefetch = 32
+class = II_ANTIR
+cform = skeleton
+visual = dynamics\devices\dev_rukzak\dev_rukzak.ogf
+cost = 3000
+description = enc_tre_ruck2
+inv_name = tre_ruck2
+inv_name_short = tre_ruck2
+inv_grid_width     = 2
+inv_grid_height    = 2
+inv_grid_x         = 27
+inv_grid_y         = 24
+
+[inv_ruck3]:inv_ruck
+GroupControlSection = spawn_group
+discovery_dependency =
+$spawn = "food and drugs\antirad"
+$prefetch = 32
+class = II_ANTIR
+cform = skeleton
+visual = dynamics\devices\dev_rukzak\dev_rukzak.ogf
+cost = 5000
+description = enc_tre_ruck3
+inv_name = tre_ruck3
+inv_name_short = tre_ruck3
+inv_grid_width     = 2
+inv_grid_height    = 2
+inv_grid_x         = 29
+inv_grid_y         = 24
+
+[active_ruck]:addon_inventory_box
+visual = dynamics\devices\dev_rukzak\dev_rukzak.ogf
+custom_data = scripts\treasure_inventory_box.ltx
+radius = 1
+
+[active_ruck2]:addon_inventory_box
+visual = dynamics\devices\dev_rukzak\dev_rukzak.ogf
+custom_data = scripts\treasure_inventory_box.ltx
+radius = 1
+
+[active_ruck3]:addon_inventory_box
+visual = dynamics\devices\dev_rukzak\dev_rukzak.ogf
+custom_data = scripts\treasure_inventory_box.ltx
+radius = 1
+
+[device_torch_bat]:inv_ruck
+GroupControlSection = spawn_group
+discovery_dependency =
+$spawn 			= "food and drugs\antirad"
+$prefetch 		= 32
+class 			= II_ANTIR
+cform 			= skeleton
+visual 			= dynamics\devices\accum.ogf
+cost 			= 800
+inv_weight 		= 0.1
+description 	= enc_device_torch_bat
+inv_name 		= inv_device_torch_bat
+inv_name_short 	= inv_device_torch_bat
+inv_grid_width  = 1
+inv_grid_height = 1
+inv_grid_x      = 13
+inv_grid_y      = 32
+
+[device_pnv_bat]:inv_ruck
+GroupControlSection = spawn_group
+discovery_dependency =
+$spawn 			= "food and drugs\antirad"
+$prefetch 		= 32
+class 			= II_ANTIR
+cform 			= skeleton
+visual 			= dynamics\devices\accum.ogf
+cost 			= 1000
+inv_weight 		= 0.1
+description 	= enc_device_pnv_bat
+inv_name 		= inv_device_pnv_bat
+inv_name_short 	= inv_device_pnv_bat
+inv_grid_width  = 1
+inv_grid_height = 1
+inv_grid_x      = 32
+inv_grid_y      = 28
+
+[power_supply]:identity_immunities
+GroupControlSection	= spawn_group
+discovery_dependency =
+$spawn 			= "food and drugs\antirad"
+class			= II_ATTCH
+cform           = skeleton
+visual          = equipments\exo_accum.ogf
+description		= power_supply_desc
+script_binding  = bind_power_supply.init
+
+inv_name			= power_supply_inf
+inv_name_short		= power_supply_inf
+inv_weight			= 1.6
+
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 17
+inv_grid_y         = 34
+cost				= 4000
+belt				= true
+
+attach_angle_offset		= -0.287979, 1.560923, 1.544060
+attach_position_offset	= 0.096910, -0.013594, 0.107925
+attach_bone_name		= bip01_r_hand
+auto_attach				= false
+
+// should be deleted after update
+bone_name				= bip01_r_hand
+position_offset			 = 0.0,0.0,0.0
+angle_offset			 = 1.570790,1.570790,3.92699
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	OTHERS

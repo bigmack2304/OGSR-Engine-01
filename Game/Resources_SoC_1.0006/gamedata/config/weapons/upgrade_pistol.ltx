@@ -1,0 +1,797 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;расчет стоимости х+р = ц
+;где х - текущая стоимость
+;    р - х/2
+;    ц - конечная стоимость предмета
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Секции модифицированых пестолетов
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;МАКАРОВ
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_pm_a]:wpn_pm
+icon_group		= 1
+inv_grid_x         	= 1
+inv_grid_y         	= 1
+cost			= 420
+
+ammo_elapsed		= 0
+hit_power               = 0.41
+silencer_hit_power      = 0.40
+upg 			= a
+description		= enc_weapons1_wpn-pm_up1
+hud                     = wpn_pm_a_hud
+
+[wpn_pm_a_hud]:wpn_pm_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_pm_ba]:wpn_pm_a
+inv_grid_x         	= 4
+inv_grid_y         	= 1
+cost			= 630
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.29 
+cam_dispersion 		= 0.25		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.08		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn-pm_up11
+hud                     = wpn_pm_ba_hud	
+
+[wpn_pm_ba_hud]:wpn_pm_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_pm_bb]:wpn_pm_a
+inv_grid_x         	= 7
+inv_grid_y         	= 1
+cost			= 630
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.00015 
+upg 			= bb
+description		= enc_weapons1_wpn-pm_up12
+hud                     = wpn_pm_bb_hud	
+
+[wpn_pm_bb_hud]:wpn_pm_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_pm_ba_cb]:wpn_pm_ba
+inv_grid_x         	= 10
+inv_grid_y         	= 1
+cost			= 945
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 12
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn-pm_up111
+hud                     = wpn_pm_ba_cb_hud
+
+[wpn_pm_ba_cb_hud]:wpn_pm_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_pm_bb_cb]:wpn_pm_bb
+inv_grid_x        	= 13
+inv_grid_y         	= 1
+cost			= 945
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 12
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn-pm_up122
+hud                      = wpn_pm_bb_cb_hud
+
+[wpn_pm_bb_cb_hud]:wpn_pm_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ПБ
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_pb_a]:wpn_pb
+icon_group		= 1
+inv_grid_x         	= 1
+inv_grid_y         	= 2
+cost			= 450
+
+ammo_elapsed		= 0
+hit_power               = 0.42
+upg 			= a
+description		= enc_weapons1_wpn-pb1
+hud                     = wpn_pb_a_hud
+
+[wpn_pb_a_hud]:wpn_pb_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_pb_ba]:wpn_pb_a
+inv_grid_x         	= 4
+inv_grid_y         	= 2
+cost			= 675
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.26 
+cam_dispersion 		= 0.24		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.0		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn-pb11
+hud                     = wpn_pb_ba_hud	
+
+[wpn_pb_ba_hud]:wpn_pb_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_pb_bb]:wpn_pb_a
+inv_grid_x         	= 7
+inv_grid_y         	= 2
+cost			= 675
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.00012 
+upg 			= bb
+description		= enc_weapons1_wpn-pb12
+hud                     = wpn_pb_bb_hud	
+
+[wpn_pb_bb_hud]:wpn_pb_hud
+
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_pb_ba_cb]:wpn_pb_ba
+inv_grid_x         	= 10
+inv_grid_y         	= 2
+cost			= 1013
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 12
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn-pb111
+hud                     = wpn_pb_ba_cb_hud
+
+[wpn_pb_ba_cb_hud]:wpn_pb_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_pb_bb_cb]:wpn_pb_bb
+inv_grid_x        	= 13
+inv_grid_y         	= 2
+cost			= 1013
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 12
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn-pb122
+hud                      = wpn_pb_bb_cb_hud
+
+[wpn_pb_bb_cb_hud]:wpn_pb_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;УСП
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_usp_a]:wpn_usp
+icon_group		= 1
+inv_grid_x         	= 1
+inv_grid_y         	= 3
+cost			= 2250
+
+ammo_elapsed		= 0
+hit_power               = 0.45
+silencer_hit_power      = 0.44
+upg 			= a
+description		= enc_weapons1_wpn_usp1
+hud                     = wpn_usp_a_hud
+
+[wpn_usp_a_hud]:wpn_usp_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_usp_ba]:wpn_usp_a
+inv_grid_x         	= 4
+inv_grid_y         	= 3
+cost			= 3375
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.23 
+cam_dispersion 		= 0.4		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.0		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn_usp11
+hud                     = wpn_usp_ba_hud	
+
+[wpn_usp_ba_hud]:wpn_usp_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_usp_bb]:wpn_usp_a
+inv_grid_x         	= 7
+inv_grid_y         	= 3
+cost			= 3375
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.0003
+upg 			= bb
+description		= enc_weapons1_wpn_usp12
+hud                     = wpn_usp_bb_hud	
+
+[wpn_usp_bb_hud]:wpn_usp_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_usp_ba_cb]:wpn_usp_ba
+inv_grid_x         	= 10
+inv_grid_y         	= 3
+cost			= 5062
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 12
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn_usp111
+hud                     = wpn_usp_ba_cb_hud
+
+[wpn_usp_ba_cb_hud]:wpn_usp_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_usp_bb_cb]:wpn_usp_bb
+inv_grid_x        	= 13
+inv_grid_y         	= 3
+cost			= 5062
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 12
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn_usp122
+hud                      = wpn_usp_bb_cb_hud
+
+[wpn_usp_bb_cb_hud]:wpn_usp_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;БЕРЕТТА
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_beretta_a]:wpn_beretta
+icon_group		= 1
+inv_grid_x         	= 1
+inv_grid_y         	= 4
+cost			= 3000
+
+ammo_elapsed		= 0
+hit_power               = 0.46
+silencer_hit_power      = 0.45
+upg 			= a
+description		= enc_weapons1_wpn_beretta1
+hud                     = wpn_beretta_a_hud
+
+[wpn_beretta_a_hud]:wpn_beretta_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_beretta_ba]:wpn_beretta_a
+inv_grid_x         	= 4
+inv_grid_y         	= 4
+cost			= 4500
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.22 
+cam_dispersion 		= 0.35		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.0		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn_beretta11
+hud                     = wpn_beretta_ba_hud	
+
+[wpn_beretta_ba_hud]:wpn_beretta_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_beretta_bb]:wpn_beretta_a
+inv_grid_x         	= 7
+inv_grid_y         	= 4
+cost			= 4500
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.00019
+upg 			= bb
+description		= enc_weapons1_wpn_beretta12
+hud                     = wpn_beretta_bb_hud	
+
+[wpn_beretta_bb_hud]:wpn_beretta_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_beretta_ba_cb]:wpn_beretta_ba
+inv_grid_x         	= 10
+inv_grid_y         	= 4
+cost			= 6750
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 19
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn_beretta111
+hud                     = wpn_beretta_ba_cb_hud
+
+[wpn_beretta_ba_cb_hud]:wpn_beretta_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_beretta_bb_cb]:wpn_beretta_bb
+inv_grid_x        	= 13
+inv_grid_y         	= 4
+cost			= 6750
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 19
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn_beretta122
+hud                      = wpn_beretta_bb_cb_hud
+
+[wpn_beretta_bb_cb_hud]:wpn_beretta_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ФОРТ
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_fort_a]:wpn_fort
+icon_group		= 1
+inv_grid_x         	= 1
+inv_grid_y         	= 5
+cost			= 475
+
+ammo_elapsed		= 0
+hit_power               = 0.43
+silencer_hit_power      = 0.42
+upg 			= a
+description		= enc_weapons1_wpn_fort1
+hud                     = wpn_fort_a_hud
+
+[wpn_fort_a_hud]:wpn_fort_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_fort_ba]:wpn_fort_a
+inv_grid_x         	= 4
+inv_grid_y         	= 5
+cost			= 713
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.32 
+cam_dispersion 		= 0.28		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.0		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn_fort11
+hud                     = wpn_fort_ba_hud	
+
+[wpn_fort_ba_hud]:wpn_fort_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_fort_bb]:wpn_fort_a
+inv_grid_x         	= 7
+inv_grid_y         	= 5
+cost			= 713
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.0002
+upg 			= bb
+description		= enc_weapons1_wpn_fort12
+hud                     = wpn_fort_bb_hud	
+
+[wpn_fort_bb_hud]:wpn_fort_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_fort_ba_cb]:wpn_fort_ba
+inv_grid_x         	= 10
+inv_grid_y         	= 5
+cost			= 1070
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 16
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn_fort111
+hud                     = wpn_fort_ba_cb_hud
+
+[wpn_fort_ba_cb_hud]:wpn_fort_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_fort_bb_cb]:wpn_fort_bb
+inv_grid_x        	= 13
+inv_grid_y         	= 5
+cost			= 1070
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 16
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn_fort122
+hud                      = wpn_fort_bb_cb_hud
+
+[wpn_fort_bb_cb_hud]:wpn_fort_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;сиг220
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_sig220_a]:wpn_sig220
+icon_group		= 1
+inv_grid_x         	= 1
+inv_grid_y         	= 6
+cost			= 1800
+
+ammo_elapsed		= 0
+hit_power               = 0.48
+silencer_hit_power      = 0.47
+upg 			= a
+description		= enc_weapons1_wpn_sig2201
+hud                     = wpn_sig220_a_hud
+
+[wpn_sig220_a_hud]:wpn_sig220_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_sig220_ba]:wpn_sig220_a
+inv_grid_x         	= 4
+inv_grid_y         	= 6
+cost			= 2700
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.21 
+cam_dispersion 		= 0.4		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.0		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn_sig22011
+hud                     = wpn_sig220_ba_hud	
+
+[wpn_sig220_ba_hud]:wpn_sig220_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_sig220_bb]:wpn_sig220_a
+inv_grid_x         	= 7
+inv_grid_y         	= 6
+cost			= 2700
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.0002
+upg 			= bb
+description		= enc_weapons1_wpn_sig22012
+hud                     = wpn_sig220_bb_hud	
+
+[wpn_sig220_bb_hud]:wpn_sig220_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_sig220_ba_cb]:wpn_sig220_ba
+inv_grid_x         	= 10
+inv_grid_y         	= 6
+cost			= 4050
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 11
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn_sig220111
+hud                     = wpn_sig220_ba_cb_hud
+
+[wpn_sig220_ba_cb_hud]:wpn_sig220_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_sig220_bb_cb]:wpn_sig220_bb
+inv_grid_x        	= 13
+inv_grid_y         	= 6
+cost			= 4050
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 11
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn_sig220122
+hud                      = wpn_sig220_bb_cb_hud
+
+[wpn_sig220_bb_cb_hud]:wpn_sig220_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;hpsa
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_hpsa_a]:wpn_hpsa
+icon_group		= 1
+inv_grid_x         	= 1
+inv_grid_y         	= 7
+cost			= 6000
+
+ammo_elapsed		= 0
+hit_power               = 0.49
+silencer_hit_power      = 0.48
+upg 			= a
+description		= enc_weapons1_wpn_hpsa1
+hud                     = wpn_hpsa_a_hud
+
+[wpn_hpsa_a_hud]:wpn_hpsa_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_hpsa_ba]:wpn_hpsa_a
+inv_grid_x         	= 4
+inv_grid_y         	= 7
+cost			= 9000
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.21 
+cam_dispersion 		= 0.3		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.0		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn_hpsa11
+hud                     = wpn_hpsa_ba_hud	
+
+[wpn_hpsa_ba_hud]:wpn_hpsa_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_hpsa_bb]:wpn_hpsa_a
+inv_grid_x         	= 7
+inv_grid_y         	= 7
+cost			= 9000
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.0002
+upg 			= bb
+description		= enc_weapons1_wpn_hpsa12
+hud                     = wpn_hpsa_bb_hud	
+
+[wpn_hpsa_bb_hud]:wpn_hpsa_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_hpsa_ba_cb]:wpn_hpsa_ba
+inv_grid_x         	= 10
+inv_grid_y         	= 7
+cost			= 13500
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 16
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn_hpsa111
+hud                     = wpn_hpsa_ba_cb_hud
+
+[wpn_hpsa_ba_cb_hud]:wpn_hpsa_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_hpsa_bb_cb]:wpn_hpsa_bb
+inv_grid_x        	= 13
+inv_grid_y         	= 7
+cost			= 13500
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 16
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn_hpsa122
+hud                      = wpn_hpsa_bb_cb_hud
+
+[wpn_hpsa_bb_cb_hud]:wpn_hpsa_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;кольт
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_colt1911_a]:wpn_colt1911
+icon_group		= 1
+inv_grid_x         	= 1
+inv_grid_y         	= 8
+cost			= 1650
+
+ammo_elapsed		= 0
+hit_power               = 0.49
+silencer_hit_power      = 0.48
+upg 			= a
+description		= enc_weapons1_wpn_colt19111
+hud                     = wpn_colt1911_a_hud
+
+[wpn_colt1911_a_hud]:wpn_colt1911_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_colt1911_ba]:wpn_colt1911_a
+inv_grid_x         	= 4
+inv_grid_y         	= 8
+cost			= 2475
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.18 
+cam_dispersion 		= 1.2		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.0		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn_colt191111
+hud                     = wpn_colt1911_ba_hud	
+
+[wpn_colt1911_ba_hud]:wpn_colt1911_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_colt1911_bb]:wpn_colt1911_a
+inv_grid_x         	= 7
+inv_grid_y         	= 8
+cost			= 2475
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.0002
+upg 			= bb
+description		= enc_weapons1_wpn_colt191112
+hud                     = wpn_colt1911_bb_hud	
+
+[wpn_colt1911_bb_hud]:wpn_colt1911_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_colt1911_ba_cb]:wpn_colt1911_ba
+inv_grid_x         	= 10
+inv_grid_y         	= 8
+cost			= 3800
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 11
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn_colt1911111
+hud                     = wpn_colt1911_ba_cb_hud
+
+[wpn_colt1911_ba_cb_hud]:wpn_colt1911_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_colt1911_bb_cb]:wpn_colt1911_bb
+inv_grid_x        	= 13
+inv_grid_y         	= 8
+cost			= 3800
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 11
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn_colt1911122
+hud                      = wpn_colt1911_bb_cb_hud
+
+[wpn_colt1911_bb_cb_hud]:wpn_colt1911_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;вальтер
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_walther_a]:wpn_walther
+icon_group		= 1
+inv_grid_x         	= 1
+inv_grid_y         	= 9
+cost			= 1200
+
+ammo_elapsed		= 0
+hit_power               = 0.49
+silencer_hit_power      = 0.48
+upg 			= a
+description		= enc_weapons1_wpn_walther1
+hud                     = wpn_walther_a_hud
+
+[wpn_walther_a_hud]:wpn_walther_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_walther_ba]:wpn_walther_a
+inv_grid_x         	= 4
+inv_grid_y         	= 9
+cost			= 1800
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.2 
+cam_dispersion 		= 0.27		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.0		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn_walther11
+hud                     = wpn_walther_ba_hud	
+
+[wpn_walther_ba_hud]:wpn_walther_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_walther_bb]:wpn_walther_a
+inv_grid_x         	= 7
+inv_grid_y         	= 9
+cost			= 1800
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.0002
+upg 			= bb
+description		= enc_weapons1_wpn_walther12
+hud                     = wpn_walther_bb_hud	
+
+[wpn_walther_bb_hud]:wpn_walther_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_walther_ba_cb]:wpn_walther_ba
+inv_grid_x         	= 10
+inv_grid_y         	= 9
+cost			= 2700
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 20
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn_walther111
+hud                     = wpn_walther_ba_cb_hud
+
+[wpn_walther_ba_cb_hud]:wpn_walther_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_walther_bb_cb]:wpn_walther_bb
+inv_grid_x        	= 13
+inv_grid_y         	= 9
+cost			= 2700
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 20
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn_walther122
+hud                      = wpn_walther_bb_cb_hud
+
+[wpn_walther_bb_cb_hud]:wpn_walther_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;дисерт игл
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_desert_eagle_a]:wpn_desert_eagle
+icon_group		= 1
+inv_grid_x         	= 1
+inv_grid_y         	= 10
+cost			= 3500
+
+ammo_elapsed		= 0
+hit_power               = 0.71
+silencer_hit_power      = 0.69
+upg 			= a
+description		= enc_weapons1_wpn_desert_eagle1
+hud                     = wpn_desert_eagle_a_hud
+
+[wpn_desert_eagle_a_hud]:wpn_desert_eagle_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_desert_eagle_ba]:wpn_desert_eagle_a
+inv_grid_x         	= 4
+inv_grid_y         	= 10
+cost			= 5250
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.14 
+cam_dispersion 		= 3.2		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.0		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn_desert_eagle11
+hud                     = wpn_desert_eagle_ba_hud	
+
+[wpn_desert_eagle_ba_hud]:wpn_desert_eagle_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_desert_eagle_bb]:wpn_desert_eagle_a
+inv_grid_x         	= 7
+inv_grid_y         	= 10
+cost			= 5250
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.0002
+upg 			= bb
+description		= enc_weapons1_wpn_desert_eagle12
+hud                     = wpn_desert_eagle_bb_hud	
+
+[wpn_desert_eagle_bb_hud]:wpn_desert_eagle_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_desert_eagle_ba_cb]:wpn_desert_eagle_ba
+inv_grid_x         	= 10
+inv_grid_y         	= 10
+cost			= 7875
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 12
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn_desert_eagle111
+hud                     = wpn_desert_eagle_ba_cb_hud
+
+[wpn_desert_eagle_ba_cb_hud]:wpn_desert_eagle_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_desert_eagle_bb_cb]:wpn_desert_eagle_bb
+inv_grid_x        	= 13
+inv_grid_y         	= 10
+cost			= 7875
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 12
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn_desert_eagle122
+hud                      = wpn_desert_eagle_bb_cb_hud
+
+[wpn_desert_eagle_bb_cb_hud]:wpn_desert_eagle_hud
+

@@ -1,0 +1,241 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Секции модифицированых снайперских винтовок
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;свд
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_svd_a]:wpn_svd
+icon_group		= 2
+inv_grid_x         	= 1
+inv_grid_y         	= 1
+cost			= 22500
+
+ammo_elapsed		= 0
+hit_power               = 0.95
+silencer_hit_power      = 0.93
+upg 			= a
+description		= enc_weapons1_wpn_svd1
+hud                     = wpn_svd_a_hud
+
+[wpn_svd_a_hud]:wpn_svd_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_svd_ba]:wpn_svd_a
+inv_grid_x         = 8
+inv_grid_y         = 1
+cost			= 33750
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.015 
+cam_dispersion 		= 0.8		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.2		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn_svd11
+hud                     = wpn_svd_ba_hud	
+
+[wpn_svd_ba_hud]:wpn_svd_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_svd_bb]:wpn_svd_a
+inv_grid_x         = 15
+inv_grid_y         = 1
+cost			= 33750
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.00015 
+upg 			= bb
+description		= enc_weapons1_wpn_svd12
+hud                     = wpn_svd_bb_hud	
+
+[wpn_svd_bb_hud]:wpn_svd_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_svd_ba_cb]:wpn_svd_ba
+inv_grid_x         = 22
+inv_grid_y         = 1
+
+cost			= 50625
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 15
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn_svd111
+hud                     = wpn_svd_ba_cb_hud
+
+[wpn_svd_ba_cb_hud]:wpn_svd_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_svd_bb_cb]:wpn_svd_bb
+inv_grid_x         = 29
+inv_grid_y         = 1
+cost			= 50625
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 15
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn_svd122
+hud                      = wpn_svd_bb_cb_hud
+
+[wpn_svd_bb_cb_hud]:wpn_svd_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;сву
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_svu_a]:wpn_svu
+icon_group		= 2
+inv_grid_x         = 1
+inv_grid_y         = 3
+cost			= 15000
+
+ammo_elapsed		= 0
+hit_power               = 0.90
+silencer_hit_power      = 0.89
+upg 			= a
+description		= enc_weapons1_wpn_svu1
+hud                     = wpn_svu_a_hud
+
+[wpn_svu_a_hud]:wpn_svu_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_svu_ba]:wpn_svu_a
+inv_grid_x         = 8
+inv_grid_y         = 3
+cost			= 22000
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.02
+cam_dispersion 		= 0.8		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.2		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn_svu11
+hud                     = wpn_svu_ba_hud	
+
+[wpn_svu_ba_hud]:wpn_svu_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_svu_bb]:wpn_svu_a
+inv_grid_x         = 15
+inv_grid_y         = 3
+cost			= 22000
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.00015 
+upg 			= bb
+description		= enc_weapons1_wpn_svu12
+hud                     = wpn_svu_bb_hud	
+
+[wpn_svu_bb_hud]:wpn_svu_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_svu_ba_cb]:wpn_svu_ba
+inv_grid_x         = 22
+inv_grid_y         = 3
+
+cost			= 35000
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 18
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn_svu111
+hud                     = wpn_svu_ba_cb_hud
+
+[wpn_svu_ba_cb_hud]:wpn_svu_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_svu_bb_cb]:wpn_svu_bb
+inv_grid_x         = 29
+inv_grid_y         = 3
+cost			= 35000
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 18
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn_svu122
+hud                      = wpn_svu_bb_cb_hud
+
+[wpn_svu_bb_cb_hud]:wpn_svu_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;винторез
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;Мощность
+[wpn_vintorez_a]:wpn_vintorez
+icon_group		= 2
+inv_grid_x         = 1
+inv_grid_y         = 5
+cost			= 18000
+
+ammo_elapsed		= 0
+hit_power               = 0.69
+silencer_hit_power      = 0.68
+upg 			= a
+description		= enc_weapons1_wpn_vintorez1
+hud                     = wpn_vintorez_a_hud
+
+[wpn_vintorez_a_hud]:wpn_vintorez_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Точность
+[wpn_vintorez_ba]:wpn_vintorez_a
+inv_grid_x         = 8
+inv_grid_y         = 5
+cost			= 27000
+
+ammo_elapsed		= 0
+fire_dispersion_base	= 0.02
+cam_dispersion 		= 0.05		;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc	= 0.1		;увеличениe cam_dispersion с каждым выстрелом							
+upg 			= ba
+description		= enc_weapons1_wpn_vintorez11
+hud                     = wpn_vintorez_ba_hud	
+
+[wpn_vintorez_ba_hud]:wpn_vintorez_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Надёжность
+[wpn_vintorez_bb]:wpn_vintorez_a
+inv_grid_x         = 15
+inv_grid_y         = 5
+cost			= 27000
+
+ammo_elapsed		= 0
+condition_shot_dec 	= 0.00015 
+upg 			= bb
+description		= enc_weapons1_wpn_vintorez12
+hud                     = wpn_vintorez_bb_hud	
+
+[wpn_vintorez_bb_hud]:wpn_vintorez_hud
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе точности
+[wpn_vintorez_ba_cb]:wpn_vintorez_ba
+inv_grid_x         = 22
+inv_grid_y         = 5
+
+cost			= 40000
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 20
+upg_last		= ba
+upg 			= cb
+description		= enc_weapons1_wpn_vintorez111
+hud                     = wpn_vintorez_ba_cb_hud
+
+[wpn_vintorez_ba_cb_hud]:wpn_vintorez_hud	
+
+;;;;;;;;;;;;;;;;;;;;;;Объём магазина на основе надёжности
+[wpn_vintorez_bb_cb]:wpn_vintorez_bb
+inv_grid_x         = 29
+inv_grid_y         = 5
+cost			= 40000
+
+ammo_elapsed		= 0				
+ammo_mag_size		= 20
+upg_last		= bb
+upg 			= cb
+description		= enc_weapons1_wpn_vintorez122
+hud                      = wpn_vintorez_bb_cb_hud
+
+[wpn_vintorez_bb_cb_hud]:wpn_vintorez_hud

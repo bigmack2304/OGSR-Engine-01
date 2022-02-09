@@ -1,0 +1,640 @@
+--/amk_rel_1/
+-- инициализация
+-- доп настройки в меню игры
+
+class "amk_options" (CUIScriptWnd)
+
+function amk_options:__init(owner) super()
+	self.owner = owner
+	self:InitControls()
+	self:InitCallBacks()
+end
+
+function amk_options:__finalize() end
+	
+function amk_options:InitControls()
+	self:Init(0,0,1024,768)
+
+	self.message_box = CUIMessageBoxEx()
+	self.message_box:SetAutoDelete(true)
+	self:Register(self.message_box,"message_box")
+
+	local xml = CScriptXmlInit()
+	xml:ParseFile("ui_amk_options_wnd.xml")
+
+	xml:InitStatic("background", self)	
+	
+	self.form_dlg = xml:InitStatic("form_for_opt:form_dlg", self)
+	
+	local btn
+	btn = xml:Init3tButton("form_for_opt:btn_okay", self.form_dlg)
+	self:Register(btn, "btn_okay")
+	btn = xml:Init3tButton("form_for_opt:btn_quit", self.form_dlg)
+	self:Register(btn, "btn_quit")
+	self.tab = xml:InitTab("form_for_opt:tab", self.form_dlg)
+	self:Register(self.tab, "tab")
+
+	self.form_dlg1 = xml:InitStatic("form_for_opt1:form_dlg1", self)
+
+	self.form_dlg2 = xml:InitStatic("form_for_opt2:form_dlg2", self)
+	self.form_dlg2:Show(false)
+
+	
+		xml:InitStatic("form_for_opt1:caption1",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption2",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption3",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption4",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption5",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption6",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption7",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption8",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption9",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption10",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption11",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption12",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption13",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption14",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption15",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption16",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption17",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption18",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption19",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption20",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption21",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption22",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption23",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption24",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption25",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption26",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption27",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption28",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption29",				self.form_dlg1)
+		xml:InitStatic("form_for_opt1:caption30",				self.form_dlg1)
+
+
+	--	xml:InitStatic("form_for_opt2:text_static",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption31",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption32",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption33",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption34",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption35",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption36",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption37",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption38",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption39",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption40",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption41",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption42",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption43",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption44",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption45",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption46",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption47",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption48",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption49",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption50",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption51",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption52",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption53",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption54",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption55",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption56",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption57",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption58",				self.form_dlg2)
+		xml:InitStatic("form_for_opt2:caption59",				self.form_dlg2)
+
+		
+		local radio_hud = xml:InitTab("form_for_opt1:radio_hud", self.form_dlg1)
+		self:Register(radio_hud, "radio_hud")	
+		self.radio_hud = radio_hud
+		radio_hud:SetNewActiveTab(amk_utils.load_variable("addon_opt_fps",0))
+
+		local addon_din_hud_snd = xml:InitTab("form_for_opt1:addon_din_hud_snd", self.form_dlg1)
+		self:Register(addon_din_hud_snd, "addon_din_hud_snd")	
+		self.addon_din_hud_snd = addon_din_hud_snd
+		addon_din_hud_snd:SetNewActiveTab(amk_utils.load_variable("addon_opt_hoffs",1))
+
+		local addon_din_hud_snd2 = xml:InitTab("form_for_opt1:addon_din_hud_snd2", self.form_dlg1)
+		self:Register(addon_din_hud_snd2, "addon_din_hud_snd2")	
+		self.addon_din_hud_snd2 = addon_din_hud_snd2
+		addon_din_hud_snd2:SetNewActiveTab(amk_utils.load_variable("addon_opt_afhit",1))
+
+		local addon_se = xml:InitTab("form_for_opt1:addon_se", self.form_dlg1)
+		self:Register(addon_se, "addon_se")	
+		self.addon_se = addon_se
+		addon_se:SetNewActiveTab(amk_utils.load_variable("addon_opt_rukhud",1))
+
+		local addon_wpnrask = xml:InitTab("form_for_opt1:addon_wpnrask", self.form_dlg1)
+		self:Register(addon_wpnrask, "addon_wpnrask")	
+		self.addon_wpnrask = addon_wpnrask
+		addon_wpnrask:SetNewActiveTab(amk_utils.load_variable("addon_opt_sitem",1))
+
+		local addon_batoryfanar = xml:InitTab("form_for_opt1:addon_batoryfanar", self.form_dlg1)
+		self:Register(addon_batoryfanar, "addon_batoryfanar")	
+		self.addon_batoryfanar = addon_batoryfanar
+		addon_batoryfanar:SetNewActiveTab(amk_utils.load_variable("addon_opt_swpn",1))
+
+		local addon_wpn_hd = xml:InitTab("form_for_opt1:addon_wpn_hd", self.form_dlg1)
+		self:Register(addon_wpn_hd, "addon_wpn_hd")	
+		self.addon_wpn_hd = addon_wpn_hd
+		addon_wpn_hd:SetNewActiveTab(amk_utils.load_variable("addon_opt_autosav",1))
+
+		local addon_wpn_rl = xml:InitTab("form_for_opt1:addon_wpn_rl", self.form_dlg1)
+		self:Register(addon_wpn_rl, "addon_wpn_rl")	
+		self.addon_wpn_rl = addon_wpn_rl
+		addon_wpn_rl:SetNewActiveTab(amk_utils.load_variable("addon_opt_invdof",1))
+
+		local addon_pasmenu = xml:InitTab("form_for_opt1:addon_pasmenu", self.form_dlg1)
+		self:Register(addon_pasmenu, "addon_pasmenu")	
+		self.addon_pasmenu = addon_pasmenu
+		addon_pasmenu:SetNewActiveTab(amk_utils.load_variable("addon_opt_blood",1))
+
+		local addon_wpn_inert = xml:InitTab("form_for_opt1:addon_wpn_inert", self.form_dlg1)
+		self:Register(addon_wpn_inert, "addon_wpn_inert")	
+		self.addon_wpn_inert = addon_wpn_inert
+		addon_wpn_inert:SetNewActiveTab(amk_utils.load_variable("addon_opt_explw",1))
+
+		local addon_blood = xml:InitTab("form_for_opt1:addon_blood", self.form_dlg1)
+		self:Register(addon_blood, "addon_blood")	
+		self.addon_blood = addon_blood
+		addon_blood:SetNewActiveTab(amk_utils.load_variable("addon_opt_winert",1))
+
+		local addon_buildpsdog = xml:InitTab("form_for_opt1:addon_buildpsdog", self.form_dlg1)
+		self:Register(addon_buildpsdog, "addon_buildpsdog")	
+		self.addon_buildpsdog = addon_buildpsdog
+		addon_buildpsdog:SetNewActiveTab(amk_utils.load_variable("addon_opt_relin",1))
+
+		local addon_fps = xml:InitTab("form_for_opt1:addon_fps", self.form_dlg1)
+		self:Register(addon_fps, "addon_fps")	
+		self.addon_fps = addon_fps
+		addon_fps:SetNewActiveTab(amk_utils.load_variable("addon_opt_dinhud",1))
+
+		local addon_itemstat = xml:InitTab("form_for_opt1:addon_itemstat", self.form_dlg1)
+		self:Register(addon_itemstat, "addon_itemstat")	
+		self.addon_itemstat = addon_itemstat
+		addon_itemstat:SetNewActiveTab(amk_utils.load_variable("addon_opt_dinhudsnd",1))
+
+		local addon_inv = xml:InitTab("form_for_opt1:addon_inv", self.form_dlg1)
+		self:Register(addon_inv, "addon_inv")	
+		self.addon_inv = addon_inv
+		addon_inv:SetNewActiveTab(amk_utils.load_variable("addon_opt_dinhudrdr",1))
+
+		local addon_afhit = xml:InitTab("form_for_opt1:addon_afhit", self.form_dlg1)
+		self:Register(addon_afhit, "addon_afhit")	
+		self.addon_afhit = addon_afhit
+		addon_afhit:SetNewActiveTab(amk_utils.load_variable("addon_opt_ustal",1))
+
+		local addon_ustal = xml:InitTab("form_for_opt1:addon_ustal", self.form_dlg1)
+		self:Register(addon_ustal, "addon_ustal")	
+		self.addon_ustal = addon_ustal
+		addon_ustal:SetNewActiveTab(amk_utils.load_variable("addon_opt_sndusitm",1))
+
+		local addon_slots = xml:InitTab("form_for_opt1:addon_slots", self.form_dlg1)
+		self:Register(addon_slots, "addon_slots")	
+		self.addon_slots = addon_slots
+		addon_slots:SetNewActiveTab(amk_utils.load_variable("addon_opt_disusitm",1))
+
+		local addon_newsdynn = xml:InitTab("form_for_opt1:addon_newsdynn", self.form_dlg1)
+		self:Register(addon_newsdynn, "addon_newsdynn")	
+		self.addon_newsdynn = addon_newsdynn
+		addon_newsdynn:SetNewActiveTab(amk_utils.load_variable("addon_opt_realmed",1))
+
+		local addon_autopaus = xml:InitTab("form_for_opt1:addon_autopaus", self.form_dlg1)
+		self:Register(addon_autopaus, "addon_autopaus")	
+		self.addon_autopaus = addon_autopaus
+		addon_autopaus:SetNewActiveTab(amk_utils.load_variable("addon_opt_autopaus",0))
+
+		local addon_surge = xml:InitTab("form_for_opt1:addon_surge", self.form_dlg1)
+		self:Register(addon_surge, "addon_surge")	
+		self.addon_surge = addon_surge
+		addon_surge:SetNewActiveTab(amk_utils.load_variable("addon_opt_surge",1))
+
+		local addon_surge_npc = xml:InitTab("form_for_opt1:addon_surge_npc", self.form_dlg1)
+		self:Register(addon_surge_npc, "addon_surge_npc")	
+		self.addon_surge_npc = addon_surge_npc
+		addon_surge_npc:SetNewActiveTab(amk_utils.load_variable("addon_opt_surge_npc",1))
+
+		local addon_surge_pda = xml:InitTab("form_for_opt1:addon_surge_pda", self.form_dlg1)
+		self:Register(addon_surge_pda, "addon_surge_pda")	
+		self.addon_surge_pda = addon_surge_pda
+		addon_surge_pda:SetNewActiveTab(amk_utils.load_variable("addon_opt_surge_pda",1))
+
+		local addon_surge_info = xml:InitTab("form_for_opt1:addon_surge_info", self.form_dlg1)
+		self:Register(addon_surge_info, "addon_surge_info")	
+		self.addon_surge_info = addon_surge_info
+		addon_surge_info:SetNewActiveTab(amk_utils.load_variable("addon_opt_surge_info",1))
+
+		local addon_surge_news = xml:InitTab("form_for_opt1:addon_surge_news", self.form_dlg1)
+		self:Register(addon_surge_news, "addon_surge_news")	
+		self.addon_surge_news = addon_surge_news
+		addon_surge_news:SetNewActiveTab(amk_utils.load_variable("addon_opt_surge_news",1))
+
+		local addon_nnpceye = xml:InitTab("form_for_opt1:addon_nnpceye", self.form_dlg1)
+		self:Register(addon_nnpceye, "addon_nnpceye")	
+		self.addon_nnpceye = addon_nnpceye
+		addon_nnpceye:SetNewActiveTab(amk_utils.load_variable("addon_opt_nnpceye",1))
+
+		local addon_invkg = xml:InitTab("form_for_opt1:addon_invkg", self.form_dlg1)
+		self:Register(addon_invkg, "addon_invkg")	
+		self.addon_invkg = addon_invkg
+		addon_invkg:SetNewActiveTab(amk_utils.load_variable("addon_opt_invkg",0))
+
+		local addon_sound_pda = xml:InitTab("form_for_opt1:addon_sound_pda", self.form_dlg1)
+		self:Register(addon_sound_pda, "addon_sound_pda")	
+		self.addon_sound_pda = addon_sound_pda
+		addon_sound_pda:SetNewActiveTab(amk_utils.load_variable("addon_opt_sound_pda",1))
+
+		local addon_corpse_food = xml:InitTab("form_for_opt1:addon_corpse_food", self.form_dlg1)
+		self:Register(addon_corpse_food, "addon_corpse_food")	
+		self.addon_corpse_food = addon_corpse_food
+		addon_corpse_food:SetNewActiveTab(amk_utils.load_variable("addon_opt_corpse_food",1))
+
+		local addon_torch_battery = xml:InitTab("form_for_opt1:addon_torch_battery", self.form_dlg1)
+		self:Register(addon_torch_battery, "addon_torch_battery")	
+		self.addon_torch_battery = addon_torch_battery
+		addon_torch_battery:SetNewActiveTab(amk_utils.load_variable("addon_opt_torch_battery",1))
+
+
+-- 2я страница
+
+		local addon_pnv_battery = xml:InitTab("form_for_opt2:addon_pnv_battery", self.form_dlg2)
+		self:Register(addon_pnv_battery, "addon_pnv_battery")	
+		self.addon_pnv_battery = addon_pnv_battery
+		addon_pnv_battery:SetNewActiveTab(amk_utils.load_variable("addon_opt_pnv_battery",1))
+
+		local addon_nnpctorch = xml:InitTab("form_for_opt2:addon_nnpctorch", self.form_dlg2)
+		self:Register(addon_nnpctorch, "addon_nnpctorch")	
+		self.addon_nnpctorch = addon_nnpctorch
+		addon_nnpctorch:SetNewActiveTab(amk_utils.load_variable("addon_opt_nnpctorch",1))
+
+		local addon_sakbody = xml:InitTab("form_for_opt2:addon_sakbody", self.form_dlg2)
+		self:Register(addon_sakbody, "addon_sakbody")	
+		self.addon_sakbody = addon_sakbody
+		addon_sakbody:SetNewActiveTab(amk_utils.load_variable("addon_opt_sakbody",1))
+
+		local addon_exobat = xml:InitTab("form_for_opt2:addon_exobat", self.form_dlg2)
+		self:Register(addon_exobat, "addon_exobat")	
+		self.addon_exobat = addon_exobat
+		addon_exobat:SetNewActiveTab(amk_utils.load_variable("addon_opt_exobat",1))
+
+		local addon_hiteff = xml:InitTab("form_for_opt2:addon_hiteff", self.form_dlg2)
+		self:Register(addon_hiteff, "addon_hiteff")	
+		self.addon_hiteff = addon_hiteff
+		addon_hiteff:SetNewActiveTab(amk_utils.load_variable("addon_opt_hiteff",1))
+
+		local addon_lcinf = xml:InitTab("form_for_opt2:addon_lcinf", self.form_dlg2)
+		self:Register(addon_lcinf, "addon_lcinf")	
+		self.addon_lcinf = addon_lcinf
+		addon_lcinf:SetNewActiveTab(amk_utils.load_variable("addon_opt_lcinf",1))
+
+		local addon_agloss = xml:InitTab("form_for_opt2:addon_agloss", self.form_dlg2)
+		self:Register(addon_agloss, "addon_agloss")	
+		self.addon_agloss = addon_agloss
+		addon_agloss:SetNewActiveTab(amk_utils.load_variable("addon_opt_agloss",1))
+
+		local addon_newtalk = xml:InitTab("form_for_opt2:addon_newtalk", self.form_dlg2)
+		self:Register(addon_newtalk, "addon_newtalk")	
+		self.addon_newtalk = addon_newtalk
+		addon_newtalk:SetNewActiveTab(amk_utils.load_variable("addon_opt_newtalk",1))
+
+		local addon_lonmon = xml:InitTab("form_for_opt2:addon_lonmon", self.form_dlg2)
+		self:Register(addon_lonmon, "addon_lonmon")	
+		self.addon_lonmon = addon_lonmon
+		addon_lonmon:SetNewActiveTab(amk_utils.load_variable("addon_opt_lonmon",1))
+
+		local addon_lonmoninf = xml:InitTab("form_for_opt2:addon_lonmoninf", self.form_dlg2)
+		self:Register(addon_lonmoninf, "addon_lonmoninf")	
+		self.addon_lonmoninf = addon_lonmoninf
+		addon_lonmoninf:SetNewActiveTab(amk_utils.load_variable("addon_opt_lonmoninf",1))
+
+		local addon_ahemi = xml:InitTab("form_for_opt2:addon_ahemi", self.form_dlg2)
+		self:Register(addon_ahemi, "addon_ahemi")	
+		self.addon_ahemi = addon_ahemi
+		addon_ahemi:SetNewActiveTab(amk_utils.load_variable("addon_opt_ahemi",1))
+
+		local addon_radfon = xml:InitTab("form_for_opt2:addon_radfon", self.form_dlg2)
+		self:Register(addon_radfon, "addon_radfon")	
+		self.addon_radfon = addon_radfon
+		addon_radfon:SetNewActiveTab(amk_utils.load_variable("addon_opt_radfon",1))
+
+		local addon_dinhudblr = xml:InitTab("form_for_opt2:addon_dinhudblr", self.form_dlg2)
+		self:Register(addon_dinhudblr, "addon_dinhudblr")	
+		self.addon_dinhudblr = addon_dinhudblr
+		addon_dinhudblr:SetNewActiveTab(amk_utils.load_variable("addon_opt_dinhudblr",1))
+
+		local addon_campower = xml:InitTab("form_for_opt2:addon_campower", self.form_dlg2)
+		self:Register(addon_campower, "addon_campower")	
+		self.addon_campower = addon_campower
+		addon_campower:SetNewActiveTab(amk_utils.load_variable("addon_opt_campower",1))
+
+		local addon_camheal = xml:InitTab("form_for_opt2:addon_camheal", self.form_dlg2)
+		self:Register(addon_camheal, "addon_camheal")	
+		self.addon_camheal = addon_camheal
+		addon_camheal:SetNewActiveTab(amk_utils.load_variable("addon_opt_camheal",1))
+
+		local addon_sndbody = xml:InitTab("form_for_opt2:addon_sndbody", self.form_dlg2)
+		self:Register(addon_sndbody, "addon_sndbody")	
+		self.addon_sndbody = addon_sndbody
+		addon_sndbody:SetNewActiveTab(amk_utils.load_variable("addon_opt_sndbody",1))
+
+		local addon_mysosh = xml:InitTab("form_for_opt2:addon_mysosh", self.form_dlg2)
+		self:Register(addon_mysosh, "addon_mysosh")	
+		self.addon_mysosh = addon_mysosh
+		addon_mysosh:SetNewActiveTab(amk_utils.load_variable("addon_opt_mysosh",1))
+
+		local addon_buildpsdogi = xml:InitTab("form_for_opt2:addon_buildpsdogi", self.form_dlg2)
+		self:Register(addon_buildpsdogi, "addon_buildpsdogi")	
+		self.addon_buildpsdogi = addon_buildpsdogi
+		addon_buildpsdogi:SetNewActiveTab(amk_utils.load_variable("addon_opt_buildpsdogi",1))
+
+		local addon_camdrv = xml:InitTab("form_for_opt2:addon_camdrv", self.form_dlg2)
+		self:Register(addon_camdrv, "addon_camdrv")	
+		self.addon_camdrv = addon_camdrv
+		addon_camdrv:SetNewActiveTab(amk_utils.load_variable("addon_opt_camdrv",1))
+
+		local addon_camjs = xml:InitTab("form_for_opt2:addon_camjs", self.form_dlg2)
+		self:Register(addon_camjs, "addon_camjs")	
+		self.addon_camjs = addon_camjs
+		addon_camjs:SetNewActiveTab(amk_utils.load_variable("addon_opt_camjs",1))
+
+		local addon_camhid = xml:InitTab("form_for_opt2:addon_camhid", self.form_dlg2)
+		self:Register(addon_camhid, "addon_camhid")	
+		self.addon_camhid = addon_camhid
+		addon_camhid:SetNewActiveTab(amk_utils.load_variable("addon_opt_camhid",1))
+		
+		local addon_nqsave = xml:InitTab("form_for_opt2:addon_nqsave", self.form_dlg2)
+		self:Register(addon_nqsave, "addon_nqsave")	
+		self.addon_nqsave = addon_nqsave
+		addon_nqsave:SetNewActiveTab(amk_utils.load_variable("addon_opt_nqsave",1))
+		
+		local addon_dinhud_hit = xml:InitTab("form_for_opt2:addon_dinhud_hit", self.form_dlg2)
+		self:Register(addon_dinhud_hit, "addon_dinhud_hit")	
+		self.addon_dinhud_hit = addon_dinhud_hit
+		addon_dinhud_hit:SetNewActiveTab(amk_utils.load_variable("addon_opt_dinhud_hit",1))
+		
+		local addon_deathnews = xml:InitTab("form_for_opt2:addon_deathnews", self.form_dlg2)
+		self:Register(addon_deathnews, "addon_deathnews")	
+		self.addon_deathnews = addon_deathnews
+		addon_deathnews:SetNewActiveTab(amk_utils.load_variable("addon_opt_deathnews",1))
+		
+		local addon_reldof = xml:InitTab("form_for_opt2:addon_reldof", self.form_dlg2)
+		self:Register(addon_reldof, "addon_reldof")	
+		self.addon_reldof = addon_reldof
+		addon_reldof:SetNewActiveTab(amk_utils.load_variable("addon_opt_reldof",1))
+		
+		local addon_newsrnd = xml:InitTab("form_for_opt2:addon_newsrnd", self.form_dlg2)
+		self:Register(addon_newsrnd, "addon_newsrnd")	
+		self.addon_newsrnd = addon_newsrnd
+		addon_newsrnd:SetNewActiveTab(amk_utils.load_variable("addon_opt_newsrnd",1))
+		
+		local addon_newsdyn = xml:InitTab("form_for_opt2:addon_newsdyn", self.form_dlg2)
+		self:Register(addon_newsdyn, "addon_newsdyn")	
+		self.addon_newsdyn = addon_newsdyn
+		addon_newsdyn:SetNewActiveTab(amk_utils.load_variable("addon_opt_newsdyn",1))
+		
+		local addon_newsdynmn = xml:InitTab("form_for_opt2:addon_newsdynmn", self.form_dlg2)
+		self:Register(addon_newsdynmn, "addon_newsdynmn")	
+		self.addon_newsdynmn = addon_newsdynmn
+		addon_newsdynmn:SetNewActiveTab(amk_utils.load_variable("addon_opt_newsdynmn",1))
+		
+		local addon_dinhudvis = xml:InitTab("form_for_opt2:addon_dinhudvis", self.form_dlg2)
+		self:Register(addon_dinhudvis, "addon_dinhudvis")	
+		self.addon_dinhudvis = addon_dinhudvis
+		addon_dinhudvis:SetNewActiveTab(amk_utils.load_variable("addon_opt_dinhudvis",1))
+	
+end
+
+function amk_options:InitCallBacks()
+	self:AddCallback("tab", ui_events.TAB_CHANGED, self.OnTabChange, self)
+	self:AddCallback("btn_quit", ui_events.BUTTON_CLICKED, self.on_quit, self)
+	self:AddCallback("btn_okay", ui_events.BUTTON_CLICKED, self.on_okay, self)
+end
+
+function amk_options:OnTabChange()
+	self.form_dlg1:Show		(false)
+	self.form_dlg2:Show		(false)
+	
+	local i = self.tab:GetActiveIndex()
+	if i == 0 then
+		self.form_dlg1:Show(true)		
+	elseif i == 1 then
+		self.form_dlg2:Show(true)
+	end
+end
+
+function amk_options:on_okay()
+
+	local radio_hud = self:GetTabControl("radio_hud")
+	amk_utils.save_variable("addon_opt_fps", radio_hud:GetActiveIndex() )
+
+	local addon_din_hud_snd = self:GetTabControl("addon_din_hud_snd")
+	amk_utils.save_variable("addon_opt_hoffs", addon_din_hud_snd:GetActiveIndex() )
+
+	local addon_din_hud_snd2 = self:GetTabControl("addon_din_hud_snd2")
+	amk_utils.save_variable("addon_opt_afhit", addon_din_hud_snd2:GetActiveIndex() )
+
+	local addon_se = self:GetTabControl("addon_se")
+	amk_utils.save_variable("addon_opt_rukhud", addon_se:GetActiveIndex() )
+
+	local addon_wpnrask = self:GetTabControl("addon_wpnrask")
+	amk_utils.save_variable("addon_opt_sitem", addon_wpnrask:GetActiveIndex() )
+
+	local addon_batoryfanar = self:GetTabControl("addon_batoryfanar")
+	amk_utils.save_variable("addon_opt_swpn", addon_batoryfanar:GetActiveIndex() )
+
+	local addon_wpn_hd = self:GetTabControl("addon_wpn_hd")
+	amk_utils.save_variable("addon_opt_autosav", addon_wpn_hd:GetActiveIndex() )
+
+	local addon_wpn_rl = self:GetTabControl("addon_wpn_rl")
+	amk_utils.save_variable("addon_opt_invdof", addon_wpn_rl:GetActiveIndex() )
+
+	local addon_pasmenu = self:GetTabControl("addon_pasmenu")
+	amk_utils.save_variable("addon_opt_blood", addon_pasmenu:GetActiveIndex() )
+
+	local addon_wpn_inert = self:GetTabControl("addon_wpn_inert")
+	amk_utils.save_variable("addon_opt_explw", addon_wpn_inert:GetActiveIndex() )
+
+	local addon_blood = self:GetTabControl("addon_blood")
+	amk_utils.save_variable("addon_opt_winert", addon_blood:GetActiveIndex() )
+
+	local addon_buildpsdog = self:GetTabControl("addon_buildpsdog")
+	amk_utils.save_variable("addon_opt_relin", addon_buildpsdog:GetActiveIndex() )
+
+	local addon_fps = self:GetTabControl("addon_fps")
+	amk_utils.save_variable("addon_opt_dinhud", addon_fps:GetActiveIndex() )
+
+	local addon_itemstat = self:GetTabControl("addon_itemstat")
+	amk_utils.save_variable("addon_opt_dinhudsnd", addon_itemstat:GetActiveIndex() )
+	addon_xr_mask.upd()
+
+	local addon_inv = self:GetTabControl("addon_inv")
+	amk_utils.save_variable("addon_opt_dinhudrdr", addon_inv:GetActiveIndex() )
+	--addon_invt.upd()
+
+	local addon_afhit = self:GetTabControl("addon_afhit")
+	amk_utils.save_variable("addon_opt_ustal", addon_afhit:GetActiveIndex() )
+
+	local addon_ustal = self:GetTabControl("addon_ustal")
+	amk_utils.save_variable("addon_opt_sndusitm", addon_ustal:GetActiveIndex() )
+
+	local addon_slots = self:GetTabControl("addon_slots")
+	amk_utils.save_variable("addon_opt_disusitm", addon_slots:GetActiveIndex() )
+	--amk_utils.reset_bag()
+
+	local addon_newsdynn = self:GetTabControl("addon_newsdynn")
+	amk_utils.save_variable("addon_opt_realmed", addon_newsdynn:GetActiveIndex() )
+
+	local addon_autopaus = self:GetTabControl("addon_autopaus")
+	amk_utils.save_variable("addon_opt_autopaus", addon_autopaus:GetActiveIndex() )
+
+	local addon_surge = self:GetTabControl("addon_surge")
+	amk_utils.save_variable("addon_opt_surge", addon_surge:GetActiveIndex() )
+
+	local addon_surge_npc = self:GetTabControl("addon_surge_npc")
+	amk_utils.save_variable("addon_opt_surge_npc", addon_surge_npc:GetActiveIndex() )
+
+	local addon_surge_pda = self:GetTabControl("addon_surge_pda")
+	amk_utils.save_variable("addon_opt_surge_pda", addon_surge_pda:GetActiveIndex() )
+
+	local addon_surge_info = self:GetTabControl("addon_surge_info")
+	amk_utils.save_variable("addon_opt_surge_info", addon_surge_info:GetActiveIndex() )
+
+	local addon_surge_news = self:GetTabControl("addon_surge_news")
+	amk_utils.save_variable("addon_opt_surge_news", addon_surge_news:GetActiveIndex() )
+
+	local addon_nnpceye = self:GetTabControl("addon_nnpceye")
+	amk_utils.save_variable("addon_opt_nnpceye", addon_nnpceye:GetActiveIndex() )
+
+	local addon_invkg = self:GetTabControl("addon_invkg")
+	amk_utils.save_variable("addon_opt_invkg", addon_invkg:GetActiveIndex() )
+
+	local addon_sound_pda = self:GetTabControl("addon_sound_pda")
+	amk_utils.save_variable("addon_opt_sound_pda", addon_sound_pda:GetActiveIndex() )
+
+	local addon_corpse_food = self:GetTabControl("addon_corpse_food")
+	amk_utils.save_variable("addon_opt_corpse_food", addon_corpse_food:GetActiveIndex() )
+
+	local addon_torch_battery = self:GetTabControl("addon_torch_battery")
+	amk_utils.save_variable("addon_opt_torch_battery", addon_torch_battery:GetActiveIndex() )
+
+
+-- 2я страница
+
+
+	local addon_pnv_battery = self:GetTabControl("addon_pnv_battery")
+	amk_utils.save_variable("addon_opt_pnv_battery", addon_pnv_battery:GetActiveIndex() )
+
+	local addon_nnpctorch = self:GetTabControl("addon_nnpctorch")
+	amk_utils.save_variable("addon_opt_nnpctorch", addon_nnpctorch:GetActiveIndex() )
+
+	local addon_sakbody = self:GetTabControl("addon_sakbody")
+	amk_utils.save_variable("addon_opt_sakbody", addon_sakbody:GetActiveIndex() )
+
+	local addon_exobat = self:GetTabControl("addon_exobat")
+	amk_utils.save_variable("addon_opt_exobat", addon_exobat:GetActiveIndex() )
+
+	local addon_hiteff = self:GetTabControl("addon_hiteff")
+	amk_utils.save_variable("addon_opt_hiteff", addon_hiteff:GetActiveIndex() )
+
+	local addon_lcinf = self:GetTabControl("addon_lcinf")
+	amk_utils.save_variable("addon_opt_lcinf", addon_lcinf:GetActiveIndex() )
+
+	local addon_agloss = self:GetTabControl("addon_agloss")
+	amk_utils.save_variable("addon_opt_agloss", addon_agloss:GetActiveIndex() )
+
+	local addon_newtalk = self:GetTabControl("addon_newtalk")
+	amk_utils.save_variable("addon_opt_newtalk", addon_newtalk:GetActiveIndex() )
+
+	local addon_lonmon = self:GetTabControl("addon_lonmon")
+	amk_utils.save_variable("addon_opt_lonmon", addon_lonmon:GetActiveIndex() )
+
+	local addon_lonmoninf = self:GetTabControl("addon_lonmoninf")
+	amk_utils.save_variable("addon_opt_lonmoninf", addon_lonmoninf:GetActiveIndex() )
+
+	local addon_ahemi = self:GetTabControl("addon_ahemi")
+	amk_utils.save_variable("addon_opt_ahemi", addon_ahemi:GetActiveIndex() )
+
+	local addon_radfon = self:GetTabControl("addon_radfon")
+	amk_utils.save_variable("addon_opt_radfon", addon_radfon:GetActiveIndex() )
+
+	local addon_dinhudblr = self:GetTabControl("addon_dinhudblr")
+	amk_utils.save_variable("addon_opt_dinhudblr", addon_dinhudblr:GetActiveIndex() )
+
+	local addon_campower = self:GetTabControl("addon_campower")
+	amk_utils.save_variable("addon_opt_campower", addon_campower:GetActiveIndex() )
+
+	local addon_camheal = self:GetTabControl("addon_camheal")
+	amk_utils.save_variable("addon_opt_camheal", addon_camheal:GetActiveIndex() )
+
+	local addon_sndbody = self:GetTabControl("addon_sndbody")
+	amk_utils.save_variable("addon_opt_sndbody", addon_sndbody:GetActiveIndex() )
+
+	local addon_mysosh = self:GetTabControl("addon_mysosh")
+	amk_utils.save_variable("addon_opt_mysosh", addon_mysosh:GetActiveIndex() )
+
+	local addon_buildpsdogi = self:GetTabControl("addon_buildpsdogi")
+	amk_utils.save_variable("addon_opt_buildpsdogi", addon_buildpsdogi:GetActiveIndex() )
+
+	local addon_camdrv = self:GetTabControl("addon_camdrv")
+	amk_utils.save_variable("addon_opt_camdrv", addon_camdrv:GetActiveIndex() )
+
+	local addon_camjs = self:GetTabControl("addon_camjs")
+	amk_utils.save_variable("addon_opt_camjs", addon_camjs:GetActiveIndex() )
+
+	local addon_camhid = self:GetTabControl("addon_camhid")
+	amk_utils.save_variable("addon_opt_camhid", addon_camhid:GetActiveIndex() )
+	
+	local addon_nqsave = self:GetTabControl("addon_nqsave")
+	amk_utils.save_variable("addon_opt_nqsave", addon_nqsave:GetActiveIndex() )
+	
+	local addon_dinhud_hit = self:GetTabControl("addon_dinhud_hit")
+	amk_utils.save_variable("addon_opt_dinhud_hit", addon_dinhud_hit:GetActiveIndex() )
+	
+	local addon_deathnews = self:GetTabControl("addon_deathnews")
+	amk_utils.save_variable("addon_opt_deathnews", addon_deathnews:GetActiveIndex() )
+	
+	local addon_reldof = self:GetTabControl("addon_reldof")
+	amk_utils.save_variable("addon_opt_reldof", addon_reldof:GetActiveIndex() )
+	
+	local addon_newsrnd = self:GetTabControl("addon_newsrnd")
+	amk_utils.save_variable("addon_opt_newsrnd", addon_newsrnd:GetActiveIndex() )
+	
+	local addon_newsdyn = self:GetTabControl("addon_newsdyn")
+	amk_utils.save_variable("addon_opt_newsdyn", addon_newsdyn:GetActiveIndex() )
+	
+	local addon_newsdynmn = self:GetTabControl("addon_newsdynmn")
+	amk_utils.save_variable("addon_opt_newsdynmn", addon_newsdynmn:GetActiveIndex() )
+	
+	local addon_dinhudvis = self:GetTabControl("addon_dinhudvis")
+	amk_utils.save_variable("addon_opt_dinhudvis", addon_dinhudvis:GetActiveIndex() )
+
+
+	addon_debug_saveload.rl()
+	addon_debug_saveload.start_timer()
+
+	if level.present() and (db.actor ~= nil) and db.actor:alive() then
+		get_console():execute("main_menu off")
+	end
+	
+	self:on_quit()
+end
+
+function amk_options:on_quit()
+	self:GetHolder():start_stop_menu(self.owner, true)
+	self:GetHolder():start_stop_menu(self,true)
+	self.owner:Show(true)
+end
+
+function amk_options:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self,dik,keyboard_action)
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+-- на выход повесим Esc
+		if dik == DIK_keys.DIK_ESCAPE then
+			self:on_quit()
+		end
+		if dik == DIK_keys.DIK_RETURN then
+			self:on_okay()
+		end
+	end
+	return true
+end

@@ -1,0 +1,165 @@
+--[[
+	Различные функции, которые могут быть полезны
+	при работе с нет пакетами
+	Авторы: Refresh, Artos, Real Wolf(привел чуть в более другой вид)
+--]]
+
+class "CFakeNetPacket"
+function CFakeNetPacket:__init()
+	self.iSize = 0
+end
+
+function CFakeNetPacket:w_tell()
+	return self.iSize
+end
+function CFakeNetPacket:w_bool()
+	self.iSize = self.iSize+1
+end
+function CFakeNetPacket:w_u8()
+	self.iSize = self.iSize+1
+end
+function CFakeNetPacket:w_u16()
+	self.iSize = self.iSize+2
+end
+function CFakeNetPacket:w_u24()
+	self.iSize = self.iSize+3
+end
+function CFakeNetPacket:w_u32()
+	self.iSize = self.iSize+4
+end
+function CFakeNetPacket:w_u64()
+	self.iSize = self.iSize+8
+end
+function CFakeNetPacket:w_s16()
+	self.iSize = self.iSize+2
+end
+function CFakeNetPacket:w_s32()
+	self.iSize = self.iSize+4
+end
+function CFakeNetPacket:w_s64()
+	self.iSize = self.iSize+8
+end
+function CFakeNetPacket:w_angle8()
+	self.iSize = self.iSize+1
+end
+function CFakeNetPacket:w_angle16()
+	self.iSize = self.iSize+2
+end
+function CFakeNetPacket:w_float()
+	self.iSize = self.iSize+4
+end
+function CFakeNetPacket:w_stringZ(sString)
+	self.iSize = self.iSize + string.len(sString)+1
+end
+function CFakeNetPacket:w_vec3()
+	self.iSize = self.iSize+12
+end
+
+function CFakeNetPacket:w_begin()
+	abort("w_begin unsupported in CFakeNetPacket")
+end
+function CFakeNetPacket:w_chunk_open8()
+	abort("w_chunk_open8 unsupported in CFakeNetPacket")
+end
+function CFakeNetPacket:w_chunk_close8()
+	abort("w_chunk_close8 unsupported in CFakeNetPacket")
+end
+function CFakeNetPacket:w_chunk_open16()
+	abort("w_chunk_open16 unsupported in CFakeNetPacket")
+end
+function CFakeNetPacket:w_chunk_close16()
+	abort("w_chunk_close16 unsupported in CFakeNetPacket")
+end
+function CFakeNetPacket:w_float_q8()
+	abort("w_float_q8 unsupported in CFakeNetPacket")
+end
+function CFakeNetPacket:w_float_q16()
+	abort("w_float_q16 unsupported in CFakeNetPacket")
+end
+function CFakeNetPacket:w_matrix()
+	abort("w_matrix unsupported in CFakeNetPacket")
+end
+function CFakeNetPacket:w_dir()
+	abort("w_dir unsupported in CFakeNetPacket")
+end
+function CFakeNetPacket:w_sdir()
+	abort("w_sdir unsupported in CFakeNetPacket")
+end
+function CFakeNetPacket:w_clientID()
+	abort("w_clientID unsupported in CFakeNetPacket")
+end
+
+--[[
+	Строковые функции
+--]]
+function Trim(sString)
+	return string.gsub(sString, "^%s*(.-)%s*$", "%1")
+end
+
+
+--[[
+	Превращение кастомдаты в таблицу
+	Запрещены коментарии в функции
+--]]
+function ParseCustomData(sCustomData)
+	local tCustomData = {}
+	if sCustomData then
+		for sLogicSection, sLogicSectionData in string.gfind(sCustomData,"%s*%[([^%]]*)%]%s*([^%[%z]*)%s*") do
+			sLogicSection = Trim(sLogicSection)
+			tCustomData[sLogicSection] = {}
+			for sLine in string.gfind(Trim(sLogicSectionData), "([^\n]*)\n*") do
+				if string.find(sLine, "=") ~= nil then
+					for sParam, sValue in string.gfind(sLine, "([^=]-)%s*=%s*(.*)") do
+						sParam = Trim(sParam)
+						if sParam ~= nil and sParam ~= "" and sValue ~= nil then
+							tCustomData[sLogicSection][sParam] = Trim(sValue)
+						end
+					end
+				else
+					for sParam, sValue in string.gfind(sLine, "(.*)") do
+						sParam = Trim(sParam)
+						if sParam ~= nil and sParam ~= "" then
+							tCustomData[sLogicSection][sParam] = "nil"
+						end
+					end
+				end
+			end
+		end
+	end
+	return tCustomData
+end
+
+--[[
+	Превращение таблицы в кастомдату
+	Запрещены коментарии в функции
+--]]
+function GenCustomData(tCustomData)
+	local sCustomData = ""
+	for sLogicSection, tParams in pairs(tCustomData) do
+		sCustomData = sCustomData.."\n["..sLogicSection.."]\n"
+		for sParam, sValue in pairs(tParams) do
+			if sValue ~= "nil" then
+				sCustomData = sCustomData..sParam.." = "..sValue.."\n"
+			else
+				sCustomData = sCustomData..sParam.."\n"
+			end
+		end
+	end
+	return sCustomData
+end
+
+--[[
+	Перевод объекта в онлайн\оффлайн
+--]]
+function Switch(iId, bSwitch)
+	local oSim = alife()
+	if oSim and iId and oSim:object(iId) then
+		if bSwitch == true then
+			oSim:set_switch_online(iId, true)
+			oSim:set_switch_offline(iId, false)
+		elseif bSwitch == false then
+			oSim:set_switch_online(iId, false)
+			oSim:set_switch_offline(iId, true)
+		end
+	end
+end

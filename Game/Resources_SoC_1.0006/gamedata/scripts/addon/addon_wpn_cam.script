@@ -1,0 +1,314 @@
+-- анимация камеры при взаимодействии с оружием
+-- покачевание камеры при перезарядке,
+-- при доставании\прятании - естественно взято из ганслингера
+-- также анимки при прыжке и стрейфах
+
+local rel = 0
+local drv = 0
+local hid = 0
+
+local weapon_states = {
+  idle      = global_flags.eIdle,
+  fire      = global_flags.eFire,
+  fire2     = global_flags.eFire2,
+  reload    = global_flags.eReload,
+  showing   = global_flags.eShowing,
+  hiding    = global_flags.eHiding,
+  hidden    = global_flags.eHidden,
+  misfire   = global_flags.eMisfire,
+  mag_empty = global_flags.eMagEmpty,
+  switch    = global_flags.eSwitch
+}
+
+-- секции к которым не будет применятся анимка перезарядки
+local exclude_wpns_rel = {
+	["bolt"]             	=true,
+	["grenade_rgd5"]        =true,
+	["grenade_f1"]          =true,
+	["grenade_rgd5_fake"]   =true,
+	["grenade_f1_fake"]     =true,
+	["grenade_rgd5_test"]   =true,
+	["grenade_f1_test"]     =true,
+	["wpn_knife2_1"]     	=true,
+	["wpn_binoc"]        	=true,
+	["detector_geiger1"]   	=true,
+	["detector_geiger2"]   	=true,
+	["detector_geiger3"]   	=true,
+	["detector_advances"]   =true,
+	["detector_simple"]     =true,
+	["detector_advances"]   =true,
+	["detector_elite"]      =true
+	}
+	
+-- секции с легким оружием, включая их модификации
+local drv_wpns_pistol = {
+	["wpn_pm"] 				= true,
+	 ["wpn_pm_a"] 			= true,
+	 ["wpn_pm_ba"] 			= true,
+	 ["wpn_pm_bb"] 			= true,
+	 ["wpn_pm_ba_cb"] 		= true,
+	 ["wpn_pm_bb_cb"] 		= true,
+	["wpn_pb"] 				= true,
+     ["wpn_pb_a"] 			= true,
+     ["wpn_pb_ba"] 			= true,
+     ["wpn_pb_bb"] 			= true,
+     ["wpn_pb_ba_cb"] 		= true,
+     ["wpn_pb_bb_cb"] 		= true,
+	["wpn_usp"] 			= true,
+     ["wpn_usp_a"] 			= true,
+     ["wpn_usp_ba"] 		= true,
+     ["wpn_usp_bb"] 		= true,	  
+     ["wpn_usp_ba_cb"] 		= true,
+     ["wpn_usp_bb_cb"] 		= true,	  
+	["wpn_beretta"] 		= true,
+	 ["wpn_beretta_a"] 		= true,
+	 ["wpn_beretta_ba"] 	= true,
+	 ["wpn_beretta_bb"] 	= true,
+	 ["wpn_beretta_ba_cb"] 	= true,
+	 ["wpn_beretta_bb_cb"] 	= true,
+	["wpn_fort"] 			= true,
+	 ["wpn_fort_a"] 		= true,
+	 ["wpn_fort_ba"] 		= true,
+	 ["wpn_fort_bb"] 		= true,
+	 ["wpn_fort_ba_cb"] 	= true,
+	 ["wpn_fort_bb_cb"] 	= true,
+	["wpn_sig220"] 			= true,
+	 ["wpn_sig220_a"] 		= true,
+	 ["wpn_sig220_ba"] 		= true,
+	 ["wpn_sig220_bb"] 		= true,
+	 ["wpn_sig220_ba_cb"] 	= true,
+	 ["wpn_sig220_bb_cb"] 	= true,
+	["wpn_hpsa"] 			= true,
+	 ["wpn_hpsa_a"] 		= true,
+	 ["wpn_hpsa_ba"] 		= true,
+	 ["wpn_hpsa_bb"] 		= true,
+	 ["wpn_hpsa_ba_cb"] 	= true,
+	 ["wpn_hpsa_bb_cb"] 	= true,
+	["wpn_colt1911"] 		= true,
+	 ["wpn_colt1911_a"] 	= true,
+	 ["wpn_colt1911_ba"] 	= true,
+	 ["wpn_colt1911_bb"] 	= true,
+	 ["wpn_colt1911_ba_cb"] = true,
+	 ["wpn_colt1911_bb_cb"] = true,
+	["wpn_walther"] 		= true,
+	 ["wpn_walther_a"] 		= true,
+	 ["wpn_walther_ba"] 	= true,
+	 ["wpn_walther_bb"] 	= true,
+	 ["wpn_walther_ba_cb"] 	= true,
+	 ["wpn_walther_bb_cb"] 	= true,
+	["wpn_desert_eagle"] 	= true,
+	 ["wpn_desert_eagle_a"] = true,
+	 ["wpn_desert_eagle_ba"] 	= true,
+	 ["wpn_desert_eagle_bb"] 	= true,
+	 ["wpn_desert_eagle_ba_cb"] = true,
+	 ["wpn_desert_eagle_bb_cb"] = true
+	}
+	
+-- секции с тяжелым оружием, включая их модификации
+local drv_wpns_sniper = {
+	["wpn_svd"] 			= true,
+	 ["wpn_svd_a"] 			= true,
+	 ["wpn_svd_ba"] 		= true,
+	 ["wpn_svd_bb"] 		= true,
+	 ["wpn_svd_ba_cb"] 		= true,
+	 ["wpn_svd_bb_cb"] 		= true,
+	["wpn_svu"] 			= true,
+	 ["wpn_svu_a"] 			= true,
+	 ["wpn_svu_ba"] 		= true,
+	 ["wpn_svu_bb"] 		= true,
+	 ["wpn_svu_ba_cb"] 		= true,
+	 ["wpn_svu_bb_cb"] 		= true,
+	 ["wpn_gauss"] 			= true,
+	 ["wpn_rg-6"] 			= true,
+	 ["wpn_rpg7"] 			= true
+	}
+
+function check_bolt() -- худы у которых отсуцтвует перезарядка
+	local boltt = db.actor:active_item()
+	if boltt and exclude_wpns_rel[boltt:section()] then 
+		return true
+	else
+		return false
+	end
+end
+
+function update()
+
+local active_item = db.actor:active_item()
+local addon_actor = db.actor
+
+--local active_item_slot = db.actor:item_in_slot(db.actor:active_slot())
+local active_slot = db.actor:active_slot()
+local wpn_slot1 = db.actor:item_in_slot(1)
+local wpn_slot2 = db.actor:item_in_slot(2)
+--new
+local wpn_slot4 = db.actor:item_in_slot(4)
+local wpn_slot0 = db.actor:item_in_slot(0)
+
+--  if active_item then
+  if (db.actor:active_slot()==1 and wpn_slot1)
+  or (db.actor:active_slot()==2 and wpn_slot2)
+--new
+  or (db.actor:active_slot()==4 and wpn_slot4)
+  or (db.actor:active_slot()==0 and wpn_slot0) then
+  
+  	local ammo_in = active_item:get_ammo_in_magazine()
+	local state = db.actor:active_item():get_hud_item_state()
+
+-------------------------------------------
+-- для отладки
+--[[
+       if state == weapon_states.idle then
+	   log3("# wpn_reload : state: idle")
+       end
+       if state == weapon_states.fire then
+	   log3("# wpn_reload : state: fire")
+       end
+       if state == weapon_states.reload then
+	   log3("# wpn_reload : state: reload")
+       end
+       if state == weapon_states.showing then
+	   log3("# wpn_reload : state: showing")
+       end
+       if state == weapon_states.hiding then
+	   log3("# wpn_reload : state: hiding")
+       end
+       if state == weapon_states.hidden then
+	   log3("# wpn_reload : state: hidden")
+       end
+       if state == weapon_states.misfire then
+	   log3("# wpn_reload : state: misfire")
+       end
+       if state == weapon_states.mag_empty then
+	   log3("# wpn_reload : state: mag_empty")
+       end
+       if state == weapon_states.switch then
+	   log3("# wpn_reload : state: switch")
+       end
+--]]
+-- для отладки
+---------------------------------------------------------
+	 
+--	  if this.load_variable("addon_opt_relin",1) == 1 and addon_actor ~= nil then
+	   if not check_bolt() then	
+	     if state == weapon_states.reload and rel==0 then  	-- при перезарядке
+            event("wpn_reload"):trigger()  						-- оружие перезаряжается
+         else 	
+         if state == weapon_states.idle and rel==1 then
+	        rel = 0
+			event("wpn_reload_end"):trigger()  						-- оружие перезарядилось
+	        --log3("# wpn_reload : rel = 0")
+         end
+         end
+	   end
+--      end
+	   
+	   if state == weapon_states.showing and drv==0 then	-- при доставании
+          event("wpn_draw"):trigger()  							-- достаем оружие
+       else 	
+         if state == weapon_states.idle and drv==1 then
+	    drv = 0
+	    --log3("# wpn_reload : drv = 0")
+         end
+	   end
+	
+--	if this.load_variable("addon_opt_camhid",1) == 1 and addon_actor ~= nil then
+	   if state == weapon_states.hiding and hid==0 then	-- при прятании
+          event("wpn_hide"):trigger()  						
+	   end
+--    end
+  end
+end
+
+function rask_rel()			-- покачивание при перезарядке
+local addon_actor = db.actor
+  if this.load_variable("addon_opt_relin",1) == 1 and addon_actor ~= nil then
+    level.add_cam_effector("camera_effects\\wpn\\ak74_reload.anm", 909, false, "")
+  end
+rel = 1
+	--log3("# wpn_reload : rel = 1")
+end
+
+function rask_hid()			-- покачивание при прятании
+  if this.load_variable("addon_opt_camhid",1) == 1 and addon_actor ~= nil then
+    level.add_cam_effector("camera_effects\\wpn\\ak74_firemode_1_to_a.anm", 915, false, "")
+  end
+hid = 1
+--log3("# wpn_reload : hid = 1")
+end
+
+function rask_drv()			-- покачивание при доставании
+local addon_actor = db.actor
+
+  if this.load_variable("addon_opt_camdrv",1) == 1 and addon_actor ~= nil then
+	local actitm = db.actor:active_item()
+	if actitm:section() == "wpn_knife2_1" then 		-- для ножа
+	  level.add_cam_effector("camera_effects\\wpn\\knife_draw.anm", 910, false, "")
+	  --log3("# wpn_reload : active - knife : drv = 1")
+	elseif actitm:section() == "wpn_binoc" then 	-- для бинокля
+	  level.add_cam_effector("camera_effects\\wpn\\binocular_draw.anm", 910, false, "")
+	  --log3("# wpn_reload : active - binoc : drv = 1")
+	elseif drv_wpns_pistol[actitm:section()] then 	-- для легкого оружия
+	  level.add_cam_effector("camera_effects\\wpn\\pm_draw.anm", 910, false, "")
+	  --log3("# wpn_reload : active - pistol : drv = 1")
+	elseif drv_wpns_sniper[actitm:section()] then 	-- для тяжелого оружия
+	  level.add_cam_effector("camera_effects\\wpn\\svd_draw.anm", 910, false, "")
+	  --log3("# wpn_reload : active - sniper : drv = 1")
+	else											-- для всего остального
+	  level.add_cam_effector("camera_effects\\wpn\\ak74_draw.anm", 910, false, "")
+	  --log3("# wpn_reload : active - none : drv = 1")
+	end	
+	drv = 1
+    --log3("* wpn_reload : sect - "..actitm:section().."")
+    --log3("# wpn_reload : drv = 1")
+  end
+  
+hid = 0		-- разрешаем прятание только если оружие было достато
+--log3("# wpn_reload : hid = 0")
+end
+
+
+-- анимация камеры при прыжке и стрейфах
+function cam_actor(e)
+local addon_actor = db.actor
+local active_item = db.actor:active_item()
+
+  if this.load_variable("addon_opt_camjs",1) == 1 and addon_actor ~= nil then
+    if e.bind == key_bindings.kJUMP then	-- прыжок
+  	  level.add_cam_effector("camera_effects\\actor_move\\jump.anm", 911, false, "")
+--	  log3("# wpn_reload : jump")
+    end
+    if e.bind == key_bindings.kL_STRAFE then	-- шаг влево	
+	  level.add_cam_effector("camera_effects\\actor_move\\strafe_left_aim.anm", 913, false, "")
+--	  log3("# wpn_reload : LEFT")
+    end
+    if e.bind == key_bindings.kR_STRAFE then	--	шаг вправо
+	  level.add_cam_effector("camera_effects\\actor_move\\strafe_right_aim.anm", 914, false, "")
+--	  log3("# wpn_reload : RIGHT")
+    end
+  end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("actor_update"):register(update)
+	event("wpn_reload"):register(rask_rel)
+	event("wpn_draw"):register(rask_drv)
+	event("wpn_hide"):register(rask_hid)
+	event("actor_on_key"):register(cam_actor)
+end

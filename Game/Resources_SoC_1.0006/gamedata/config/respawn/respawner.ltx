@@ -1,0 +1,353 @@
+; респавн мобов
+;
+;[(название локации)_(номер от 1)]
+; sections	  = секция моба
+; position	  = координаты (x, y, z, lv, gv)
+; count		  = количество
+; type		  = тип респавна (0 - респавн по вероятности, независимо от колиичества - не тестировалось
+;				  1 - респавн секций без вераятности, независимо от количества
+;				  2 - респавн секций без вераятности, в зависимости от имеющегося количества секций)
+; idle_spawn  	  = период респавна (twoday - раз в 48 часов
+;				     seldom - раз в 36 часов
+;				     medium - раз в 24 часа - можно не указывать, тогда по умолчанию
+;                                    often  - раз в 12 часов)
+; mob_home_radius = радиус за который мобы не выходят (можно не указывать тогда будет рандомно от 25 до 75м)
+; conditions	  = {+инфопоршень} 90, 0 - 90 это вероятность (тоесть условие и вераятность)
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; l02_garbage
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; Респавн 1 зомби в подземелии
+[l02_garbage_1]
+sections	= zombie_strong
+position	= -57.349395751953, -6.0963339805603, -61.037364959717, 140733, 329
+count		= 1
+type 		= 2
+mob_home_radius = 11
+
+; Респавн 6 тушканов в подземелии
+[l02_garbage_2]
+sections	= tushkano_normal
+position	= -55.113327026367, -6.1016254425049, -39.201244354248, 141990, 325
+count		= 6
+type 		= 2
+mob_home_radius = 16
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; k01_darkscape_ogse
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; Респавн 1 плоти в лощине возле перехода на кордон
+[k01_darkscape_ogse_1]
+sections	= flesh_normal
+position	= -584.30548095703, -1.7029731273651, -421.9221496582, 2900, 2903
+count		= 1
+type 		= 2
+mob_home_radius = 60
+
+; Респавн 1 зомби в лощине у домика возле дороги
+[k01_darkscape_ogse_2]
+sections	= zombie_normal
+position	= -106.58686828613, -2.9437160491943, -498.44818115234, 274022, 2993
+count		= 1
+type 		= 2
+mob_home_radius = 28
+
+; –респавн 1 сталкера в лащине (у костра на лесопилке)
+[k01_darkscape_ogse_3]
+sections	= darkscape_stalker_novice_default2
+position	= 248.78549194336, -0.52232253551483, -192.61143493652, 691515, 3105
+count		= 1
+type 		= 2
+mob_home_radius = 400
+
+; –респавн 1 сталкера в лащине (у костра на лесопилке)
+[k01_darkscape_ogse_4]
+sections	= darkscape_stalker_novice_default1
+position	= 250.06294250488, -0.52143734693527, -178.54429626465, 693323, 3105
+count		= 1
+type 		= 2
+mob_home_radius = 400
+
+; –респавн 1 сталкера в лащине (у костра на лесопилке)
+[k01_darkscape_ogse_5]
+sections	= darkscape_stalker_novice_default3
+position	= 264.65167236328, -0.5223628282547, -183.40626525879, 711745, 3111
+count		= 1
+type 		= 2
+mob_home_radius = 400
+
+; –респавн 1 бандита в лащине (у костра в деревне)
+[k01_darkscape_ogse_6]
+sections	= darkscape_bandit_novice_default1
+position	= -177.81814575195, 2.5249695777893, 592.64404296875, 201199, 2962
+count		= 1
+type 		= 2
+mob_home_radius = 400
+
+; –респавн 1 бандита в лащине (у костра в деревне)
+[k01_darkscape_ogse_7]
+sections	= darkscape_bandit_novice_default2
+position	= -169.77944946289, 2.5141334533691, 594.16247558594, 209247, 2973
+count		= 1
+type 		= 2
+mob_home_radius = 400
+
+; –респавн 1 бандита в лащине (у костра в деревне)
+[k01_darkscape_ogse_8]
+sections	= darkscape_bandit_novice_default3
+position	= -167.34020996094, -0.42097812891006, 512.05816650391, 212164, 2971
+count		= 1
+type 		= 2
+mob_home_radius = 400
+
+; –респавн 1 бандита в лащине (патруль в деревне)
+[k01_darkscape_ogse_9]
+sections	= darkscape_bandit_novice_default4
+position	= -195.55867004395, -0.66102415323257, 535.82690429688, 183186, 2946
+count		= 1
+type 		= 2
+mob_home_radius = 400
+
+; Респавн 1 зомби
+[k01_darkscape_ogse_10]
+sections	= zombie_strong
+position	= -407.06924438477, 3.8360333442688, 553.45220947266, 52374, 2913
+count		= 1
+type 		= 2
+mob_home_radius = 60
+
+; Респавн 4 собак
+[k01_darkscape_ogse_11]
+sections	= dog_normal
+position	= -42.606658935547, 0.96315050125122, 472.39862060547, 342547, 3010
+count		= 4
+type 		= 2
+mob_home_radius = 100
+
+; Респавн
+[k01_darkscape_ogse_12]
+sections	= pseudodog_normal
+position	= 299.03512573242, -0.59622132778168, 578.08435058594, 752985, 3114
+count		= 1
+type 		= 2
+mob_home_radius = 80
+
+; Респавн
+[k01_darkscape_ogse_13]
+sections	= fracture_normal
+position	= 406.46157836914, -0.8232274055481, 395.79940795898, 914412, 3173
+count		= 1
+type 		= 2
+mob_home_radius = 60
+
+; Респавн
+[k01_darkscape_ogse_14]
+sections	= dog_normal
+position	= 383.94006347656, 1.1334645748138, 28.012605667114, 871965, 3158
+count		= 4
+type 		= 2
+mob_home_radius = 80
+
+; Респавн
+[k01_darkscape_ogse_15]
+sections	= boar_weak
+position	= 569.05078125, -0.89264357089996, 30.907783508301, 1079658, 3221
+count		= 3
+type 		= 2
+mob_home_radius = 60
+
+; Респавн
+[k01_darkscape_ogse_16]
+sections	= zombie_normal
+;sections	= zombie_facedeath
+position	= 428.62994384766, -2.9808275699615, -476.84591674805, 953463, 3179
+count		= 1
+type 		= 2
+mob_home_radius = 60
+
+; Респавн
+[k01_darkscape_ogse_17]
+sections	= pseudodog_normal
+position	= 35.59729385376, 0.063618034124374, -94.737930297852, 434608, 3041
+count		= 1
+type 		= 2
+mob_home_radius = 60
+
+; Респавн
+[k01_darkscape_ogse_18]
+sections	= boar_weak
+position	= 449.02917480469, 1.1359176635742, -323.61141967773, 985149, 3185
+count		= 4
+type 		= 2
+mob_home_radius = 60
+
+; Респавн
+[k01_darkscape_ogse_19]
+sections	= dog_normal
+position	= 188.9655456543, 20.819986343384, -378.18774414063, 618131, 3074
+count		= 3
+type 		= 2
+mob_home_radius = 80
+
+; Респавн
+[k01_darkscape_ogse_20]
+sections	= fracture_normal
+position	= 145.5828704834, -1.2329361438751, -573.71203613281, 567026, 3059
+count		= 1
+type 		= 2
+mob_home_radius = 60
+
+; Респавн
+[k01_darkscape_ogse_21]
+sections	= boar_weak
+position	= -101.29917907715, 5.3169751167297, -349.75988769531, 278933, 2995
+count		= 3
+type 		= 2
+mob_home_radius = 60
+
+; Респавн
+[k01_darkscape_ogse_22]
+sections	= zombie_facedeath_9
+position	= 327.47256469727, 19.683443069458, 308.43026733398, 786898, 3133
+count		= 1
+type 		= 2
+mob_home_radius = 20
+
+; Респавн
+[k01_darkscape_ogse_23]
+sections	= zombie_facedeath_4
+position	= 348.38577270508, 20.116846084595, 285.21768188477, 813384, 3148
+count		= 1
+type 		= 2
+mob_home_radius = 20
+
+; Респавн
+[k01_darkscape_ogse_24]
+sections	= zombie_facedeath
+position	= 337.19116210938, 20.247320175171, 288.09030151367, 798920, 3138
+count		= 1
+type 		= 2
+mob_home_radius = 20
+
+; Респавн
+[k01_darkscape_ogse_25]
+sections	= zombie_facedeath_4
+position	= -81.025993347168, -0.61058455705643, -296.08895874023, 299713, 3006
+count		= 1
+type 		= 2
+mob_home_radius = 50
+
+; Респавн
+[k01_darkscape_ogse_26]
+sections	= zombie_facedeath_3
+position	= -86.357124328613, -0.58505827188492, -290.19812011719, 294830, 3006
+count		= 1
+type 		= 2
+mob_home_radius = 50
+
+; Респавн
+[k01_darkscape_ogse_27]
+sections	= zombie_facedeath
+position	= -97.57869720459, -0.65586793422699, -277.84661865234, 283301, 3006
+count		= 1
+type 		= 2
+mob_home_radius = 50
+
+; Респавн
+[k01_darkscape_ogse_28]
+sections	= zombie_facedeath_9
+position	= -76.462455749512, -0.65203773975372, -297.65179443359, 304884, 3006
+count		= 1
+type 		= 2
+mob_home_radius = 50
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; l15_collector22
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Респавн 1 зомби у залаза в трубу в начале локи
+[l15_collector22_1]
+sections	= zombie_facedeath_4
+position	= -155.07279968262, -58.30871963501, 337.44918823242, 3406, 4512
+count		= 1
+type 		= 2
+mob_home_radius = 55
+
+[l15_collector22_2]
+sections	= zombie_facedeath_10
+position	= -167.13838195801, -60.447551727295, 400.68533325195, 3170, 4507
+count		= 1
+type 		= 2
+mob_home_radius = 55
+
+[l15_collector22_3]
+sections	= zombie_facedeath_9
+position	= -182.83602905273, -60.207004547119, 394.44116210938, 1837, 4479
+count		= 1
+type 		= 2
+mob_home_radius = 55
+
+[l15_collector22_4]
+sections	= zombie_facedeath_6
+position	= -192.54692077637, -60.451057434082, 396.3427734375, 1650, 4476
+count		= 1
+type 		= 2
+mob_home_radius = 55
+
+[l15_collector22_5]
+sections	= zombie_facedeath_4
+position	= -196.98994445801, -60.446544647217, 405.16979980469, 1489, 4472
+count		= 1
+type 		= 2
+mob_home_radius = 55
+
+[l15_collector22_6]
+sections	= zombie_facedeath_3
+position	= -192.2266998291, -60.441539764404, 426.68255615234, 1655, 4471
+count		= 1
+type 		= 2
+mob_home_radius = 55
+
+[l15_collector22_7]
+sections	= zombie_facedeath
+position	= -160.5687713623, -60.44017791748, 426.20254516602, 3305, 4511
+count		= 1
+type 		= 2
+mob_home_radius = 55
+
+[l15_collector22_8]
+sections	= bloodsucker_weak
+position	= -169.54737854004, -60.428276062012, 492.55450439453, 2653, 4498
+count		= 1
+type 		= 2
+mob_home_radius = 45
+
+
+[l15_collector22_9]
+sections	= snork_weak
+position	= -261.29919433594, -52.829750061035, 568.65356445313, 669, 4454
+count		= 1
+type 		= 2
+mob_home_radius = 40
+
+[l15_collector22_10]
+sections	= snork_normal
+position	= -298.25784301758, -52.91374206543, 567.72521972656, 110, 4434
+count		= 1
+type 		= 2
+mob_home_radius = 40
+
+[l15_collector22_11]
+sections	= snork_weak
+position	= -296.65072631836, -52.902809143066, 519.48370361328, 275, 4442
+count		= 1
+type 		= 2
+mob_home_radius = 40

@@ -1,0 +1,295 @@
+--[[
+Copyright: © Kirag(основной создатель схемы), Real Wolf(её внедрение в мод с последующими правками)
+]]
+
+------------ Саморазрядка --------------
+local ms_hours = 1000*60*60 --  мс в часе
+local drain_h = 1/ms_hours -- скорость разрадки, при которой девайс полностью разряжается за час
+						   -- drain_h/N - скорость для полного разряда за N часов
+local autodischarge = drain_h/(60*24) -- скорость утечки энергии
+
+------ Игровое или реальное время ------
+local use_game_time = true
+-- false - реальное время
+-- true - игровое время
+
+----------------------------------------
+local ini = system_ini()
+local add_power = 0
+local ind_base = nil
+local ind_top = nil
+local ind_bar = nil
+local actor_powered = nil
+local actor_no_power = nil
+
+local vdc = 0
+local mdc = 0
+local sdc = 0
+local avel1 = 0
+local avel2 = 0
+local avel3 = 0
+local charge = 0
+local batt_life = 0
+
+function get_suit_discharge()
+	return charge, batt_life
+end
+
+function recharge(amount) -- добавка энергии от "батарейки"
+	add_power = add_power + amount/100
+end
+
+function init(obj)
+	local new_binder = power_supply_binder(obj)
+	obj:bind_object(new_binder)
+end
+
+---------------------------------------------------------------------------------------------
+class "power_supply_binder" (object_binder)
+function power_supply_binder:__init(obj) super(obj)
+	self.initialized = false
+	self.loaded = false
+	self.cond = 1
+end 
+
+function power_supply_binder:reload(section)
+	object_binder.reload(self, section)
+	-- добавки здесь
+end
+
+function power_supply_binder:reinit()
+	object_binder.reinit(self)
+end
+
+function power_supply_binder:net_save_relevant()
+	return true
+end
+
+function power_supply_binder:save(packet)
+	object_binder.save(self, packet)
+	packet:w_u8( math.floor(self.object:condition() * 100) )
+end
+
+function power_supply_binder:load(reader)
+	self.loaded = true
+	object_binder.load(self, reader)
+	if not reader:r_eof() then
+		self.cond = math.floor( reader:r_u8() ) / 100
+	end
+end
+
+function power_supply_binder:net_spawn(data)
+	if not object_binder.net_spawn(self, data) then
+		return false
+	end
+	self.lpos = nil
+	self.lsuit = nil
+	self.id = self.object:id()
+	self.charge = self.object:condition()
+	self.power_id = self.object:id()
+	return true
+end
+
+function power_supply_binder:net_destroy()
+	object_binder.net_destroy(self)
+end
+
+function power_supply_binder:update(delta)
+	object_binder.update(self, delta)
+	if not db.actor then return end
+
+	--' Устанавливаем состояния блоков, т.к. оно сбивается при загрузке
+	if self.loaded == true then
+		self.loaded = false
+		self.object:set_condition(self.cond)
+	end
+		
+--	if not tBeltSection["power_supply"] then
+    if check_belt_ps("power_supply") == 0 then			-- а что если использовать такой метод поиска ?
+		actor_powered = nil
+		return
+	end
+
+	--' В слоте нет костюма или это не экзоскелет, ничего не делаем
+	local oSuit = db.actor:item_in_slot(6)
+	if oSuit then
+		if not Exist(system_ini(), "Line", oSuit:section(), "batt_life_standby") then
+			return
+		end
+	else
+		return
+	end
+		
+	--' Используем именно, тот блок, который на поясе
+	if not tBeltId[self.object:id()] then
+		actor_powered = nil
+		return
+	end
+
+	--' Если на поясе было 2 блока, и, который исп. раньше, мы убрали, то убираем шкалу.
+	if tBeltId[self.object:id()] and not tBeltId[self.power_id] then
+		actor_powered = nil
+	end
+
+	if not (self.object:parent() and self.object:parent():id() == db.actor:id()) then
+		if self.id == actor_powered then -- у актора был этот блок
+			actor_powered = nil
+		end
+		return -- девайс не у актора, ничего не делаем
+	end
+	
+	-- проверяем, нет ли у актора уже другого блока на поясе
+	if actor_powered and actor_powered ~= self.id then -- блок есть, ничего не делаем
+		return
+	else -- блока нет, берем себе
+		actor_powered = self.id
+		self.charge = self.object:condition()
+	end
+
+	self.discharge = 0 -- расход энергии
+	
+	-- смотрим, насколько источник питания разряжается за апдейт из-за различных причин
+	self.discharge = self.discharge + autodischarge -- собственная утечка энергии
+	self:check_suit(delta) -- энергопотребляющие костюмы
+	--self:check_nv() -- ПНВ отдельным предмметом, с костюмными не работает
+	
+	--разряжаем
+	self.discharge = self.discharge * delta -- равномерный расход энергии
+	-- учитываем тайм фактор, если нужно
+	batt_life = self.charge/(self.discharge/delta)/ms_hours
+	if use_game_time then
+		self.discharge = self.discharge * level.get_time_factor()
+	end
+	-- подзарядка, если использовали "батарейку"
+	-- она мгновенного действия, тайм фактор не нужен
+	if add_power ~= 0 then
+		self.discharge = self.discharge - add_power
+		add_power = 0
+	end
+	self.object:set_condition(self.charge - self.discharge)
+	self.charge = self.object:condition()
+	charge = self.charge
+	if self.object:condition() <= 0.02 then
+		actor_powered = nil
+		db.actor:drop_item(self.object)
+		alife():release(alife():object(self.object:id()))
+		addon_exo_outfit.info() 
+	end
+	self.power_id = self.object:id()
+end
+
+function power_supply_binder:check_nv()
+	local nv_on = xr_logic.pstor_retrieve(db.actor, "nv_on", "nil")
+	if not self.lnv or self.lnv ~= nv_on then
+		self.lnv = nv_on
+		if nv_on == "nil" then 
+			self.nv_discharge = nil
+		else
+			if ini:line_exist(nv_on,"batt_life") then
+				local batt_life = ini:r_float(nv_on,"batt_life")
+				self.nv_discharge = drain_h/batt_life
+				if ini:line_exist(nv_on,"light_amp") then
+					self.max_amp = ini:r_float(nv_on,"light_amp")
+				else
+					self.max_amp = 1
+				end
+			else
+				self.nv_discharge = nil
+			end
+		end
+	end
+	if self.nv_discharge then
+		self.discharge = self.discharge + self.nv_discharge
+		local lamp
+		local max_amp_charge, min_amp_charge = 0.75, 0.25
+		if self.charge > max_amp_charge then 
+			lamp = self.max_amp
+		elseif self.charge < min_amp_charge then
+			lamp = 1
+		else
+			lamp = 1 + (self.max_amp - 1)*(self.charge - min_amp_charge)/(max_amp_charge - min_amp_charge)
+		end
+		get_console():execute ("r2_sun_lumscale_amb "..lamp)
+		if self.charge < 0.00001 then -- если заряд БП закончился - выключаем ПНВ
+			xr_logic.pstor_store(db.actor, "nv_on", "nil")
+			nightvision.pnv("nightvision_nil",1)
+		end
+	end
+end
+
+function power_supply_binder:check_suit(delta)
+	local suit = db.actor:item_in_slot(6)
+	if not suit then return end
+	local suit_sect = suit:section()
+	if self.suit_cond then
+		suit:set_condition(self.suit_cond)
+		self.suit_cond = nil
+	end
+	
+	-- реинициализация при смене костюма
+	if not self.lsuit or suit_sect ~= self.lsuit then
+		self.lsuit = suit_sect
+		if ini:line_exist(suit_sect,"batt_life_standby") then
+			local batt_life = ini:r_float(suit_sect,"batt_life_standby")
+			self.standby_discharge = drain_h/batt_life
+		else
+			self.standby_discharge = nil
+			return -- энергию не потребляет - возиться дальше не с чем
+		end
+		if ini:line_exist(suit_sect,"batt_life_vel_k") then
+			self.vel_k = ini:r_float(suit_sect,"batt_life_vel_k")
+		else
+			self.vel_k = 1
+		end
+		if ini:line_exist(suit_sect,"nominal_load") then
+			self.n_load = ini:r_float(suit_sect,"nominal_load") -- номинал веса, свыше к-рого начинается доп. расход энергии
+		else
+			self.n_load = ini:r_float("actor","max_walk_weight") -- если не указан - макс вес, с к-рым актор может двигаться
+		end
+		if ini:line_exist(suit_sect,"batt_life_mass_k") then
+			self.mass_k = ini:r_float(suit_sect,"batt_life_mass_k") --каждый кг сверх номинала добавляет self.standby_discharge*self.mass_k к расходу энергии 
+		else
+			self.mass_k = 0 -- нет дополнительного расхода при перегрузе сверх номинала
+		end
+		if ini:line_exist(suit_sect,"variant_shift_sections") then
+			self.var_shift_sect = parse_data(ini:r_string(suit_sect,"variant_shift_sections"))  
+			self.var_shift_val = parse_data(ini:r_string(suit_sect,"variant_shift_values"))  
+		else
+			self.var_shift_sect = nil  
+			self.var_shift_val = nil  
+		end
+	end
+	
+	if not self.standby_discharge then return end
+	-- рассчет дополнительного потребления энергии
+	
+	-- учет скорости
+	self.apos = db.actor:position()
+	if not self.lpos then self.lpos = self.apos end
+	local actor_vel = self.apos:distance_to(self.lpos)/delta*1000 -- скорость актора в м/с
+	local vel_discharge = self.vel_k * (actor_vel^2)
+	self.lpos = self.apos
+	avel1 = actor_vel
+	-- учет массы сверх номинала
+	local mass_discharge = 0
+	if db.actor:get_inventory_weight() > self.n_load then
+		mass_discharge = self.mass_k * (db.actor:get_inventory_weight() - self.n_load)
+	end
+	
+	self.discharge = self.discharge + self.standby_discharge*(1 + vel_discharge + mass_discharge)
+	
+	-- замена энергозависимых вариантов
+	if not self.var_shift_sect then return end
+	local need_sect = self.var_shift_sect[table.getn(self.var_shift_sect)]
+	for k,v in pairs (self.var_shift_val) do
+		if self.charge > tonumber(v) then
+			need_sect = self.var_shift_sect[k]
+			break
+		end
+	end
+	if need_sect ~= suit_sect then
+		self.suit_cond = suit:condition()
+		alife():release(alife():object(suit:id()),true)
+		AddObjInv(need_sect)
+	end
+end

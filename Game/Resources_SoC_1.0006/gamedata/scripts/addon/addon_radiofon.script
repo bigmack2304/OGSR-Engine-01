@@ -1,0 +1,125 @@
+--[[
+ 	Радиационный фон на локациях
+
+	Каждая локация имеет свой радиационный фон на который дозиметр не будет
+	реагировать, (соответствие в таблице level_fon) соответственно на кордоне
+ 	радиационное облучение актора в обычных условиях поднимется на 2% от 0й
+	точки шкалы заражения.
+
+	Если накопленная доза больше фона, то его воздействие на актора прекращается.
+	Однако воздействи очагов радиации не отменяется.
+
+ 	Одев костюм с параметром radiation_protection (защита от радиации)
+	превышаеющим значение фона, можно защитится от его воздействия.
+	Однако radiation_protection это не конкретно значение параметра в секции
+	а расчитываемая переменная. Она расчитывается из radiation_protection той 
+	что в секции и состояния костюма. Эта переменная меняется пропорционально
+	процентному состоянию костюма. (если radiation_protection в конфиге = 0.5(50%)
+	а состояние костюма 0.5 (на 50% изношен) то расчетный rad_protection будет
+	равен 0.25% соответственно при фоне в 0.30 актор будет получать дозу облучения,
+	а при фоне в 0.20 будет по прежнему защищен от него.)
+
+]]
+
+local level_fon = {
+	["l01_escape"] 		  		= 0.02,
+	["l02_garbage"] 	  		= 0.22,
+	["l03_agroprom"] 	  		= 0.11,
+	["l03u_agr_underground"]  	= 0.0,
+	["l04_darkvalley"] 	  		= 0.13,
+	["l04u_labx18"] 	  		= 0.0,
+	["l05_bar"] 		  		= 0.03,
+	["l06_rostok"] 		  		= 0.09,
+	["l07_military"] 	  		= 0.18,
+	["l08_yantar"] 		  		= 0.19,
+	["l08u_brainlab"] 	  		= 0.0,
+	["l10_radar"] 		  		= 0.32,
+	["l10u_bunker"] 	  		= 0.0,
+	["l11_pripyat"] 	  		= 0.43,
+	["l12_stancia"] 	  		= 0.53,
+	["l12_stancia_2"] 	  		= 0.61,
+	["l12u_control_monolith"] 	= 0.0,
+	["l12u_sarcofag"] 	  		= 0.82,
+	["k01_darkscape_ogse"] 	  	= 0.06,
+	["l13_marsh"] 	  			= 0.08,
+	["k02_trucks_cemetery"] 	= 0.25,
+	["l15_collector22"] 		= 0.0,
+	["l16_forgotten"] 			= 0.14,
+	["l14_obxod"] 				= 0.03
+}
+
+local iNextUpdate 	= 0		      	-- таймер абдейта
+local float_time 	= 2 		  	-- интервал апдейта
+local float_tm		= 1000		  	-- множитель значения (float_time), если 1000 то (float_time - сек), если 100 то (float_time) - м.сек
+local rad_hit		= 0.001		  	-- шаг повышения уровня радиации
+local stop 		= 0
+
+function update()
+
+local actor 		 = db.actor
+
+if this.load_variable("addon_opt_radfon",1) == 0 and actor ~= nil then
+return
+end
+
+if stop==1 then return end
+
+if level_fon[level.name()] == nil then
+log3("! addon_radiofon.script : level name, fon - error")
+stop = 1
+return
+end
+
+local level_inf 	 = level.name()			-- получаем название уровня
+local float_rad 	 = level_fon[level_inf]		-- обьеденяем название уровня и его радиационный фон
+local outfit 		 = db.actor:item_in_slot(6)	-- получаем обьект в 6 слоте (костюм)
+local actor_rad 	 = db.actor.radiation		-- текущее облучение актора
+local outfit_sect	 = ""				-- секция костюма
+local rad_protection 	 = 0				-- коэфицент защиты от радиации в зависимости от состояния
+local outfit_cond	 = 0				-- состояние костюма
+local outfit_protect	 = 0				-- защита костюма от радиации
+local ltx 		 = system_ini()			-- получаем доступ к файлам
+
+  if outfit ~= nil then
+    outfit_sect = outfit:section()
+    outfit_cond = outfit:condition()
+    outfit_protect = ReadLine(ltx, "Number", outfit_sect, "radiation_protection")
+    rad_protection = (outfit_protect/100)*(outfit_cond*100)
+  else
+    outfit_sect = nil
+    outfit_cond = 0
+    outfit_protect = 0
+    rad_protection = 0
+  end
+
+  if iNextUpdate <= time_global() then				-- интервал абдейта
+      --log3("# addon_radiofon.script : radiation = "..actor_rad..", protection = "..rad_protection..", level name = "..level_inf..", level fon = "..float_rad.."")
+	  if rad_protection < float_rad then			-- условие: защита костюма меньше фона
+		  if actor_rad <= float_rad then		-- условие: облучение актора меньше фона
+	             db.actor.radiation = rad_hit
+		     --log3("~ addon_radiofon.script : radiation hit "..rad_hit.." = "..actor_rad.."")
+		  end
+	  end
+     iNextUpdate = time_global() + float_time*float_tm
+  end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("actor_update"):register(update)
+end

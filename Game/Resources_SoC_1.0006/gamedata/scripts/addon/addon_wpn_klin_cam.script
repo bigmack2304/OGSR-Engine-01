@@ -1,0 +1,222 @@
+--[[
+	попробуем реализовать такую фичу
+	если у нас в стволе нету патронов, либо он заклинил
+	то при попытке выстрела будем немного шевелить камеру
+	так сказать обратнаЯ свЯзь от гг, и мы видим по 
+	шивелению камеры что он пытаетсЯ нажимать на курок
+	но
+	определить 0 патронов в стволе не трудно
+	а вот определить клин в стволе да и потом запомнить в каком именно 
+	стволе, а потом еще и определить что клина больше нет (после перезарЯдки)
+	в этом и есть трудность. к сожалению нужных методов в OGSR пока нету.
+	поэтому придетсЯ чтото придумывать.
+	// как оказалось состояние клина движком не сохраняется
+	// а я уж тут начал городить систему с сохранением таблицы заклиневших стволов
+	// придется сообщить о найденом баге, может поправят
+	// так что пока таблицу состояний отчищаем в функции cl()
+--]]
+
+local weapons_klin_id = {}  		-- таблица [id предмета] = кол.во патронов
+local addon_klin = false			-- заклинил ствол или нет
+local ammo_in_kw = 0				-- патронов в заклиневшем стволе
+local not_ammo = false				-- логическое значение отсутствия патронов в стволе
+local iNextUpdate 	= 0		  		-- таймер абдейта
+local float_time 	= 1 		  	-- интервал апдейта
+local float_tm		= 100		  	-- множитель значения (float_time), если 1000 то (float_time - сек), если 100 то (float_time) - м.сек
+
+-- худы у которых нет обоймы
+local exclude_wpns_rel = {
+	["bolt"]             	=true,
+	["grenade_rgd5"]        =true,
+	["grenade_f1"]          =true,
+	["grenade_rgd5_fake"]   =true,
+	["grenade_f1_fake"]     =true,
+	["grenade_rgd5_test"]   =true,
+	["grenade_f1_test"]     =true,
+	["wpn_knife2_1"]     	=true,
+	["wpn_binoc"]        	=true,
+	["detector_geiger1"]   	=true,
+	["detector_geiger2"]   	=true,
+	["detector_geiger3"]   	=true,
+	["detector_advances"]   =true,
+	["detector_simple"]     =true,
+	["detector_advances"]   =true,
+	["detector_elite"]      =true
+	}
+
+-- таблица с состоЯниЯми худа	
+local weapon_states = {
+  idle      = global_flags.eIdle,
+  fire      = global_flags.eFire,
+  fire2     = global_flags.eFire2,
+  reload    = global_flags.eReload,
+  showing   = global_flags.eShowing,
+  hiding    = global_flags.eHiding,
+  hidden    = global_flags.eHidden,
+  misfire   = global_flags.eMisfire,
+  mag_empty = global_flags.eMagEmpty,
+  switch    = global_flags.eSwitch
+}
+
+function cl()	-- при загрузке сейфа пресоздадим таблцу
+--weapons_klin_id = nil										-- удалим
+--weapons_klin_id = {}										-- создадим заново но уже без данных
+--ogse.save_var("weapons_klin_id", weapons_klin_id, "table")	-- сохраним
+ogse.delete_var("weapons_klin_id") -- удалим
+--log3("# addon_klin - table clear")
+end
+
+function check_bolt() 	-- вернет true если у нас в руках предмет из таблицы exclude_wpns_rel
+	local boltt = db.actor:active_item()
+	if boltt and exclude_wpns_rel[boltt:section()] then 
+		return true
+	else
+		return false
+	end
+end
+
+function klin_true(weapon_id, size_ammo)	-- попытка отловить клин
+local ammo_s = size_ammo									-- кол.во патронов в стволе
+local w_id	= weapon_id     								-- айди ствола
+  if get_hud():GetCustomStatic("gun_jammed") and addon_klin==false then		-- если поЯвитсЯ надпись что оружие заклинело
+    addon_klin = true										-- выставим флажок клина
+	weapons_klin_id[w_id] = ammo_s							-- запишем в таблицу id и кол.во его патронов
+	ogse.save_var("weapons_klin_id", weapons_klin_id, "table")	-- сохраним эту таблицу
+--	log3("~ пойман клин, сохраним id - "..w_id.." и чило патронов - "..ammo_s.."")
+--	log3("# addon_klin = true")
+  end
+end
+
+function klin_reload_a(old_ammo, new_ammo)	-- вернет true если текущее кол.во патронов отлитчаетсЯ от того что было в момент клина
+local oa = old_ammo
+local na = new_ammo
+  if oa ~= na then
+	return true
+  else
+	return false
+  end
+end
+
+function update()										-- абдейтим состоЯние оружиЯ
+local addon_actor = db.actor
+if this.load_variable("addon_opt_winert",1) == 1 and addon_actor ~= nil then
+if iNextUpdate <= time_global() then							-- поставим на пониженый абдейт, для прикола
+local active_item = db.actor:active_item()						-- получаем обьект предмета в руках
+--  if active_item then											-- если мы держим в руках какойто предмет
+
+local active_slot = db.actor:active_slot()
+local wpn_slot1 = db.actor:item_in_slot(1)
+local wpn_slot2 = db.actor:item_in_slot(2)
+    if (db.actor:active_slot()==1 and wpn_slot1) or (db.actor:active_slot()==2 and wpn_slot2) then
+
+	  if not check_bolt() then									-- убедимсЯ в том что у предмета есть обойма
+	    local state = active_item:get_hud_item_state()				-- узнаем текущую анимацию данного предмета
+  	    local ammo_in = active_item:get_ammo_in_magazine()			-- узнаем сколько патронов в стволе
+		local sect_id = active_item:id()							-- узнаем айди ствола
+		  if state == weapon_states.idle then					-- проверим тот факт что мы просто держим ствол в руках
+		    klin_true(sect_id, ammo_in)								-- обновлЯем состоЯние клина
+			  if ogse.var_exists("weapons_klin_id") then		-- проверим существование таблицы с клинами
+				weapons_klin_id = ogse.load_var("weapons_klin_id")	-- загружаем
+			--	log3("~ загрузили таблицу")
+			  end
+			  if weapons_klin_id[sect_id] then					-- проверим что этот ствол есть в списке заклиневших
+				ammo_in_kw = weapons_klin_id[ sect_id ]				-- получим кол.во патронов из таблицы
+				addon_klin = true					-- выставим флажок клина
+--				log3("# addon_klin = true")
+--				log3("~ этот ствол заклинил, патронов в обойме было "..ammo_in_kw.."")
+-- попробуем отловить момент перезарЯдки
+-- первый способ, сравнить кол.во патронов в момент клина с текущим, если оно изменитсЯ значит ствол перезарЯдили
+--[[  		   		if klin_reload_a(ammo_in, ammo_in_kw) then			-- определим момент перезарЯдки
+					weapons_klin_id[sect_id] = nil						-- удалим этот ствол из таблицы
+					ogse.save_var("weapons_klin_id", weapons_klin_id, "table")	-- сохраним
+					addon_klin = false									-- выставим флажок клина
+--					log3("~ удалили id "..sect_id.."")
+--					log3("# addon_klin = false")
+			     end 
+--]]
+			  else												-- если нет
+			    addon_klin = false									-- выставим флажок клина
+--				log3("# addon_klin = false")
+			  end 
+			  
+-- следующим условием выставляем флажок когда в стволе кончились патроны
+			  if ammo_in == nil or ammo_in == 0 then			-- если патронов в стволе 0
+			    not_ammo = true										-- выставляем флажок
+--				log3("# not_ammo  = true")
+		      else												-- если не ноль
+				not_ammo = false									-- убираем флажок
+--				log3("# not_ammo  = false")
+			  end
+			  
+-- второй способ, отловим анимацию перезарЯдки
+		  elseif state == weapon_states.reload then				-- проверим что ствол на кд
+			    if ogse.var_exists("weapons_klin_id") then		-- проверим существование таблицы с клинами
+				  weapons_klin_id = ogse.load_var("weapons_klin_id")	-- загружаем
+--			      log3("~ загрузили таблицу")
+			    end		
+				if weapons_klin_id[sect_id] then				-- проверим что этот ствол есть в списке заклиневших
+				  weapons_klin_id[sect_id] = nil						-- удалим этот ствол из таблицы
+				  ogse.save_var("weapons_klin_id", weapons_klin_id, "table")	-- сохраним
+				  addon_klin = false									-- выставим флажок клина
+--				  log3("~ удалили id "..sect_id.."")
+--				  log3("# addon_klin = false")
+				end
+	      end
+	  else		-- если у предмета нету обоймы
+	    if addon_klin == true then
+	      addon_klin = false
+--		  log3("# addon_klin = false")
+		end
+		if not_ammo == true then
+		  not_ammo = false
+--		  log3("# not_ammo = false")
+		end
+	  end
+  elseif active_item == nil and (addon_klin == true or not_ammo == true) then		-- если нету предмета в руках
+    addon_klin = false
+	not_ammo = false
+--	log3("# addon_klin = false, not_ammo = false")
+  end
+  
+iNextUpdate = time_global() + float_time*float_tm
+end
+end
+end
+
+function actor_shot(e)						--	попытка выстрела
+local addon_actor = db.actor
+  if this.load_variable("addon_opt_winert",1) == 1 and addon_actor ~= nil then	
+    if e.bind == key_bindings.kWPN_FIRE then				-- если нажата кнопка вытрела
+      if addon_klin==true then			-- если ствол заклинил
+	    level.add_cam_effector("camera_effects\\wpn\\mp5_shoot.anm", 916, false, "")
+--	    log3("# addon_wpn_klin_cam.scipt : klin")
+	  elseif not_ammo==true then			-- если в стволе нет патронов
+	    level.add_cam_effector("camera_effects\\wpn\\mp5_shoot.anm", 916, false, "")
+--	    log3("# addon_wpn_klin_cam.scipt : ammo nil")
+      end
+    end
+  end
+end
+
+
+----------------------------------------------------------------
+-- функции длЯ сохранениЯ настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("actor_update"):register(update)
+	event("actor_on_key"):register(actor_shot)
+	event("addon_actor_lstart"):register(cl)
+end

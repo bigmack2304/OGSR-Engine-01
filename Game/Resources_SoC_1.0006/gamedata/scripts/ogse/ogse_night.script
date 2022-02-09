@@ -1,0 +1,198 @@
+--[[
+	Стелс ночью.
+	Авторы: OGSE Team, Real Wolf.
+--]]
+
+
+-- базовые данные для расчета дальности видимости нпс
+local tRankRange = {
+	["novice"] 		= 8,
+	["experienced"] 	= 9,
+	["veteran"] 		= 10,
+	["master"] 		= 12
+}
+
+-- базовые данные для расчета угла обзора нпс
+local tRankFov = {
+	["novice"] 		= 30,
+	["experienced"] 	= 40,
+	["veteran"] 		= 50,
+	["master"] 		= 60
+}
+
+-- нпс на которых не распрастроняется данная схема
+local tExcludedNpc = {
+	["pre_kir"] 			= true,
+	["upi_igo"] 			= true,
+	["upi_san"] 			= true,
+	["yantar_ecolog_general"] 	= true,
+	["mil_freedom_member0021"] 	= true
+}
+
+-- группировки на которые не распрастроняется данная схема
+local tExcludedComm = {
+	["zombied"] 		= true,
+	["trader"]		= true
+}
+
+-- уровни на которых схема будет работать независимо от времяни
+local under_level = {
+	["l03u_agr_underground"] 	= true,
+	["l04u_labx18"] 		= true,
+	["l08u_brainlab"] 		= true,
+	["l10u_bunker"] 		= true,
+	["l12u_control_monolith"] 	= true,
+	["l12u_sarcofag"] 		= true
+}
+
+local tCheckTime = {}
+local iCheckTimer = 2500	-- интервал абдейта схемы
+local stnight = 22		-- время начала действия схемы (в игровых часах)
+local etnight = 4		-- время окончания действия схемы (в игровых часах)
+
+function check_ulevel()
+  if under_level[level.name()] then
+    	return true
+  else
+	return false
+  end
+end
+
+function CheckNight(oNpc)
+	if tExcludedComm[oNpc:character_community()] then
+		return
+	end
+	
+	if tExcludedNpc[oNpc:name()] or tExcludedNpc[oNpc:section()] then
+		return
+	end
+	
+	if not oNpc:alive() then
+		return
+	end
+
+	if (tCheckTime[oNpc:id()] or 0) > time_global() then
+		return
+	end
+	tCheckTime[oNpc:id()] = time_global() + iCheckTimer
+	
+	local iHours = level.get_time_hours()
+	local sRank = ranks.get_obj_rank_name(oNpc)
+	local iRange = tRankRange[sRank]
+	local iFov = tRankFov[sRank]	
+	local adactor = db.actor
+
+     if this.load_variable("addon_opt_nnpceye",1) == 1 and adactor ~= nil then	-- если настройка в доп.меню включена (ухудшение зрения нпс по ночам)
+	--[[
+		Ночь. либо мы в поздемной локации
+	--]]
+	if is_night() or check_ulevel() then
+ 	   	if db.actor:dont_has_info("addon_torch_on") then 			-- если фонарик выключен
+			if (not oNpc:best_danger() and not oNpc:best_enemy()) then	-- спокойное состояние
+				iRange = iRange + 9    
+				iFov = iFov + 14
+				--log3("- ogse_night : torch off - range low (19)")
+			end
+
+			if oNpc:best_danger() then					-- если почувствовали опасность
+				iRange = iRange + 15    
+				iFov = iFov + 30
+			end
+		
+			if oNpc:best_enemy() then					-- если обнаружиди врага
+				iRange = iRange + 21
+				iFov = iFov + 40
+			end
+
+	  	 else 								-- если фонарик включен
+
+			if (not oNpc:best_danger() and not oNpc:best_enemy()) then	-- спокойное состояние
+           		   if this.load_variable("addon_opt_nnpctorch",1) == 1 and adactor ~= nil then	-- если настройка в доп.меню включена (влияние фонарика на стелс)
+				iRange = iRange + 41    
+				iFov = iFov + 60
+				--log3("- ogse_night : torch on - range low (30)")
+
+			   else  -- если настройка в доп.меню отключена (влияние фонарика на стелс) 
+
+				iRange = iRange + 9   
+				iFov = iFov + 14
+				--log3("- ogse_night : torch on - range low (30)")
+			   end
+			end
+
+			if oNpc:best_danger() then					-- если почувствовали опасность
+           		   if this.load_variable("addon_opt_nnpctorch",1) == 1 and adactor ~= nil then	-- если настройка в доп.меню включена (влияние фонарика на стелс)
+				iRange = iRange + 52    
+				iFov = iFov + 70
+
+			   else  -- если настройка в доп.меню отключена (влияние фонарика на стелс) 
+
+				iRange = iRange + 15   
+				iFov = iFov + 30
+			   end
+			end
+		
+			if oNpc:best_enemy() then					-- если обнаружиди врага
+           		   if this.load_variable("addon_opt_nnpctorch",1) == 1 and adactor ~= nil then	-- если настройка в доп.меню включена (влияние фонарика на стелс)
+				iRange = iRange + 65
+				iFov = iFov + 80
+
+			   else  -- если настройка в доп.меню отключена (влияние фонарика на стелс) 
+
+				iRange = iRange + 21   
+				iFov = iFov + 40
+			   end
+			end
+	  	 end
+
+	--[[
+		День.
+	--]]
+	else
+
+		-- устанавливаются нормальные параметры для нпс
+		iRange = 80
+		iFov = 160
+		--log3("- ogse_night : day - range max (80)")			
+	end
+
+    else  -- если настройка в доп меню отключена (ухудшение зрения нпс по ночам)
+
+	iRange = 80
+	iFov = 160
+	--log3("- ogse_night : scheme - off")
+    end
+
+	if oNpc:fov() ~= iFov then
+		oNpc:set_fov(iFov)
+	end
+		
+	if oNpc:range() ~= iRange then
+		oNpc:set_range(iRange)
+	end
+end
+
+function is_night()
+
+  local htime = level.get_time_hours()
+
+  return (
+ ( htime <= etnight or htime >= stnight ) )
+
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

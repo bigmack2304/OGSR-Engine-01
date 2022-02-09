@@ -1,0 +1,162 @@
+-- https://github.com/dsh2dsh/op2ogse/blob/master/gamedata/scripts/dsh/dsh_anomaly_detector.script
+-- Модуль обхода аномалий сталкерами. Для монстров включать его смысла не вижу.
+-- 11.10.2020
+-- тут скорее не обход аномалий, а игнорирование аномалиями сталкеров
+-- итог... сталкеры могут проходить сквозь аномалии не получая урон.
+-- 11.10.2020
+-- тк. теперь почти все сталкеры могут ходить сквозь аномалии решено
+-- добавить некий рандом применения этой схемы к сталкерам.
+-- чем выше ранг нпс тем больше вероятность что эта схема будет к нему применена.
+-- ну и тк таблица с нпс*ами не сохраняется, то после каждой перезагрузки
+-- значения для одного и тогоже непися могут отличатся, что также добавит рандома.
+
+local mobs = {}
+local npc_rank
+local Rand
+local sector_shans = 0
+local enable_novice = 20	-- шанс что новичек будет обходить аномалии (20%)
+local enable_expert = 40	-- опытный
+local enable_veteran = 60	-- ветеран
+local enable_master = 90	-- мастер
+
+local ENABLE_AD = true 		--Включить скрипт? (не стоит это трогать, толку нет)
+
+-- нпс к которым эта схема не будет применятся
+local excluded_npc = {
+  [ "dik_the_drifter" ] = true
+}
+
+-- нпс к которым эта схема 100% будет применятся
+local ex_enable_npc = {
+  [ "dik_xxx" ] = true
+}
+
+-- группировки к которым эта схема не будет применятся
+local excluded_comms = {
+  [ "zombied" ] = true
+}
+
+-- уровни на которых эта схема не будет применятся
+local excluded_locations = {
+  [ "l03u_agr_underground" ] 	= true,
+  [ "l04u_labx18" ] 			= true,
+  [ "l08u_brainlab" ] 			= true,
+  [ "l10u_bunker" ] 			= true,  
+  [ "l12u_control_monolith" ] 	= true,
+  [ "l12u_sarcofag" ] 			= true
+}
+
+function attach( sm )
+  sm:subscribe({ signal = "on_after_blowout",   fun = this.on_after_blowout })
+  sm:subscribe({ signal = "on_npc_spawn",       fun = this.on_npc_spawn     })
+  sm:subscribe({ signal = "on_npc_death",       fun = this.on_death         })
+  sm:subscribe({ signal = "on_npc_net_destroy", fun = this.on_death         })
+end
+
+function on_npc_spawn( obj, binder )
+  if not obj:alive() then return end
+
+  local anomaly_detector = obj:get_custom_monster():anomaly_detector()
+  if ( excluded_npc[ obj:profile_name() ]
+      or excluded_npc[ obj:name() ]
+      or excluded_npc[ obj:story_id() ]
+      or excluded_comms[ obj:character_community() ]
+      or excluded_locations[ level.name() ]
+    )
+--	and not xr_companion.is_companion( obj:id() )
+  then
+ 
+    anomaly_detector:deactivate( true )
+    return
+  end
+
+  Rand = math.random(100)
+  sector_shans = 0
+  npc_rank = ranks.get_obj_rank_name(obj)
+  
+  if npc_rank ~= nil then
+    if ( ex_enable_npc[ obj:profile_name() ] ) then
+	  sector_shans = 150
+	else
+      if npc_rank == "novice" then 
+	    sector_shans = enable_novice
+	  elseif npc_rank == "experienced" then 
+	    sector_shans = enable_expert
+	  elseif npc_rank == "veteran" then 
+	    sector_shans = enable_veteran
+	  elseif npc_rank == "master" then 
+	    sector_shans = enable_master
+	  end
+	end
+  end	
+  
+  if Rand < sector_shans then
+    if not obj:is_relation_enemy( db.actor ) and not get_anomaly_invisibility( obj ) then
+      set_anomaly_invisibility( obj, true )
+      binder[ script_name()..".anomaly_invisibility" ] = true
+    end
+
+    if not ENABLE_AD then return end
+	
+    anomaly_detector.Anomaly_Detect_Radius = 30
+    anomaly_detector:activate( true )
+    mobs[ obj:id() ] = true
+--	log3("~ addon_dsh_anomaly_detector.script(on_npc_spawn): name "..obj:profile_name()..", rank "..npc_rank..", scheme true")
+  else
+    anomaly_detector:deactivate( true )
+--	log3("~ addon_dsh_anomaly_detector.script(on_npc_spawn): name "..obj:profile_name()..", rank "..npc_rank..", scheme false")
+  end
+ 
+end
+
+
+function on_death( obj )
+  local binder = obj:binded_object()
+  if binder[ script_name()..".anomaly_invisibility" ] then
+    set_anomaly_invisibility( obj, false )
+    binder[ script_name()..".anomaly_invisibility" ] = nil
+  end
+  if mobs[ obj:id() ] then
+    local anomaly_detector = obj:get_custom_monster():anomaly_detector()
+    anomaly_detector:deactivate( true )
+    anomaly_detector:remove_all_restrictions()
+    mobs[ obj:id() ] = nil
+  end
+end
+
+
+function remove_restriction( anomid )
+  for id, _ in pairs( mobs ) do
+    local obj = level.object_by_id( id )
+    if obj then
+      local anomaly_detector = obj:get_custom_monster():anomaly_detector()
+      anomaly_detector:remove_restriction( anomid )
+    end
+  end
+end
+
+
+function pre_blow_off()
+  for id, _ in pairs( mobs ) do
+    local obj = level.object_by_id( id )
+    if obj then
+      local anomaly_detector = obj:get_custom_monster():anomaly_detector()
+      anomaly_detector:deactivate( true )
+      anomaly_detector:remove_all_restrictions()
+    end
+  end
+end
+
+
+function on_after_blowout()
+  for id, _ in pairs( mobs ) do
+    local obj = level.object_by_id( id )
+    if obj then
+      local anomaly_detector = obj:get_custom_monster():anomaly_detector()
+      anomaly_detector:activate( true )
+    end
+  end
+end
+
+
+function get_freq() return 1000 end

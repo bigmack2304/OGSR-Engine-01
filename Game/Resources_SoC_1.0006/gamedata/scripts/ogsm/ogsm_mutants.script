@@ -1,0 +1,117 @@
+---------------------- Обработчик монстров для OGSM 2.x -----------------------
+
+------------------------- Copyright 2007-2008 DEXXX ---------------------------
+
+class "MutantManager"
+
+function MutantManager:__init()
+end
+
+function MutantManager:on_death(param)
+
+self.object = param
+
+if self.object:who_hit_name()=="single_player" then
+
+	if self.object:section()=="zombie_plague" then
+		if not has_alife_info("zombie_plague_dead") then db.actor:give_info_portion("zombie_plague_dead") end
+	end
+
+	if self.object:section()=="burer_strong" then
+		if not has_alife_info("psy_burer_dead") then db.actor:give_info_portion("psy_burer_dead") end
+	end
+
+	if string.find(self.object:section(), "electro_chimera") then
+		if not has_alife_info("electrochimera_dead") then db.actor:give_info_portion("electrochimera_dead") end
+	end
+
+	if string.find(self.object:section(), "psy_dog") then
+		if not has_alife_info("psy_dog_dead") then db.actor:give_info_portion("psy_dog_dead") end
+	end
+
+	if self.object:section() == "dog_weak" or self.object:section() == "dog_normal" or self.object:section() == "dog_strong" then
+		if not has_alife_info("dog_dead") then db.actor:give_info_portion("dog_dead") end
+	end
+
+	if string.find(self.object:section(), "pseudodog") then
+		if not has_alife_info("pseudodog_dead") then db.actor:give_info_portion("pseudodog_dead") end
+	end
+
+	if string.find(self.object:section(), "flesh") then
+		if not has_alife_info("flesh_dead") then db.actor:give_info_portion("flesh_dead") end
+	end
+
+	if string.find(self.object:section(), "boar") then
+		if not has_alife_info("boar_dead") then db.actor:give_info_portion("boar_dead") end
+	end
+
+	if string.find(self.object:section(), "snork") then
+		if not has_alife_info("snork_dead") then db.actor:give_info_portion("snork_dead") end
+	end
+
+	if string.find(self.object:section(), "bloodsucker") then
+		if not has_alife_info("bloodsucker_dead") then db.actor:give_info_portion("bloodsucker_dead") end
+	end
+
+	if string.find(self.object:section(), "controller") then
+		if not has_alife_info("controller_dead") then db.actor:give_info_portion("controller_dead") end
+	end
+
+	if string.find(self.object:section(), "gigant") then
+		if not has_alife_info("pseudogiant_dead") then db.actor:give_info_portion("pseudogiant_dead") end
+	end
+
+	if string.find(self.object:section(), "poltergeist") then
+		if not has_alife_info("poltergeist_dead") then db.actor:give_info_portion("poltergeist_dead") end
+	end
+
+	if self.object:section() == "zombie_weak" or self.object:section() == "zombie_normal" or self.object:section() == "zombie_old" or self.object:section() == "zombie_immortal" or self.object:section() == "zombie_ghost" then
+		if not has_alife_info("zombie_dead") then db.actor:give_info_portion("zombie_dead") end		
+	end
+
+	if self.object:section() == "zombie_strong" then
+		if not has_alife_info("zombie_ghost_dead") then db.actor:give_info_portion("zombie_ghost_dead") end
+	end
+
+	if string.find(self.object:section(), "cat") then
+		if not has_alife_info("cat_dead") then db.actor:give_info_portion("cat_dead") end
+	end
+
+	if string.find(self.object:section(), "fracture") then
+		if not has_alife_info("fracture_dead") then db.actor:give_info_portion("fracture_dead") end
+	end
+
+	if string.find(self.object:section(), "tushkano") then
+		if not has_alife_info("tushkano_dead") then db.actor:give_info_portion("tushkano_dead") end
+	end
+
+	if string.find(self.object:section(), "chimera_weak") then
+		if not has_alife_info("chimera_dead") then db.actor:give_info_portion("chimera_dead") end
+	end
+
+	if string.find(self.object:section(), "burer_weak") then
+		if not has_alife_info("burer_dead") then db.actor:give_info_portion("burer_dead") end
+	end
+end
+
+end
+
+---------------------- Обработчик монстров для OGSM 2.x -----------------------
+
+------------------------- Copyright 2007-2008 DEXXX ---------------------------
+
+--[[
+
+If you're going to use the whole of this script or its parts in your own creative 
+developments for the S.T.A.L.K.E.R. game, please don't become such a goddamn 
+motherfucker like the notorious author of the ABC Mod - Carbrobro. Leave the 
+copyrights, note the real author(s) and don't claim others' ideas and their 
+realization to be your own ones. It's just simple Modmakers' Ethics. Thank you!
+
+Если вы собираетесь использовать данный скрипт целиком или частично в своих 
+разработках по игре S.T.A.L.K.E.R., пожалуйста не опускайтесь до уровня печально 
+известного автора ABC мода - Carbrobro. Не удаляйте копирайты, указывайте настоящего 
+автора(ов) и не выдавайте чужие идеи и их реализацию за свои. Ведь это элементарная 
+этика модостроителей! Спасибо за понимание.
+
+]]--

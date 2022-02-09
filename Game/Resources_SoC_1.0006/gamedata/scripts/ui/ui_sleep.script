@@ -1,0 +1,212 @@
+
+class "sleep" (CUIScriptWnd)
+
+function sleep:__init(owner) super()
+
+	self.owner = owner
+	self:InitControls()
+	self:InitCallBacks()
+end
+
+function sleep:__finalize() end
+
+function sleep:InitControls()
+	self:Init(50,50,974,718)
+
+	local xml = CScriptXmlInit()
+	xml:ParseFile("ui_sleep_dialog.xml")
+
+	xml:InitStatic("background", self)
+	xml:InitStatic("time_scale_back", self)
+	xml:InitStatic("panorama_window", self)
+	sleep_st_tbl = {}
+	for i = 1, 24 do
+		sleep_st_tbl[i] = xml:InitStatic("sleep_st_"..i, self)
+	end
+	for i = 0, 23 do
+		if level.get_time_hours() == i then
+			xml:InitStatic("sky_panorama_"..i, self)
+		end
+	end
+	local cur_hours = level.get_time_hours()
+	for i = 1, 24 do
+		local hours = cur_hours + i
+		if(hours>=24) then
+			hours = hours - 24
+		end
+		sleep_st_tbl[i]:SetText(hours)
+	end
+	for i = 1, 24 do
+		self:Register(xml:Init3tButton("btn_"..i, self),"btn_"..i)
+	end
+	self:Register(xml:Init3tButton("caption_1", self),"caption_1")
+	self:Register(xml:Init3tButton("btn_cancel", self),"btn_cancel")
+end
+
+function sleep:InitCallBacks()
+	self:AddCallback("btn_1", 	ui_events.BUTTON_CLICKED, self.sleep1, self)
+	self:AddCallback("btn_2", 	ui_events.BUTTON_CLICKED, self.sleep2, self)
+	self:AddCallback("btn_3", 	ui_events.BUTTON_CLICKED, self.sleep3, self)
+	self:AddCallback("btn_4", 	ui_events.BUTTON_CLICKED, self.sleep4, self)
+	self:AddCallback("btn_5", 	ui_events.BUTTON_CLICKED, self.sleep5, self)
+	self:AddCallback("btn_6", 	ui_events.BUTTON_CLICKED, self.sleep6, self)
+	self:AddCallback("btn_7", 	ui_events.BUTTON_CLICKED, self.sleep7, self)
+	self:AddCallback("btn_8", 	ui_events.BUTTON_CLICKED, self.sleep8, self)
+	self:AddCallback("btn_9", 	ui_events.BUTTON_CLICKED, self.sleep9, self)
+	self:AddCallback("btn_10", 	ui_events.BUTTON_CLICKED, self.sleep10, self)
+	self:AddCallback("btn_11", 	ui_events.BUTTON_CLICKED, self.sleep11, self)
+	self:AddCallback("btn_12", 	ui_events.BUTTON_CLICKED, self.sleep12, self)
+	self:AddCallback("btn_13", 	ui_events.BUTTON_CLICKED, self.sleep13, self)
+	self:AddCallback("btn_14", 	ui_events.BUTTON_CLICKED, self.sleep14, self)
+	self:AddCallback("btn_15", 	ui_events.BUTTON_CLICKED, self.sleep15, self)
+	self:AddCallback("btn_16", 	ui_events.BUTTON_CLICKED, self.sleep16, self)
+	self:AddCallback("btn_17", 	ui_events.BUTTON_CLICKED, self.sleep17, self)
+	self:AddCallback("btn_18", 	ui_events.BUTTON_CLICKED, self.sleep18, self)
+	self:AddCallback("btn_19", 	ui_events.BUTTON_CLICKED, self.sleep19, self)
+	self:AddCallback("btn_20", 	ui_events.BUTTON_CLICKED, self.sleep20, self)
+	self:AddCallback("btn_21", 	ui_events.BUTTON_CLICKED, self.sleep21, self)
+	self:AddCallback("btn_22", 	ui_events.BUTTON_CLICKED, self.sleep22, self)
+	self:AddCallback("btn_23", 	ui_events.BUTTON_CLICKED, self.sleep23, self)
+	self:AddCallback("btn_24", 	ui_events.BUTTON_CLICKED, self.sleep24, self)
+	self:AddCallback("btn_cancel", 	ui_events.BUTTON_CLICKED, self.cancel, self)
+end
+
+function sleep:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self,dik,keyboard_action)
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		if dik == DIK_keys.DIK_ESCAPE then
+			self:on_quit()
+		end
+	end
+	return true
+end
+
+function sleep:sleep1()
+	sleep_manager.sleep(1)
+	self:on_quit()
+end
+function sleep:sleep2()
+	sleep_manager.sleep(2)
+	self:on_quit()
+end
+function sleep:sleep3()
+	sleep_manager.sleep(3)
+	self:on_quit()
+end
+function sleep:sleep4()
+	sleep_manager.sleep(4)
+	self:on_quit()
+end
+function sleep:sleep5()
+	sleep_manager.sleep(5)
+	self:on_quit()
+end
+function sleep:sleep6()
+	sleep_manager.sleep(6)
+	self:on_quit()
+end
+function sleep:sleep7()
+	sleep_manager.sleep(7)
+	self:on_quit()
+end
+function sleep:sleep8()
+	sleep_manager.sleep(8)
+	self:on_quit()
+end
+function sleep:sleep9()
+	sleep_manager.sleep(9)
+	self:on_quit()
+end
+function sleep:sleep10()
+	sleep_manager.sleep(10)
+	self:on_quit()
+end
+
+function sleep:sleep11()
+	sleep_manager.sleep(11)
+	self:on_quit()
+end
+
+function sleep:sleep12()
+	sleep_manager.sleep(12)
+	self:on_quit()
+end
+
+function sleep:sleep13()
+	sleep_manager.sleep(13)
+	self:on_quit()
+end
+
+function sleep:sleep14()
+	sleep_manager.sleep(14)
+	self:on_quit()
+end
+
+function sleep:sleep15()
+	sleep_manager.sleep(15)
+	self:on_quit()
+end
+
+function sleep:sleep16()
+	sleep_manager.sleep(16)
+	self:on_quit()
+end
+
+function sleep:sleep17()
+	sleep_manager.sleep(17)
+	self:on_quit()
+end
+
+function sleep:sleep18()
+	sleep_manager.sleep(18)
+	self:on_quit()
+end
+
+function sleep:sleep19()
+	sleep_manager.sleep(19)
+	self:on_quit()
+end
+
+function sleep:sleep20()
+	sleep_manager.sleep(20)
+	self:on_quit()
+end
+
+function sleep:sleep21()
+	sleep_manager.sleep(21)
+	self:on_quit()
+end
+
+function sleep:sleep22()
+	sleep_manager.sleep(22)
+	self:on_quit()
+end
+
+function sleep:sleep23()
+	sleep_manager.sleep(23)
+	self:on_quit()
+end
+
+function sleep:sleep24()
+	sleep_manager.sleep(24)
+	self:on_quit()
+end
+
+
+function sleep:check_game()
+	local check = false
+	if level.present() and (db.actor ~= nil) and db.actor:alive() then
+		check = true
+	end
+	return check
+end
+
+function sleep:on_quit()
+addon_lwc_use.Sound(2, [[interface\inv_close_2]])
+	self:GetHolder():start_stop_menu (self,true)
+	self:ClearCallbacks()
+end
+
+function sleep:cancel()
+	self:on_quit()
+end

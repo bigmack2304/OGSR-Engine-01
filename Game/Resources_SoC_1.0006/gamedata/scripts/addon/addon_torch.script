@@ -1,0 +1,380 @@
+--[[
+	Работа фонаря от батареек.
+	реализация		19.10.2015
+	переработка под OGSR	25.06.2019       
+    при создании скрипта частично использовался lwc_flashlight.script из lwo
+    и dsh_torch.script из НС dsh mod
+--]]
+
+
+local tstate 		= 0  	-- состояние фонарика (0-выкл 1-вкл)
+local torch_flag 	= 0  	-- сохраняемая переменная состояния фонарика (tflag 0- выключен 1- включен)  	
+local torch_slotflag 	= 0  	-- сохраняемая переменная наличия фонаря в слоте (tsflag true- в слоте false- не в слоте) 
+local torch_condflag 	= 0  	-- сохраняемая переменная полного разряда фонарика (tcflag 0- разряжен 1- заряжен) 
+local ct_upd0 		= 0
+local ct_upd1 		= 0
+local iNextUpdate	= 0  	-- постоянная таймера
+local float_hit 	= 0.01  -- степень разряда батареи за еденицу времяни (float_time), по умолчанию (0.02, стоит учитывать что 1.00 это 100%)
+local float_time 	= 13  	-- еденица времяни за которую разрядется батарея на (float_hit) , по умолчанию (25 сек)
+
+
+-- проверка наличия фонарика в слоте
+function check_torch_dop()
+local torch_inslot = db.actor:item_in_slot( 9 )
+torch_flag = get_var("tflag")
+torch_slotflag = get_var("tsflag")
+
+  if torch_inslot and torch_inslot:section() == "device_torch" then
+     check_torch_1()
+     return
+  else
+     check_torch_0()
+     return
+  end
+end
+
+-- фонарь в слоте
+function check_torch_1()
+  if ct_upd1==1 then
+    return
+  end
+set_var("tsflag", true)
+--log3("# addon_torch.script (check_torch): torch in slot")
+ct_upd1 = 1
+ct_upd0 = 0
+end
+
+-- фонаря нет в слоте
+function check_torch_0()
+  if ct_upd0==1 then
+    return
+  end
+torch_flag = get_var("tflag")
+set_var("tsflag", false)
+--log3("# addon_torch.script (check_torch): torch no slot")
+  if tstate==1 and torch_flag==1 then
+    torch_off()
+    --log3("# addon_torch.script (check_torch): state - off")
+  end
+ct_upd0 = 1
+ct_upd1 = 0
+end
+
+-- вызывается принажатии кнопки на включение\выключение фонаря
+function key_torch(e)
+torch_slotflag = get_var("tsflag")
+
+if e.key == DIK_keys.DIK_L and tstate==0 then	
+      if torch_slotflag==true then
+	  torch_on()
+	  torch_snd()
+	  --log3("# addon_torch.script (key_torch): state - on")																							
+	  return
+      end
+end
+
+if e.key == DIK_keys.DIK_L and tstate==1 then		
+      if torch_slotflag==true then		
+	  torch_off()		
+	  torch_snd()																				
+	  --log3("# addon_torch.script (key_torch): state - off")
+	  return
+      end
+end
+end
+
+-- функция фключения фонаря
+function torch_on()
+ if db.actor:dont_has_info("addon_torch_on") then
+ local torch_inslot = db.actor:item_in_slot( 9 )
+    if torch_inslot and torch_inslot:is_torch() then
+      otorch = get_torch_obj( torch_inslot )
+	otorch:switch(true)
+    end
+	tstate = 1
+	set_var("tflag", 1)
+	db.actor:give_info_portion("addon_torch_on")
+	--log3("# addon_torch.script (torch_on): state - on")
+ end
+end
+
+-- функция выключения фонаря
+function torch_off()
+ if db.actor:has_info("addon_torch_on") then
+ local torch_inslot = db.actor:item_in_slot( 9 )
+    if torch_inslot and torch_inslot:is_torch() then
+      otorch = get_torch_obj( torch_inslot )
+	otorch:switch(false)
+    end
+	tstate = 0
+	set_var("tflag", 0)
+	db.actor:disable_info_portion("addon_torch_on")
+	--log3("# addon_torch.script (torch_off): state - off")
+
+ end
+end
+
+-- звук включения фонарика
+function torch_snd()
+ local snd_obj = xr_sound.get_safe_sound_object([[interface\devices\flashlight]])
+ snd_obj:play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 1.0)
+end
+
+--разряд батареи со времянем
+function torch_hit()
+ torch_slotflag = get_var("tsflag")
+
+  if torch_slotflag==true then
+
+ torch_flag = get_var("tflag")
+ local torch_inslot = db.actor:item_in_slot( 9 )
+ torch_ob = db.actor:object("device_torch")
+ local torch_cond = torch_ob:condition()
+ local torch_cond_n = math.floor(torch_cond * 100)
+ local adactor 		= db.actor
+
+    if torch_flag==1 and tstate==1 then
+
+      if this.load_variable("addon_opt_torch_battery",1) == 1 and adactor ~= nil then
+        if torch_cond <= 0.03 then   					-- полный разряд
+	    set_var("tcflag", 0)
+	    torchcond_lightoff()
+	    info()
+ 	    torch_off()
+	   -- log3("# addon_torch.script (torch_hit): torch cond < 0.06 stop hit - torch off")
+	    return
+        end
+      end
+      if iNextUpdate <= time_global() then
+        if this.load_variable("addon_opt_torch_battery",1) == 1 and adactor ~= nil then
+  	  torch_inslot:set_condition(torch_cond - float_hit)
+	  set_var("tcflag", 1)
+	  torchcond_light()
+	 -- log3("# addon_torch.script (torch_hit): torch cond = "..torch_cond_n.." true hit")
+	  iNextUpdate = time_global() + float_time*1000
+	else
+	  set_var("tcflag", 1)
+	  torc_battery_enabled()
+	  iNextUpdate = time_global() + float_time*1000
+	--  log3("# addon_torch.script (torch_hit): torch cond = "..torch_cond_n.." stop hit - torch battery off")
+        end
+      end
+    end
+  end
+end
+
+-- вызывается при отключении энергозависомого фонарика
+function torc_battery_enabled()
+ local torch_inslot = db.actor:item_in_slot( 9 )
+    if torch_inslot and torch_inslot:is_torch() then
+        otorch = get_torch_obj( torch_inslot )
+		otorch:set_range(19)
+		otorch:set_angle(1.40)
+		otorch:set_brightness(0.7)
+		otorch:set_animation("empty")
+    end
+end
+
+-- значения полностью разряженного фонарика
+function torchcond_lightoff()
+ local torch_inslot = db.actor:item_in_slot( 9 )
+    if torch_inslot and torch_inslot:is_torch() then
+        otorch = get_torch_obj( torch_inslot )
+		otorch:set_range(3)
+		otorch:set_angle(0.60)
+		otorch:set_brightness(0.3)
+		otorch:set_animation("battery_low")
+    end
+end
+
+
+-- зависимость характеристик фонаря от заряда батареи
+function torchcond_light()
+ 	torch_ob = db.actor:object("device_torch")
+ 	local torch_cond = torch_ob:condition()
+
+ local torch_inslot = db.actor:item_in_slot( 9 )
+    if torch_inslot and torch_inslot:is_torch() then
+        otorch = get_torch_obj( torch_inslot )
+
+--	otorch:set_range(6)			-- дальность освещения, minimum 1
+--	otorch:set_angle(51)			-- размер пятна, диапозон 0.1 - 2
+-- 	otorch:set_brightness(0.9)		-- мощьность лампы, стандарт примерно 1
+--	otorch:set_animation("battery_low") 	-- онимация освещения, standart ("empty")
+
+    if torch_cond >= 0.66 then
+		otorch:set_range(19)
+		otorch:set_angle(1.40)
+		otorch:set_brightness(0.7)
+		otorch:set_animation("empty")
+	  --log3("# addon_torch.script (torchcond_light): discharge 0 of 7")
+	end
+    if torch_cond <= 0.65 and torch_cond > 0.55 then
+		otorch:set_range(18)
+		otorch:set_angle(1.30)
+		otorch:set_brightness(0.7)
+		otorch:set_animation("empty")
+	  --log3("# addon_torch.script (torchcond_light): discharge 1 of 7")
+	end
+    if torch_cond <= 0.55 and torch_cond > 0.45 then
+		otorch:set_range(16)
+		otorch:set_angle(1.20)
+		otorch:set_brightness(0.7)
+		otorch:set_animation("empty")
+	  --log3("# addon_torch.script (torchcond_light): discharge 2 of 7")
+	end
+    if torch_cond <= 0.45 and torch_cond > 0.35 then
+		otorch:set_range(14)
+		otorch:set_angle(1.10)
+		otorch:set_brightness(0.6)
+		otorch:set_animation("empty")
+	  --log3("# addon_torch.script (torchcond_light): discharge 3 of 7")
+	end
+    if torch_cond <= 0.35 and torch_cond > 0.25 then
+		otorch:set_range(12)
+		otorch:set_angle(1.00)
+		otorch:set_brightness(0.5)
+		otorch:set_animation("empty")
+	  --log3("# addon_torch.script (torchcond_light): discharge 4 of 7")
+	end
+    if torch_cond <= 0.25 and torch_cond > 0.20 then
+		otorch:set_range(10)
+		otorch:set_angle(0.90)
+		otorch:set_brightness(0.5)
+		otorch:set_animation("empty")
+	  --log3("# addon_torch.script (torchcond_light): discharge 5 of 7")
+	end
+    if torch_cond <= 0.20 and torch_cond > 0.11 then
+		otorch:set_range(9)
+		otorch:set_angle(0.80)
+		otorch:set_brightness(0.4)
+		otorch:set_animation("battery_low")
+	  --log3("# addon_torch.script (torchcond_light): discharge 6 of 7")
+	end
+    if torch_cond <= 0.11 then
+		otorch:set_range(7)
+		otorch:set_angle(0.60)
+		otorch:set_brightness(0.4)
+		otorch:set_animation("battery_low")
+	  --log3("# addon_torch.script (torchcond_light): discharge 7 of 7")
+	end
+end
+end
+
+-- информирование о разряде батареи
+function info() 
+local hud = get_hud()
+local info = hud:GetCustomStatic("info_torch_off")
+  if not info then
+	hud:AddCustomStatic("info_torch_off", true)
+	info = hud:GetCustomStatic("info_torch_off"):wnd()
+	info:SetText(game.translate_string("inf_toh_off") )
+	lwc_timer.Add("timer_infooff", "addon_torch.info_off()", 6, 0, 0)
+  end
+end
+
+function info_off()
+local hud = get_hud()
+local info = hud:GetCustomStatic("info_torch_off")
+  if info then
+	hud:RemoveCustomStatic("info_torch_off", true)
+  end
+end
+
+-- информирование о замене батареи
+function infoz()
+local hud = get_hud()
+local infoz = hud:GetCustomStatic("infoz_torch_off")
+  if not infoz then
+	hud:AddCustomStatic("infoz_torch_off", true)
+	infoz = hud:GetCustomStatic("infoz_torch_off"):wnd()
+	infoz:SetText(game.translate_string("infz_toh_off") )
+	lwc_timer.Add("timer_infoz", "addon_torch.infoz_off()", 12, 0, 0)
+  end
+end
+
+function infoz_off()
+local hud = get_hud()
+local infoz = hud:GetCustomStatic("infoz_torch_off")
+  if infoz then
+	hud:RemoveCustomStatic("infoz_torch_off", true)
+  end
+end
+
+-- вызывается в момент использования батареек
+function use_bat(e)
+  torch_flag = get_var("tflag")
+  torch_ob = db.actor:object("device_torch")
+  local torch_cond = torch_ob:condition()
+  local torch_inslot = db.actor:item_in_slot( 9 )
+    if torch_inslot and torch_inslot:is_torch() then
+      otorch = get_torch_obj( torch_inslot )
+       if (db.actor ~= nil) and (e.obj ~= nil) then
+         if e.obj:section() == "device_torch_bat" then
+
+              if torch_flag==1 and tstate==1 then
+	        torch_off()
+	        --log3("# addon_torch.script (use_bat): battery replacement - torch off")
+	      else
+	       -- log3("# addon_torch.script (use_bat): battery replacement")
+	      end
+
+  	    torch_inslot:set_condition(torch_cond + 1)
+	    otorch:set_range(19)
+            otorch:set_angle(1.40)
+	    otorch:set_brightness(0.7)
+            otorch:set_animation("empty")
+	    infoz()
+         end	
+       end
+    end
+end
+
+-- вызывается 1раз после загрузки (загрузка всех переменных)
+function torch_load()
+ --log3("# addon_torch.script (torch_load): start load")
+ torch_flag = get_var("tflag")
+ torch_slotflag = get_var("tsflag")
+
+  cmd("unbind torch")
+
+  if torch_slotflag==true then
+    if torch_flag==0 then
+      tstate = 0
+      torch_off()
+      --log3("# addon_torch.script (torch_load): state loaded - off")
+      return
+    end
+
+    if torch_flag==1 then
+      tstate = 1
+      torch_on()
+      --log3("# addon_torch.script (torch_load): state loaded - on")
+      return
+    end
+  end
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("actor_on_key"):register(key_torch)
+	event("actor_net_spawn"):register(torch_load)
+	event("actor_update"):register(check_torch_dop)
+	event("actor_update"):register(torch_hit)
+	event("use_item"):register(use_bat)
+end

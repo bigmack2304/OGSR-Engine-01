@@ -1,0 +1,270 @@
+-- воспроизводим звук когда гг поднимает предмет.
+
+function attach(sm)
+	sm:subscribe({signal = "on_take",			fun = this.item_taked})
+end
+
+
+local podnyl_grenade={
+    ["grenade_rgd5"]                    =true,
+    ["grenade_gd-05"]                   =true,
+    ["grenade_f1"]						=true
+}
+
+local podnyl_ammo={
+    ["ammo_12x70_kart"]                 =true,
+    ["ammo_9x18_fmj"]                   =true,
+    ["ammo_9x18_pbp"]                   =true,
+    ["ammo_9x18_pmm"]                   =true,
+    ["ammo_9x19_fmj"]                   =true,
+    ["ammo_9x19_pbp"]                   =true,
+    ["ammo_5.45x39_fmj"]                =true,
+    ["ammo_5.45x39_ap"]                 =true,
+    ["ammo_5.56x45_ss190"]              =true,
+    ["ammo_5.56x45_ap"]                 =true,
+    ["ammo_5.7x28_fmj"]                 =true,
+    ["ammo_7.62x54r"]                   =true,
+    ["ammo_7.62x39_fmj"]                =true,
+    ["ammo_7.62x39_ap"]                 =true,
+    ["ammo_7.62x54_7h1"]                =true,
+    ["ammo_mag_sr25"]                   =true,
+    ["ammo_7.62x54_ap"]                 =true,
+    ["ammo_7.62x54_7h14"]               =true,
+    ["ammo_gauss"]                    	=true,
+    ["ammo_9x39_ap"]                    =true,
+    ["ammo_9x39_sp5"]                   =true,
+    ["ammo_9x39_pab9"]                  =true,
+    ["ammo_11.43x23_fmj"]               =true,
+    ["ammo_11.43x23_hydro"]             =true,
+    ["ammo_11.43x23_eagle"]             =true,
+    ["ammo_12x70_buck"]                 =true,
+    ["ammo_12x76_dart"]                 =true,
+    ["ammo_12x76_zhekan"]               =true,
+    ["ammo_og-7b"]                    	=true,
+    ["ammo_vog-25p"]                    =true,
+    ["ammo_vog-25"]                    	=true,
+    ["ammo_7.62x25_p"]                  =true,
+    ["ammo_7.62x25_ps"]                 =true,
+    ["ammo_m209"]                    	=true
+}
+
+local podnyl_food={
+    ["bread"]                  	=true,
+    ["vodka"]                 	=true,
+    ["energy_drink"]           	=true,
+    ["addon_fh_voda"]           =true,
+    ["kolbasa"]					=true,
+    ["conserva"]				=true,
+    ["bread_fake"]				=true,
+    ["kolbasa_fake"]			=true,
+    ["conserva_fake"]			=true,
+    ["energy_drink_fake"]		=true,
+    ["addon_fh_voda_fake"]		=true
+}
+
+local podnyl_med={
+    ["antirad"]                    	=true,
+    ["medkit"]                    	=true,
+    ["medkit_army"]                	=true,
+    ["medkit_scientic"]             =true,
+    ["bandage"]                    	=true,
+    ["sigaret"]                    	=true
+}
+
+local podnyl_outfit={
+    ["novice_outfit"]                       =true,
+	["novice_outfit_aa"]                    =true,
+	["novice_outfit_ab"]                    =true,
+	["novice_outfit_ac"]                    =true,
+	["novice_outfit_ba"]                    =true,
+	["novice_outfit_bb"]                    =true,
+	["novice_outfit_bc"]                    =true,
+	["bandit_outfit"]                       =true,
+	["bandit_outfit_aa"]                    =true,
+	["bandit_outfit_ab"]                    =true,
+	["bandit_outfit_ac"]                    =true,
+	["bandit_outfit_ba"]                    =true,
+	["bandit_outfit_bb"]                    =true,
+	["bandit_outfit_bc"]                    =true,
+	["killer_outfit"]                       =true,
+	["monolit_outfit"]                      =true,
+	["specops_outfit"]                      =true,
+	["military_outfit"]                     =true,
+	["stalker_outfit"]                      =true,
+	["scientific_outfit"]                   =true,
+	["scientific_outfit_aa"]                =true,
+	["scientific_outfit_ab"]                =true,
+	["scientific_outfit_ac"]                =true,
+	["scientific_outfit_ba"]                =true,
+	["scientific_outfit_bb"]                =true,
+	["scientific_outfit_bc"]                =true,	
+	["exo_outfit"]                          =true,
+	["exo_outfit_aa"]                       =true,
+	["exo_outfit_ab"]                       =true,
+	["exo_outfit_ac"]                       =true,
+	["exo_outfit_ba"]                       =true,
+	["exo_outfit_bb"]                       =true,
+	["exo_outfit_bc"]                       =true,
+	["svoboda_light_outfit"]                =true,
+	["svoboda_heavy_outfit"]                =true,
+	["dolg_outfit"]                    	    =true,
+	["dolg_scientific_outfit"]              =true,
+	["ecolog_outfit"]                       =true,
+	["protection_outfit"]                   =true,
+	["outfit_novice_m1"]                    =true,
+	["outfit_bandit_m1"]                    =true,
+	["outfit_dolg_m1"]                      =true,
+	["outfit_killer_m1"]                    =true,
+	["outfit_specnaz_m1"]                   =true,
+	["outfit_stalker_m1"]                   =true,
+	["outfit_stalker_m2"]                   =true,
+	["outfit_svoboda_m1"]                   =true,
+	["outfit_exo_m1"]                     	=true,
+    ["inv_ruck"] 	                      	=true,
+    ["inv_ruck2"] 	                      	=true,
+    ["inv_ruck3"] 	                      	=true,
+    ["matras"]                       		=true
+}
+
+local podnyl_addon={
+    ["wpn_addon_grenade_launcher_m203"]         =true,
+    ["wpn_addon_grenade_launcher"]				=true,
+    ["wpn_addon_silencer"]						=true,
+    ["wpn_addon_scope_susat"]                   =true,
+    ["wpn_addon_scope_fn"]                   	=true,
+    ["wpn_addon_scope_groza"]                   =true,
+    ["wpn_addon_scope_gauss"]                   =true,
+    ["wpn_addon_scope_1p78"]		=true,
+    ["wpn_addon_scope"]				=true,
+    ["device_pnv_1"]				=true,
+    ["device_pnv_2"]				=true,
+    ["device_pnv_3"]				=true,
+    ["device_pnv_4"]				=true,
+    ["device_pnv_5"]				=true,
+    ["device_pnv_6"]				=true,
+    ["device_pnv_7"]				=true,
+    ["detector_geiger1"]			=true,
+    ["detector_geiger2"]			=true,
+    ["detector_geiger3"]			=true,
+    ["detector_simple"]				=true,
+	["detector_advances"]			=true,
+    ["detector_elite"]				=true,
+	["detector_cop_1"]				=true,
+	["detector_cop_2"]				=true,
+	["detector_cop_3"]				=true,
+	["detector_cop_4"]				=true,
+    ["amk_metka"]					=true,
+    ["device_torch_bat"]			=true,
+    ["device_pnv_bat"]				=true,
+    ["power_supply"]				=true
+}
+
+function item_taked(obj)
+local wnd_talk		= level.get_talk_wnd()       -- окно диалога
+local wnd_trade 	= level.get_trade_wnd()      -- окно торговли
+local wnd_body	 	= level.get_car_body_wnd()   -- окно обыска
+local addon_actor 	= db.actor
+
+	if wnd_body and wnd_body:IsShown() then
+		return
+	end
+	if wnd_talk and wnd_talk:IsShown() then
+		return
+	end
+	if wnd_trade and wnd_trade:IsShown() then
+		return
+	end
+
+if this.load_variable("addon_opt_sitem",1) == 1 and addon_actor ~= nil then
+
+ 	if podnyl_grenade[obj:section()] then  
+		gen_item_sound(1)
+	end
+
+ 	if podnyl_ammo[obj:section()] then 
+		gen_item_sound(2)
+	end
+
+ 	if podnyl_food[obj:section()] then  
+		gen_item_sound(3)
+	end
+
+ 	if podnyl_med[obj:section()] then 
+		gen_item_sound(4)
+	end
+
+ 	if podnyl_outfit[obj:section()] then  
+		gen_item_sound(5)
+	end
+
+ 	if podnyl_addon[obj:section()] then  
+		gen_item_sound(6)
+	end
+    end
+end
+
+function gen_item_sound(tupe)
+local snd_tip = tupe
+local rs = math.random(1,2)
+
+if snd_tip == 1 then
+  if rs == 1 then
+    play_sound([[interface\take\take_grenade]])  
+  elseif rs == 2 then
+    play_sound([[interface\take\take_grenade_2]])  
+  end
+elseif snd_tip == 2 then
+  if rs == 1 then
+    play_sound([[interface\take\take_ammo]]) 
+  elseif rs == 2 then
+    play_sound([[interface\take\take_ammo_2]])   
+  end
+elseif snd_tip == 3 then
+  if rs == 1 then
+    play_sound([[interface\take\take_food]]) 
+  elseif rs == 2 then
+    play_sound([[interface\take\take_food_2]])   
+  end
+elseif snd_tip == 4 then
+  if rs == 1 then
+    play_sound([[interface\take\take_med]]) 
+  elseif rs == 2 then
+    play_sound([[interface\take\take_med_2]])   
+  end
+elseif snd_tip == 5 then
+  if rs == 1 then
+    play_sound([[interface\take\take_outfit]]) 
+  elseif rs == 2 then
+    play_sound([[interface\take\take_outfit_2]])   
+  end
+elseif snd_tip == 6 then
+  if rs == 1 then
+    play_sound([[interface\take\take_addons]]) 
+  elseif rs == 2 then
+    play_sound([[interface\take\take_addons_2]])   
+  end
+end
+end
+
+-- функция для воспроизведения звука
+function play_sound(sound,obj)
+	if obj == nil then obj = db.actor end
+	snd = xr_sound.get_safe_sound_object(sound)
+	snd:play_no_feedback(obj,sound_object.s2d,0,vector(),2.0)
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------

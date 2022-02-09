@@ -1,0 +1,20 @@
+local iTimer 
+
+function snden()
+ui_main_menu.f4()
+end
+
+function starttimer()
+iTimer = time_global() + 1*1000
+end 
+
+function timerminutes()
+if iTimer and iTimer < time_global() then
+iTimer = nil
+snden() 
+end 
+end 
+
+function init()
+	event("actor_update"):register(timerminutes)
+end

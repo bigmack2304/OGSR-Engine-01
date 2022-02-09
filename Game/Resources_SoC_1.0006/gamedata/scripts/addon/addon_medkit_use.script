@@ -1,0 +1,167 @@
+--[[
+	Схема восстановления выносливости, здоровья, пси-здоровья, и вывод радиации
+	Авторы: Vergas - начальный код
+			Real Wolf - оптимизация, добавление восстановления пси-здоровья
+	10.07.20
+	небольшая доработка кода, т.к ранее при использовании аптечки а затем антирада,
+	эввект от аптечки сбрасывался.
+--]]
+
+local bHealing = false		
+local iDeltaTime = 0		
+local iDeltaHealth = 0	
+local iDeltaPower = 0		
+local iDeltaRadiation = 0		
+local iDeltaPsyHealth = 0		
+local iTime = 0	  	
+
+function Use(e)
+	if Exist(system_ini(), "Line", e.obj:section(), "mr_time") then
+		UseMed(e.obj:section() )
+	end
+end
+
+function UseMed(sMedSection)			
+	local oIni = system_ini()
+	local actor = db.actor
+	
+	iDeltaTime = ReadLine(oIni, "Number", sMedSection, "mr_time")
+
+	if this.load_variable("addon_opt_realmed",1) == 1 and actor ~= nil then
+	  if ReadLine(oIni, "Number", sMedSection, "mr_eat_health", 0) ~= 0 then
+		iDeltaHealth = ReadLine(oIni, "Number", sMedSection, "mr_eat_health", 0)/iDeltaTime/60
+	  end
+	  if ReadLine(oIni, "Number", sMedSection, "mr_eat_power", 0) ~= 0 then
+		iDeltaPower = ReadLine(oIni, "Number", sMedSection, "mr_eat_power", 0)/iDeltaTime/60
+	  end
+	  if ReadLine(oIni, "Number", sMedSection, "mr_eat_radiation", 0) ~= 0 then
+		iDeltaRadiation = ReadLine(oIni, "Number", sMedSection, "mr_eat_radiation", 0)/iDeltaTime/60
+	  end
+	  if ReadLine(oIni, "Number", sMedSection, "mr_eat_psy_health", 0) ~= 0 then
+		iDeltaPsyHealth = ReadLine(oIni, "Number", sMedSection, "mr_eat_psy_health", 0)/iDeltaTime/60
+	  end
+	else
+	  if ReadLine(oIni, "Number", sMedSection, "mr_eat_health", 0) ~= 0 then
+		iDeltaHealth = ReadLine(oIni, "Number", sMedSection, "mr_eat_health", 0)/iDeltaTime/1
+	  end
+	  if ReadLine(oIni, "Number", sMedSection, "mr_eat_power", 0) ~= 0 then
+		iDeltaPower = ReadLine(oIni, "Number", sMedSection, "mr_eat_power", 0)/iDeltaTime/1
+	  end
+	  if ReadLine(oIni, "Number", sMedSection, "mr_eat_radiation", 0) ~= 0 then
+		iDeltaRadiation = ReadLine(oIni, "Number", sMedSection, "mr_eat_radiation", 0)/iDeltaTime/1
+	  end
+	  if ReadLine(oIni, "Number", sMedSection, "mr_eat_psy_health", 0) ~= 0 then
+		iDeltaPsyHealth = ReadLine(oIni, "Number", sMedSection, "mr_eat_psy_health", 0)/iDeltaTime/1
+	  end
+	end
+
+	bHealing = true					
+	iTime = ReturnTime(6)
+
+	if this.load_variable("addon_opt_realmed",1) == 1 and actor ~= nil then
+		iSeconds = 59
+	else
+		iSeconds = 1
+	end
+
+	iDeltaTime = iDeltaTime - 1
+end
+
+function Update()	
+	if bHealing then
+		local iSecondsNow  = ReturnTime(6)	
+		if iTime ~= iSecondsNow  then		
+			iSeconds = iSeconds - 1
+			iTime = iSecondsNow
+			Healing(iDeltaHealth, iDeltaPower, iDeltaRadiation, iDeltaPsyHealth)
+			if iSeconds < 0 then
+				iDeltaTime = iDeltaTime - 1
+				iSeconds = 60 + iSeconds
+				if iDeltaTime < 0 then
+					bHealing = false
+					iDeltaHealth = 0
+					iDeltaPower = 0
+					iDeltaRadiation = 0
+					iDeltaPsyHealth = 0
+					return
+				end
+			end
+		end
+	end
+end
+
+function Healing(hel, powr, radio, psy)
+	db.actor.health = hel
+	db.actor.power = powr
+	db.actor.radiation = radio
+	db.actor.psy_health = psy
+end 
+
+function Save(e)
+	e.packet:w_bool(bHealing)
+	if bHealing then
+		e.packet:w_u8(iSeconds)
+		e.packet:w_u8(iTime)
+		e.packet:w_u8(iDeltaTime)
+		e.packet:w_float(iDeltaHealth)
+		e.packet:w_float(iDeltaPower)
+		e.packet:w_float(iDeltaRadiation)
+		e.packet:w_float(iDeltaPsyHealth)
+	end
+end
+
+function Load(e)
+	bHealing = e.reader:r_bool()
+	if bHealing then
+		iSeconds = e.reader:r_u8()
+		iTime = e.reader:r_u8()
+		iDeltaTime = e.reader:r_u8()
+		iDeltaHealth = e.reader:r_float()
+		iDeltaPower = e.reader:r_float()
+		iDeltaRadiation = e.reader:r_float()
+		iDeltaPsyHealth = e.reader:r_float()
+	end
+end
+
+function ReturnTime(iParam)
+	local iY, iM, iD, iH, iMin, iSec, iMs = game.get_game_time():get()
+	if iParam == 1 then
+		return iY				
+	elseif iParam == 2 then
+		return iM				
+	elseif iParam == 3 then
+		return iD				
+	elseif iParam == 4 then
+		return iH					
+	elseif iParam == 5 then
+		return iMin					
+	elseif iParam == 6 then
+		return iSec				
+	elseif iParam == 7 then
+		return iMs					
+	end
+	return iSec
+end
+
+----------------------------------------------------------------
+-- функции для сохранения настроек в меню
+
+function load_variable(variable_name, value_if_not_found)
+	local vn=compress_name(variable_name)
+	if vn then
+		return xr_logic.pstor_retrieve(db.actor, vn, value_if_not_found)
+	end
+end
+
+function compress_name(name)
+	return name
+end
+
+-----------------------------------------------------------------
+
+function init()
+	event("use_item"):register(Use)
+	event("actor_update"):register(Update)
+	event("actor_load"):register(Load)
+	event("actor_save"):register(Save)
+end
