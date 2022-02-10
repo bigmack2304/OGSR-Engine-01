@@ -142,6 +142,9 @@ extern ECORE_API float ps_r2_rain_drops_speed;
 extern ECORE_API float ps_r2_visor_refl_intensity;
 extern ECORE_API float ps_r2_visor_refl_radius;
 
+extern ECORE_API float ps_r2_lens_dirt_intensity;
+extern ECORE_API float ps_r2_lens_dirt_range;
+
 #if RENDER==R_R4
 extern ECORE_API float ps_ext_SSLR_L;
 extern ECORE_API float ps_ext_SSLR_blur;
@@ -219,6 +222,8 @@ enum
 	R2FLAGEXT_SSLR 					= 1 << 15,
 	R2FLAG_VISOR_REFL				= 1 << 16,
 	R2FLAG_VISOR_REFL_CONTROL		= 1 << 17,
+	R2FLAG_LENSDIRT					= 1 << 18,
+	R2FLAG_LENSDIRT_CONTROL			= 1 << 19,
 };
 
 extern void						xrRender_initconsole	();
