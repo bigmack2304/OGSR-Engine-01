@@ -29,6 +29,10 @@ Texture2D s_distort;
 #else
 Texture2DMS<float4, MSAA_SAMPLES> s_distort;
 #endif
+
+Texture2D s_LensDirt;
+uniform float4 addon_LDControl;
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // Pixel
 
@@ -97,6 +101,14 @@ c2_out main( v2p_aa_AA I )
 
 if (addon_VControl.w == 1) {
 	img    = visor_reflection(img,center);	
+}
+
+if (addon_LDControl.w == 1) {
+	float4 addon_lens_dirt = s_LensDirt.Sample(smp_rtlinear, center);
+	float4 addon_img = s_image.Sample( smp_rtlinear, center);
+	addon_lens_dirt = (addon_img - addon_LDControl.y) * addon_lens_dirt * addon_LDControl.x;
+	addon_lens_dirt	= clamp(addon_lens_dirt, 0.0, 1.0);
+	img += addon_lens_dirt;
 }
 
 #ifdef 	USE_DISTORT

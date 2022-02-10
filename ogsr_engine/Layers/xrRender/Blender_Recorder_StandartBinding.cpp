@@ -438,6 +438,16 @@ static class cl_addon_VControl : public R_constant_setup
 	}
 } binder_addon_VControl;
 
+
+static class cl_addon_LDControl : public R_constant_setup {
+	void setup(R_constant* C) override {
+		if (ps_r2_ls_flags_ext.test(R2FLAG_LENSDIRT) && ps_r2_ls_flags_ext.test(R2FLAG_LENSDIRT_CONTROL))
+			RCache.set_c(C, ps_r2_lens_dirt_intensity, ps_r2_lens_dirt_range, 0.f, 1.f);
+		else
+			RCache.set_c(C, 0.f, 0.f, 0.f, 0.f);
+	}
+} binder_addon_LDControl;
+
 // Standart constant-binding
 void	CBlender_Compile::SetMapping	()
 {
@@ -519,6 +529,8 @@ void	CBlender_Compile::SetMapping	()
 	r_Constant("ogsr_game_time", &binder_ogsr_game_time);
 	
 	r_Constant("addon_VControl", &binder_addon_VControl);
+
+	r_Constant("addon_LDControl", &binder_addon_LDControl);
 
 	// other common
 	for (const auto& [name, s] : DEV->v_constant_setup)
