@@ -66,6 +66,7 @@ void	CBlender_combine::Compile(CBlender_Compile& C)
 		C.r_dx10Texture		("s_bloom",			r2_RT_bloom1);
 		C.r_dx10Texture		("s_distort",		r2_RT_generic1);
         C.r_dx10Texture     ("s_LensDirt", "shaders\\lens");
+        C.r_dx10Texture     ("s_LensDirt_2", "shaders\\lens_2");
 
 		C.r_dx10Sampler		("smp_nofilter");
 		C.r_dx10Sampler		("smp_rtlinear");
@@ -88,6 +89,7 @@ void	CBlender_combine::Compile(CBlender_Compile& C)
 		C.r_dx10Texture		("s_bloom",			r2_RT_bloom1);
 		C.r_dx10Texture		("s_distort",		r2_RT_generic1);
         C.r_dx10Texture     ("s_LensDirt", "shaders\\lens");
+        C.r_dx10Texture     ("s_LensDirt_2", "shaders\\lens_2");
 
 		C.r_dx10Sampler		("smp_nofilter");
 		C.r_dx10Sampler		("smp_rtlinear");

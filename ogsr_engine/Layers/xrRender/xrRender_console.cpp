@@ -270,6 +270,7 @@ float ps_r2_visor_refl_radius = 0.4f;
 
 float ps_r2_lens_dirt_intensity = 1.0f;
 float ps_r2_lens_dirt_range = 0.25f;
+int ps_r2_lens_dirt_type = 1;
 
 #if RENDER==R_R4
 float ps_ext_SSLR_L = 1.f;
@@ -1008,6 +1009,7 @@ void		xrRender_initconsole	()
 	CMD3(CCC_Mask,	"r2_lens_dirt_control",				&ps_r2_ls_flags_ext,			R2FLAG_LENSDIRT_CONTROL);
 	CMD4(CCC_Float, "r2_lens_dirt_intensity",			&ps_r2_lens_dirt_intensity,		0.0f, 3.0f);
 	CMD4(CCC_Float, "r2_lens_dirt_range",				&ps_r2_lens_dirt_range,			0.0f, 1.0f);
+	CMD4(CCC_Integer, "r2_lens_dirt_type",				&ps_r2_lens_dirt_type,			1, 5);
 
 	CMD3(CCC_Token, "r_aa_mode", &ps_r_pp_aa_mode, pp_aa_mode_token);
 
