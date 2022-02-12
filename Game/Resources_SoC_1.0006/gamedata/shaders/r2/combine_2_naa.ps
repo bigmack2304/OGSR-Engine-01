@@ -2,6 +2,7 @@
 #include "mblur.h"
 #include "dof.h"
 #include "visor.h"
+#include "addon_saturation_filter.h"
 
 struct 	v2p
 {
@@ -17,6 +18,7 @@ struct 	v2p
 //////////////////////////////////////////////////////////////////////////////////////////
 uniform sampler2D 	s_distort;
 uniform sampler2D 	s_LensDirt;
+uniform sampler2D 	s_LensDirt_2;
 
 uniform float4 addon_LDControl;
 
@@ -47,8 +49,15 @@ if (addon_VControl.w == 1) {
 }	
 
 if (addon_LDControl.w == 1) {
-	float4 addon_lens_dirt = tex2D(s_LensDirt, center);
+	float4 addon_lens_dirt = 0;
+	if(addon_LDControl.z == 1) {
+		addon_lens_dirt = tex2D(s_LensDirt, center);
+	}
+	if (addon_LDControl.z == 2) {
+		addon_lens_dirt = tex2D(s_LensDirt_2, center);
+	}
 	float4 addon_img = tex2D( s_image, center);
+	addon_img = addon_satr_filter(addon_img, 0.4);
 	addon_lens_dirt = (addon_img - addon_LDControl.y) * addon_lens_dirt * addon_LDControl.x;
 	addon_lens_dirt	= clamp(addon_lens_dirt, 0.0, 1.0);
 	img += addon_lens_dirt;

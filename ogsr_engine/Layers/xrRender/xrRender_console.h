@@ -144,6 +144,7 @@ extern ECORE_API float ps_r2_visor_refl_radius;
 
 extern ECORE_API float ps_r2_lens_dirt_intensity;
 extern ECORE_API float ps_r2_lens_dirt_range;
+extern ECORE_API int ps_r2_lens_dirt_type;
 
 #if RENDER==R_R4
 extern ECORE_API float ps_ext_SSLR_L;

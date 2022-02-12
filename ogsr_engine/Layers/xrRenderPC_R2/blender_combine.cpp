@@ -40,6 +40,7 @@ void	CBlender_combine::Compile(CBlender_Compile& C)
 		C.r_Sampler_clf		("s_bloom",			r2_RT_bloom1);
 		C.r_Sampler_clf		("s_distort",		r2_RT_generic1);
 		C.r_Sampler_clf		("s_LensDirt",		"shaders\\lens");
+		C.r_Sampler_clf		("s_LensDirt_2",	"shaders\\lens_2");
 		C.r_End				();
 		break;
 	case 3:
@@ -52,6 +53,7 @@ void	CBlender_combine::Compile(CBlender_Compile& C)
 		C.r_Sampler_clf		("s_bloom",			r2_RT_bloom1);
 		C.r_Sampler_clf		("s_distort",		r2_RT_generic1);
 		C.r_Sampler_clf		("s_LensDirt",		"shaders\\lens");
+		C.r_Sampler_clf		("s_LensDirt_2",	"shaders\\lens_2");
 		C.r_End				();
 		break;
 	case 5:	// post-processing
