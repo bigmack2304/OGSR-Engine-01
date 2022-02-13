@@ -448,6 +448,18 @@ static class cl_addon_LDControl : public R_constant_setup {
 	}
 } binder_addon_LDControl;
 
+static class cl_addon_actor_hp : public R_constant_setup {
+	void setup(R_constant* C) override {
+		if (ps_r2_ls_flags_ext.test(GACTOR_HUD_HEALTH_SATURATION)) {
+			g_pGamePersistent->m_pGShaderConstants.actor_params.w = 1.f;
+		} else {
+			g_pGamePersistent->m_pGShaderConstants.actor_params.w = 0.f;
+		}
+
+		RCache.set_c(C, g_pGamePersistent->m_pGShaderConstants.actor_params);
+	}
+} binder_addon_actor_parametres;
+
 // Standart constant-binding
 void	CBlender_Compile::SetMapping	()
 {
@@ -531,6 +543,7 @@ void	CBlender_Compile::SetMapping	()
 	r_Constant("addon_VControl", &binder_addon_VControl);
 
 	r_Constant("addon_LDControl", &binder_addon_LDControl);
+	r_Constant("addon_ActorPrms", &binder_addon_actor_parametres);
 
 	// other common
 	for (const auto& [name, s] : DEV->v_constant_setup)

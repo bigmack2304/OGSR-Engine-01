@@ -1011,6 +1011,8 @@ void		xrRender_initconsole	()
 	CMD4(CCC_Float, "r2_lens_dirt_range",				&ps_r2_lens_dirt_range,			0.0f, 1.0f);
 	CMD4(CCC_Integer, "r2_lens_dirt_type",				&ps_r2_lens_dirt_type,			1, 5);
 
+	CMD3(CCC_Mask, "g_auto_saturation_filter",			&ps_r2_ls_flags_ext,			GACTOR_HUD_HEALTH_SATURATION);
+
 	CMD3(CCC_Token, "r_aa_mode", &ps_r_pp_aa_mode, pp_aa_mode_token);
 
 	CMD3(CCC_Token,		"r3_msaa",						&ps_r3_msaa,				qmsaa_token);

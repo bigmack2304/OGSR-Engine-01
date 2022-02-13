@@ -21,6 +21,7 @@ uniform sampler2D 	s_LensDirt;
 uniform sampler2D 	s_LensDirt_2;
 
 uniform float4 addon_LDControl;
+uniform float4 addon_ActorPrms;
 
 #define	EPSDEPTH	0.001
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -61,6 +62,19 @@ if (addon_LDControl.w == 1) {
 	addon_lens_dirt = (addon_img - addon_LDControl.y) * addon_lens_dirt * addon_LDControl.x;
 	addon_lens_dirt	= clamp(addon_lens_dirt, 0.0, 1.0);
 	img += addon_lens_dirt;
+}
+
+if (addon_ActorPrms.w == 1) {
+	if (addon_ActorPrms.x < 0.4) {
+		float sat_value = addon_ActorPrms.x;
+		sat_value = 1.0 - ((0 - sat_value + 0.4) * 2.1);
+		sat_value = clamp(sat_value, 0.0, 1.0);
+		img = addon_satr_filter(img.xyz, sat_value);
+	} else {
+		img = addon_satr_filter(img.xyz, 1.0);
+	}
+} else {
+	img = addon_satr_filter(img.xyz, 1.0);
 }
 
 #ifdef 	USE_DISTORT
