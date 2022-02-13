@@ -1124,7 +1124,8 @@ void CActor::shedule_Update	(u32 DT)
 										setVisible				(!HUDview	());
 	//что актер видит перед собой
 	collide::rq_result& RQ = HUD().GetCurrentRayQuery();
-	
+
+	g_pGamePersistent->m_pGShaderConstants.actor_params.x = (conditions().GetHealth() >= 0.0) ? (conditions().GetHealth()) : (0.0);
 
 	if( !input_external_handler_installed() && !m_holder && RQ.O && RQ.range<inventory().GetTakeDist() )
 	{

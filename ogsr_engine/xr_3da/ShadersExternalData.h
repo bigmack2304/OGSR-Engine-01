@@ -8,11 +8,13 @@ public:
 	Fvector4	hud_params;			// [zoom_rotate_factor, secondVP_zoom_factor, NULL, NULL] - Параметры худа оружия
 	Fvector4	m_blender_mode;		// x = [0 - default, 1 - night vision, 2 - thermo vision] - Режимы рендеринга
 									// y = [0.0f / 1.0f - происходит ли в данный момент рендеринг картинки для прицела]; z = [0.0f / 1.0f - выключен или включён двойной рендер], w = зарезервировано на будущее
+	Fvector4	actor_params;		// параметры актора: x - здоровие	w - команда консоли g_auto_saturation_filter
 
 	ShadersExternalData()
 	{
 		m_script_params			= Fmatrix();
 		hud_params				.set(0.f, 0.f, 0.f, 0.f);
 		m_blender_mode			.set(0.f, 0.f, 0.f, 0.f);
+		actor_params			.set(0.f, 0.f, 0.f, 0.f);
 	};
 };

@@ -225,6 +225,7 @@ enum
 	R2FLAG_VISOR_REFL_CONTROL		= 1 << 17,
 	R2FLAG_LENSDIRT					= 1 << 18,
 	R2FLAG_LENSDIRT_CONTROL			= 1 << 19,
+	GACTOR_HUD_HEALTH_SATURATION	= 1 << 20,
 };
 
 extern void						xrRender_initconsole	();
