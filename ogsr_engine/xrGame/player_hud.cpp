@@ -1039,11 +1039,16 @@ void player_hud::detach_item_idx(u16 idx)
 			}
 		}
 	}
-	//KRodin: закомментировал этот кусок, не понятно для чего он может быть нужен.
-	/*else if (idx == 0 && attached_item(1))
+	else if (idx == 0 && attached_item(1))
 	{
-		OnMovementChanged(mcAnyMove);
-	}*/
+		if (m_attached_items[1]) {
+			if (m_attached_items[1]->m_parent_hud_item->GetState() == m_attached_items[1]->m_parent_hud_item->eIdle) {
+				m_attached_items[1]->m_parent_hud_item->PlayAnimIdle();
+				m_attached_items[1]->m_parent_hud_item->ResetSubStateTime();
+				m_attached_items[1]->m_parent_hud_item->StopCurrentAnimWithoutCallback();
+			}
+		}
+	}
 }
 
 void player_hud::detach_item(CHudItem* item)
